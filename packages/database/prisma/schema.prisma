@@ -368,7 +368,10 @@ enum PostCategory {
 enum ClubRole {
   LEAD
   CORE
+  COORDINATOR
+  SENIOR_MEMBER
   MEMBER
+  VOLUNTEER
 }
 
 enum ListingStatus {
