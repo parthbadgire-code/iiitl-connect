@@ -23,4 +23,4 @@ We employ a clear separation of concerns by splitting the frontend (Next.js) and
 This platform is built exclusively for the IIITL community. It enforces authentication strictly to users logging in with a valid `@iiitl.ac.in` Google Workspace account. Guest access is heavily restricted, and role-based access control (Guest, Student, Club Admin, Faculty, Super Admin) dictates platform capabilities.
 
 ---
-Maintained with ❤️ by the IIITL Web Wing.
+Developed with ❤️ by Parth.
