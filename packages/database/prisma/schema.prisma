@@ -5,7 +5,320 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model User {
+  id                   String                @id @default(cuid())
+  email                String                @unique
+  name                 String?
+  image                String?
+  role                 Role                  @default(STUDENT)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  emailVerified        Boolean               @default(false)
+  accounts             Account[]
+  anonymousIdentity    AnonymousIdentity?
+  clubMemberships      ClubMember[]
+  connectionProfile    ConnectionProfile?
+  eventRSVPs           EventRSVP[]
+  interviewExperiences InterviewExperience[]
+  receivedMessages     ListingMessage[]      @relation("MessageReceiver")
+  sentMessages         ListingMessage[]      @relation("MessageSender")
+  lostAndFoundItems    LostAndFoundItem[]
+  maintenanceTickets   MaintenanceTicket[]
+  marketplaceListings  MarketplaceListing[]
+  mutualConnections1   MutualConnection[]    @relation("MutualUser1")
+  mutualConnections2   MutualConnection[]    @relation("MutualUser2")
+  noteRevisions        NoteRevision[]
+  publicProfile        PublicProfile?
+  roomExchanges        RoomExchangeRequest[]
+  sessions             Session[]
+  receivedSwipes       Swipe[]               @relation("SwipeReceiver")
+  sentSwipes           Swipe[]               @relation("SwipeSender")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  createdAt DateTime
+  token     String   @unique
+  updatedAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  password              String?
+  accessTokenExpiresAt  DateTime?
+  createdAt             DateTime
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+}
+
+model PublicProfile {
+  id        String          @id @default(cuid())
+  userId    String          @unique
+  bio       String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resources StudyResource[]
+}
+
+model StudyResource {
+  id              String         @id @default(cuid())
+  title           String
+  description     String?
+  type            ResourceType
+  publicProfileId String
+  url             String?
+  markdownContent String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  revisions       NoteRevision[]
+  publicProfile   PublicProfile  @relation(fields: [publicProfileId], references: [id], onDelete: Cascade)
+}
+
+model NoteRevision {
+  id              String         @id @default(cuid())
+  resourceId      String
+  authorId        String
+  markdownContent String
+  status          RevisionStatus @default(PENDING)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  author          User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  resource        StudyResource  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+}
+
+model AnonymousIdentity {
+  id                   String                @id @default(cuid())
+  userId               String                @unique
+  avatarSeed           String
+  isBanned             Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posts                AnonymousPost[]
+  interviewExperiences InterviewExperience[]
+  salaryInsights       SalaryInsight[]
+}
+
+model AnonymousPost {
+  id                  String            @id @default(cuid())
+  content             String
+  category            PostCategory
+  anonymousIdentityId String
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  anonymousIdentity   AnonymousIdentity @relation(fields: [anonymousIdentityId], references: [id], onDelete: Cascade)
+}
+
+model Club {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  logo        String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  events      CampusEvent[]
+  members     ClubMember[]
+}
+
+model ClubMember {
+  id        String   @id @default(cuid())
+  userId    String
+  clubId    String
+  role      ClubRole @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, clubId])
+}
+
+model Company {
+  id          String                @id @default(cuid())
+  name        String                @unique
+  logo        String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  experiences InterviewExperience[]
+  salaries    SalaryInsight[]
+}
+
+model InterviewExperience {
+  id                  String             @id @default(cuid())
+  companyId           String
+  userId              String?
+  anonymousIdentityId String?
+  role                String
+  year                Int
+  difficultyRating    Int
+  oaQuestions         String[]
+  interviewRounds     Int?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  anonymousIdentity   AnonymousIdentity? @relation(fields: [anonymousIdentityId], references: [id], onDelete: Cascade)
+  company             Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user                User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SalaryInsight {
+  id                  String            @id @default(cuid())
+  companyId           String
+  anonymousIdentityId String
+  role                String
+  year                Int
+  amount              Float
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  anonymousIdentity   AnonymousIdentity @relation(fields: [anonymousIdentityId], references: [id], onDelete: Cascade)
+  company             Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model MarketplaceListing {
+  id          String           @id @default(cuid())
+  sellerId    String
+  title       String
+  description String
+  price       Float?
+  images      String[]
+  status      ListingStatus    @default(AVAILABLE)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  messages    ListingMessage[]
+  seller      User             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+model ListingMessage {
+  id         String             @id @default(cuid())
+  listingId  String
+  senderId   String
+  receiverId String
+  content    String
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  listing    MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  receiver   User               @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User               @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model LostAndFoundItem {
+  id          String   @id @default(cuid())
+  reporterId  String
+  type        ItemType
+  title       String
+  description String
+  imageUrl    String?
+  isResolved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  reporter    User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+}
+
+model MaintenanceTicket {
+  id          String       @id @default(cuid())
+  studentId   String
+  roomNumber  String
+  issueType   String
+  description String
+  status      TicketStatus @default(OPEN)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  student     User         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model RoomExchangeRequest {
+  id          String         @id @default(cuid())
+  studentId   String
+  currentRoom String
+  desiredRoom String
+  status      ExchangeStatus @default(PENDING)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  student     User           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model ConnectionProfile {
+  id         String     @id @default(cuid())
+  userId     String     @unique
+  bio        String?
+  interests  String[]
+  lookingFor LookingFor
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Swipe {
+  id         String      @id @default(cuid())
+  senderId   String
+  receiverId String
+  action     SwipeAction
+  createdAt  DateTime    @default(now())
+  receiver   User        @relation("SwipeReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User        @relation("SwipeSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+}
+
+model MutualConnection {
+  id        String   @id @default(cuid())
+  user1Id   String
+  user2Id   String
+  createdAt DateTime @default(now())
+  user1     User     @relation("MutualUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2     User     @relation("MutualUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  @@unique([user1Id, user2Id])
+}
+
+model CampusEvent {
+  id             String      @id @default(cuid())
+  title          String
+  date           DateTime
+  venue          String
+  clubId         String
+  isRSVPRequired Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  club           Club        @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  rsvps          EventRSVP[]
+}
+
+model EventRSVP {
+  id        String      @id @default(cuid())
+  userId    String
+  eventId   String
+  createdAt DateTime    @default(now())
+  event     CampusEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
 }
 
 enum Role {
@@ -16,49 +329,63 @@ enum Role {
   SUPER_ADMIN
 }
 
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String?
-  emailVerified DateTime?
-  image         String?
-  role          Role      @default(GUEST)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  profile       Profile?
-  
-  // better-auth fields
-  sessions      Session[]
-  accounts      Account[]
+enum ResourceType {
+  NOTES
+  PYQ
+  ASSIGNMENT
 }
 
-model Profile {
-  id        String   @id @default(cuid())
-  bio       String?
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum RevisionStatus {
+  PENDING
+  MERGED
+  REJECTED
 }
 
-model Session {
-  id        String   @id
-  expiresAt DateTime
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum PostCategory {
+  ACADEMICS
+  HOSTEL
+  CONFESSIONS
+  MEMES
+  PLACEMENTS
 }
 
-model Account {
-  id           String    @id
-  accountId    String
-  providerId   String
-  userId       String
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken  String?
-  refreshToken String?
-  idToken      String?
-  expiresAt    DateTime?
-  password     String?
+enum ClubRole {
+  LEAD
+  CORE
+  MEMBER
+}
+
+enum ListingStatus {
+  AVAILABLE
+  SOLD
+}
+
+enum ItemType {
+  LOST
+  FOUND
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum ExchangeStatus {
+  PENDING
+  MATCHED
+  COMPLETED
+  CANCELLED
+}
+
+enum LookingFor {
+  STUDY_PARTNER
+  GYM_BUDDY
+  HACKATHON
+  CRUSH
+}
+
+enum SwipeAction {
+  LIKE
+  PASS
 }
