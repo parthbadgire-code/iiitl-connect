@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
+});
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -14,8 +22,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "IIITL Connect",
-  description: "Exclusive serverless community platform for IIITL",
+  title: "IIITL Connect — CampusOS",
+  description: "The exclusive CampusOS for IIIT Lucknow students. Academic resources, confessions, events, placements and more.",
 };
 
 export default function RootLayout({
@@ -26,7 +34,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{ fontFamily: "'Inter', sans-serif" }}
       >
         {children}
       </body>

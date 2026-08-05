@@ -10,6 +10,7 @@
     "./components/card": "./src/components/card.tsx",
     "./components/dialog": "./src/components/dialog.tsx",
     "./components/dropdown-menu": "./src/components/dropdown-menu.tsx",
+    "./components/input": "./src/components/input.tsx",
     "./lib/utils": "./src/lib/utils.ts",
     "./tailwind.config": "./tailwind.config.ts"
   },
