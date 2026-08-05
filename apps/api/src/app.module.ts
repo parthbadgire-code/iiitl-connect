@@ -7,9 +7,11 @@ import { AcademicModule } from './modules/academic/academic.module';
 import { SocialModule } from './modules/social/social.module';
 import { ConnectionsModule } from './modules/connections/connections.module';
 import { ProfileModule } from './modules/profile/profile.module';
+import { ClubModule } from './modules/club/club.module';
+import { EventModule } from './modules/event/event.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, AcademicModule, SocialModule, ConnectionsModule, ProfileModule],
+  imports: [DatabaseModule, AuthModule, AcademicModule, SocialModule, ConnectionsModule, ProfileModule, ClubModule, EventModule],
   controllers: [AppController],
   providers: [AppService],
 })
