@@ -17,7 +17,7 @@ import { cn } from "@parthbadgire/ui/lib/utils";
 
 const NAVIGATION = [
   { name: "Academic Hub", href: "/academic", accent: "#E9D5FF" },
-  { name: "Confessions", href: "/confessions", accent: "#A7F3D0" },
+  { name: "Anonymous Chat", href: "/anonymous-chat", accent: "#A7F3D0" },
   { name: "Events", href: "/events", accent: "#BAE6FD" },
   { name: "Marketplace", href: "/marketplace", accent: "#FFDAB9" },
   { name: "Clubs", href: "/clubs", accent: "#E9D5FF" },

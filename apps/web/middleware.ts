@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get("better-auth.session_token")?.value;
   
   // Dashboard routes to protect
-  const protectedRoutes = ["/academic", "/confessions", "/marketplace", "/events"];
+  const protectedRoutes = ["/academic", "/anonymous-chat", "/marketplace", "/events"];
   const isProtectedRoute = protectedRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   );

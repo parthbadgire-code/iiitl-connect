@@ -23,7 +23,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "IIITL Connect — CampusOS",
-  description: "The exclusive CampusOS for IIIT Lucknow students. Academic resources, confessions, events, placements and more.",
+  description: "The exclusive CampusOS for IIIT Lucknow students. Academic resources, anonymous chat, events, placements and more.",
 };
 
 export default function RootLayout({

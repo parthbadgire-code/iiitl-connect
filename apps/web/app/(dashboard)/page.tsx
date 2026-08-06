@@ -18,11 +18,11 @@ const MODULES = [
     bg: "bg-pastel-lavender/5"
   },
   {
-    title: "Confessions",
-    description: "Anonymous campus board",
-    icon: Ghost,
-    href: "/confessions",
-    id: "confessions",
+    title: "Anonymous Chat",
+    description: "Read and share anonymous secrets from around the campus.",
+    icon: Sparkles,
+    href: "/anonymous-chat",
+    id: "anonymous-chat",
     color: "#A7F3D0",
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-mint/5"
