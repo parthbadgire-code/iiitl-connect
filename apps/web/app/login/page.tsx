@@ -25,6 +25,7 @@ export default function LoginPage() {
       const { error } = await signIn.social({
         provider: "google",
         callbackURL: `${window.location.origin}/academic`,
+        errorURL: `${window.location.origin}/login`,
       });
       if (error) {
         alert("Sign in error: " + (error.message || error.statusText));
