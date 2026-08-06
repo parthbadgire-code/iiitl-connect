@@ -16,5 +16,25 @@ export const createBetterAuth = (prisma: DatabaseService) => {
       },
     },
     trustedOrigins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'],
+    databaseHooks: {
+      user: {
+        create: {
+          before: async (user) => {
+            if (!user.email.endsWith('@iiitl.ac.in')) {
+              throw new Error('Access Denied: Only @iiitl.ac.in emails are allowed to join CampusOS.');
+            }
+            return { data: user };
+          }
+        },
+        update: {
+          before: async (user) => {
+            if (user.email && !user.email.endsWith('@iiitl.ac.in')) {
+              throw new Error('Access Denied: Only @iiitl.ac.in emails are allowed.');
+            }
+            return { data: user };
+          }
+        }
+      }
+    }
   });
 };

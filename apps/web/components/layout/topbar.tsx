@@ -17,7 +17,7 @@ import { cn } from "@parthbadgire/ui/lib/utils";
 
 const NAVIGATION = [
   { name: "Academic Hub", href: "/academic", accent: "#E9D5FF" },
-  { name: "Confessions", href: "/confessions", accent: "#A7F3D0" },
+  { name: "Anonymous Chat", href: "/anonymous-chat", accent: "#A7F3D0" },
   { name: "Events", href: "/events", accent: "#BAE6FD" },
   { name: "Marketplace", href: "/marketplace", accent: "#FFDAB9" },
   { name: "Clubs", href: "/clubs", accent: "#E9D5FF" },
@@ -161,7 +161,10 @@ export function Topbar() {
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-neutral-800/50" />
               <DropdownMenuItem
-                onClick={() => signOut()}
+                onClick={async () => {
+                  await signOut();
+                  router.push("/login");
+                }}
                 className="flex items-center gap-2 cursor-pointer text-red-400 focus:text-red-300 focus:bg-red-400/10 transition-colors"
               >
                 <LogOut className="h-3.5 w-3.5" /> Sign out

@@ -23,7 +23,7 @@ type AnonymousPost = {
 };
 
 const CATEGORIES = [
-  { key: "CONFESSIONS", label: "Confessions", color: "#ec4899" },
+  { key: "CONFESSIONS", label: "Anonymous Chat", color: "#ec4899" },
   { key: "ACADEMICS", label: "Academics", color: "#7c3aed" },
   { key: "HOSTEL", label: "Hostel", color: "#f59e0b" },
   { key: "MEMES", label: "Memes", color: "#06b6d4" },
@@ -50,7 +50,7 @@ function SkeletonPost() {
   );
 }
 
-export default function ConfessionsPage() {
+export default function AnonymousChatPage() {
   const [posts, setPosts] = useState<AnonymousPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -116,7 +116,7 @@ export default function ConfessionsPage() {
               Anonymous Feed
             </span>
           </div>
-          <h1 className="text-3xl font-black text-white">Campus <span className="bg-gradient-to-r from-pastel-mint to-teal-400 bg-clip-text text-transparent">Confessions</span></h1>
+          <h1 className="text-3xl font-black text-white">Campus <span className="bg-gradient-to-r from-pastel-mint to-teal-400 bg-clip-text text-transparent">Anonymous Chat</span></h1>
           <p className="text-neutral-400 text-sm">Read what&apos;s on everyone&apos;s mind anonymously.</p>
         </div>
 

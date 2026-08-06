@@ -173,68 +173,75 @@ export default function MarketplacePage() {
 
       {/* Create Listing Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#0A0A0A] border border-neutral-800 w-full max-w-md rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(255,218,185,0.1)]">
-            <div className="flex items-center justify-between p-6 border-b border-white/5">
-              <h2 className="text-xl font-bold text-white">New Listing</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-neutral-500 hover:text-white transition-colors">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#0A0A0A]/95 border border-white/10 w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
+            <div className="flex flex-col gap-1 p-6 sm:p-8 border-b border-white/5 relative shrink-0">
+              <button onClick={() => setIsModalOpen(false)} className="absolute right-6 top-6 p-2 bg-white/5 rounded-full text-neutral-400 hover:text-white hover:bg-white/10 transition-colors z-10">
                 <X className="h-5 w-5" />
               </button>
+              <div className="h-1 w-6 rounded-full bg-pastel-peach mb-2" />
+              <h2 className="text-2xl font-black text-white">Create a <span className="text-pastel-peach">Listing</span></h2>
+              <p className="text-sm text-neutral-400">Add photos and details for your item.</p>
             </div>
             
-            <form onSubmit={handleCreateListing} className="p-6 space-y-5">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Title</label>
-                <input
-                  type="text"
-                  required
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pastel-peach transition-colors"
-                  placeholder="What are you selling?"
-                />
+            <form onSubmit={handleCreateListing} className="p-6 sm:p-8 space-y-6 overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-widest">Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-neutral-600 focus:outline-none focus:border-pastel-peach focus:bg-black transition-colors"
+                    placeholder="E.g., Graphics Card"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-widest">Price (₹)</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-neutral-600 focus:outline-none focus:border-pastel-peach focus:bg-black transition-colors"
+                    placeholder="0"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Price (₹)</label>
-                <input
-                  type="number"
-                  required
-                  min="0"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pastel-peach transition-colors"
-                  placeholder="0"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Description</label>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-widest">Description</label>
                 <textarea
                   required
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pastel-peach transition-colors min-h-[100px] resize-none"
-                  placeholder="Item condition, specs, etc."
+                  className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-neutral-600 focus:outline-none focus:border-pastel-peach focus:bg-black transition-colors min-h-[120px] resize-none"
+                  placeholder="Describe the condition, specifications, and age of the item..."
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Image</label>
-                <div className="relative border-2 border-dashed border-neutral-800 rounded-xl p-4 flex flex-col items-center justify-center text-neutral-500 hover:border-pastel-peach hover:bg-pastel-peach/5 transition-colors cursor-pointer overflow-hidden">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-widest">Photos</label>
+                <div className="relative border-2 border-dashed border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center text-neutral-500 hover:border-pastel-peach hover:bg-pastel-peach/10 transition-colors cursor-pointer overflow-hidden bg-black/30 group">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
                   />
                   {previewUrl ? (
-                    <img src={previewUrl} alt="Preview" className="h-32 object-contain" />
+                    <img src={previewUrl} alt="Preview" className="h-40 object-contain rounded-lg" />
                   ) : (
-                    <>
-                      <ImageIcon className="h-8 w-8 mb-2" />
-                      <span className="text-sm font-medium">Click to upload</span>
-                    </>
+                    <div className="flex flex-col items-center gap-2 group-hover:scale-105 transition-transform duration-300">
+                      <div className="p-3 bg-pastel-peach/10 rounded-full text-pastel-peach mb-1">
+                        <ImageIcon className="h-6 w-6" />
+                      </div>
+                      <span className="text-sm font-medium text-neutral-300">Click or drag image to upload</span>
+                      <span className="text-xs text-neutral-500">Maximum file size 5MB</span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -242,11 +249,11 @@ export default function MarketplacePage() {
               <button
                 type="submit"
                 disabled={submitting || uploading}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-black bg-gradient-to-r from-pastel-peach to-pastel-mint disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-black text-black bg-pastel-peach hover:bg-pastel-peach/90 hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all"
               >
                 {submitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin" />
                     {uploading ? "Uploading Image..." : "Publishing..."}
                   </>
                 ) : (

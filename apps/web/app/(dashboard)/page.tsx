@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Ghost, ShoppingBag, Calendar, Users, Building2, Briefcase, ArrowRight } from "lucide-react";
+import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Briefcase, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useUIStore } from "@/store/useUIStore";
 import { GlobalScene } from "@/components/3d/Scene";
@@ -18,11 +18,11 @@ const MODULES = [
     bg: "bg-pastel-lavender/5"
   },
   {
-    title: "Confessions",
-    description: "Anonymous campus board",
-    icon: Ghost,
-    href: "/confessions",
-    id: "confessions",
+    title: "Anonymous Chat",
+    description: "Read and share anonymous secrets from around the campus.",
+    icon: Sparkles,
+    href: "/anonymous-chat",
+    id: "anonymous-chat",
     color: "#A7F3D0",
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-mint/5"
