@@ -55,9 +55,15 @@ const config: Config = {
           "cyan-bright": "#22d3ee",
           pink: "#ec4899",
         },
+        pastel: {
+          lavender: "#E9D5FF",
+          mint: "#A7F3D0",
+          blue: "#BAE6FD",
+          peach: "#FFDAB9",
+        },
         surface: {
-          base: "#050508",
-          DEFAULT: "#0d0d14",
+          base: "#050505",
+          DEFAULT: "#0A0A0A",
           elevated: "#12121c",
         },
       },
@@ -71,6 +77,10 @@ const config: Config = {
         "glow-cyan": "0 0 20px rgba(6, 182, 212, 0.35), 0 0 60px rgba(6, 182, 212, 0.1)",
         "glow-pink": "0 0 20px rgba(236, 72, 153, 0.35), 0 0 60px rgba(236, 72, 153, 0.1)",
         "card-dark": "0 4px 24px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255,255,255,0.05)",
+        "glow-pastel-lavender": "0 0 25px rgba(233, 213, 255, 0.08)",
+        "glow-pastel-mint": "0 0 25px rgba(167, 243, 208, 0.08)",
+        "glow-pastel-blue": "0 0 25px rgba(186, 230, 253, 0.08)",
+        "glow-pastel-peach": "0 0 25px rgba(255, 218, 185, 0.08)",
       },
       backgroundImage: {
         "gradient-neon": "linear-gradient(135deg, #7c3aed, #06b6d4)",

@@ -44,6 +44,12 @@ const config: Config = {
         border: "var(--border)",
         input: "var(--input)",
         ring: "var(--ring)",
+        pastel: {
+          lavender: "#E9D5FF",
+          mint: "#A7F3D0",
+          blue: "#BAE6FD",
+          peach: "#FFDAB9",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -54,6 +60,10 @@ const config: Config = {
         soft: "0 2px 10px rgba(0, 0, 0, 0.05)",
         medium: "0 4px 14px rgba(0, 0, 0, 0.1)",
         hard: "0 8px 30px rgba(0, 0, 0, 0.15)",
+        "glow-pastel-lavender": "0 0 25px rgba(233, 213, 255, 0.08)",
+        "glow-pastel-mint": "0 0 25px rgba(167, 243, 208, 0.08)",
+        "glow-pastel-blue": "0 0 25px rgba(186, 230, 253, 0.08)",
+        "glow-pastel-peach": "0 0 25px rgba(255, 218, 185, 0.08)",
       },
     },
   },

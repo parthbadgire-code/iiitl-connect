@@ -318,6 +318,7 @@ model CampusEvent {
   title          String
   date           DateTime
   venue          String
+  imageUrl       String?
   clubId         String
   isRSVPRequired Boolean     @default(false)
   createdAt      DateTime    @default(now())

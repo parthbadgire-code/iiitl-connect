@@ -15,10 +15,18 @@ export class ProfileController {
   }
 
   @Put('me')
-  async upsertProfile(
-    @Body() data: UpsertProfileDto,
+  async updateMyProfile(
     @CurrentUser() user: any,
+    @Body() data: UpsertProfileDto,
   ) {
     return this.profileService.upsertProfile(user.id, data);
+  }
+
+  @Put('avatar')
+  async updateAvatar(
+    @CurrentUser() user: any,
+    @Body('imageUrl') imageUrl: string,
+  ) {
+    return this.profileService.updateAvatar(user.id, imageUrl);
   }
 }
