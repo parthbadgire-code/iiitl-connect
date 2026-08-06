@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, BookOpen, FileText, ClipboardList, Filter, Search, Upload } from "lucide-react";
+import { Download, BookOpen, FileText, ClipboardList, Filter, Search, Upload, X, Loader2 } from "lucide-react";
+import { uploadFileToR2 } from "@/lib/upload";
 
 type StudyResource = {
   id: string;
@@ -42,7 +43,7 @@ function SkeletonCard() {
 
 function ResourceCard({ resource, index }: { resource: StudyResource; index: number }) {
   const typeConf = TYPE_CONFIG[resource.type] || TYPE_CONFIG.NOTES;
-  const Icon = typeConf.icon;
+  const Icon = typeConf.icon as React.ElementType<{ className?: string; style?: React.CSSProperties }>;
   const timeAgo = resource.createdAt
     ? new Date(resource.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
     : "Recently";
@@ -127,6 +128,16 @@ export default function AcademicHubPage() {
   const [activeType, setActiveType] = useState<string | null>(null);
   const [searchFocused, setSearchFocused] = useState(false);
 
+  // Upload State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [courseCode, setCourseCode] = useState("");
+  const [description, setDescription] = useState("");
+  const [type, setType] = useState("NOTES");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     async function fetchResources() {
       try {
@@ -148,6 +159,52 @@ export default function AcademicHubPage() {
     const matchType = !activeType || r.type === activeType;
     return matchSearch && matchType;
   });
+
+  const handleUploadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !courseCode || !selectedFile) return;
+
+    setSubmitting(true);
+    try {
+      setUploading(true);
+      const fileUrl = await uploadFileToR2(selectedFile);
+      setUploading(false);
+
+      const res = await fetch("http://localhost:3001/academic/resources", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          title,
+          courseCode,
+          description,
+          type,
+          url: fileUrl,
+        }),
+      });
+
+      if (res.ok) {
+        setIsModalOpen(false);
+        setTitle("");
+        setCourseCode("");
+        setDescription("");
+        setType("NOTES");
+        setSelectedFile(null);
+        // refresh list
+        const refreshed = await fetch("http://localhost:3001/academic/resources", { credentials: "include" });
+        if (refreshed.ok) setResources(await refreshed.json());
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to upload resource");
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) alert(err.message || "Something went wrong");
+      else alert("Something went wrong");
+    } finally {
+      setSubmitting(false);
+      setUploading(false);
+    }
+  };
 
   const counts = { PYQ: 0, NOTES: 0, ASSIGNMENT: 0 };
   resources.forEach(r => { if (r.type in counts) (counts as Record<string, number>)[r.type]++; });
@@ -174,8 +231,8 @@ export default function AcademicHubPage() {
             </p>
           </div>
 
-          {/* Upload button */}
           <button
+            onClick={() => setIsModalOpen(true)}
             className="btn-shimmer flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300"
             style={{
               background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
@@ -303,6 +360,111 @@ export default function AcademicHubPage() {
           </button>
         </div>
       )}
+
+      {/* Upload Resource Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#0A0A0A] border border-neutral-800 w-full max-w-md rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(124,58,237,0.15)]">
+            <div className="flex items-center justify-between p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white">Upload Resource</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-neutral-500 hover:text-white transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleUploadSubmit} className="p-6 space-y-5">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Title</label>
+                <input
+                  type="text"
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors"
+                  placeholder="e.g. Midsem OS PYQ 2024"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Course Code</label>
+                  <input
+                    type="text"
+                    required
+                    value={courseCode}
+                    onChange={(e) => setCourseCode(e.target.value)}
+                    className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors uppercase"
+                    placeholder="e.g. CS101"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Type</label>
+                  <select
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                    className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors appearance-none"
+                  >
+                    <option value="NOTES">Notes</option>
+                    <option value="PYQ">PYQ</option>
+                    <option value="ASSIGNMENT">Assignment</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Description</label>
+                <textarea
+                  required
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors min-h-[80px] resize-none"
+                  placeholder="Additional context or topics covered..."
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">File (PDF/Image)</label>
+                <div className="relative border-2 border-dashed border-neutral-800 rounded-xl p-4 flex flex-col items-center justify-center text-neutral-500 hover:border-[#7c3aed] hover:bg-[#7c3aed]/5 transition-colors cursor-pointer overflow-hidden">
+                  <input
+                    type="file"
+                    required
+                    accept="application/pdf,image/*"
+                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                  {selectedFile ? (
+                    <div className="text-sm font-medium text-[#7c3aed] truncate max-w-full px-4">
+                      {selectedFile.name}
+                    </div>
+                  ) : (
+                    <>
+                      <FileText className="h-8 w-8 mb-2" />
+                      <span className="text-sm font-medium">Click to upload file</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting || uploading}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                style={{ background: "linear-gradient(135deg, #7c3aed, #6d28d9)" }}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {uploading ? "Uploading File..." : "Publishing..."}
+                  </>
+                ) : (
+                  "Upload Resource"
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

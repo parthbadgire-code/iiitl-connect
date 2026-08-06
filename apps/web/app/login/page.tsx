@@ -2,20 +2,7 @@
 
 import { signIn } from "@/lib/auth-client";
 import { useState, useEffect } from "react";
-
-const STATS = [
-  { value: "1,200+", label: "Students" },
-  { value: "45+", label: "Clubs" },
-  { value: "800+", label: "Resources" },
-  { value: "120+", label: "Events/yr" },
-];
-
-const FLOATING_CARDS = [
-  { icon: "📚", title: "DSA PYQ — CS101", sub: "Uploaded 2h ago", color: "from-violet-500/20 to-violet-500/5" },
-  { icon: "🎉", title: "Tech Fest 2025 RSVP", sub: "143 going", color: "from-cyan-500/20 to-cyan-500/5" },
-  { icon: "🔒", title: "Anonymous Confession", sub: "42 reactions", color: "from-pink-500/20 to-pink-500/5" },
-  { icon: "💼", title: "Microsoft SDE Offer", sub: "₹28L CTC", color: "from-emerald-500/20 to-emerald-500/5" },
-];
+import { LandingScene } from "@/components/3d/LandingScene";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -44,212 +31,67 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen overflow-hidden" style={{ background: "#050508" }}>
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black">
+      {/* BACKGROUND SHADER */}
+      <LandingScene />
 
-      {/* === ANIMATED BACKGROUND === */}
-      <div className="campus-bg" aria-hidden="true">
-        <div className="campus-bg-grid" />
-        <div className="campus-bg-orb3" />
-      </div>
-
-      {/* === LEFT PANEL — Hero === */}
-      <div className="relative hidden lg:flex lg:w-[55%] flex-col justify-between p-12 xl:p-16">
-
-        {/* Top brand */}
-        <div className={`flex items-center gap-3 transition-all duration-700 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"}`}>
-          <div className="relative flex h-10 w-10 items-center justify-center">
-            {/* Hex icon */}
-            <svg viewBox="0 0 40 40" className="h-10 w-10 animate-spin-slow">
-              <polygon points="20,2 37,11 37,29 20,38 3,29 3,11" fill="none" stroke="url(#hexGrad)" strokeWidth="1.5"/>
-              <defs>
-                <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#7c3aed" />
-                  <stop offset="100%" stopColor="#06b6d4" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <span className="absolute text-xs font-black gradient-text">II</span>
-            {/* Pulse ring */}
-            <div className="absolute inset-0 rounded-full border border-violet-500/30 scale-150 animate-ping" style={{ animationDuration: "3s" }} />
-          </div>
-          <span className="text-lg font-bold tracking-tight" style={{ color: "#f4f4f8" }}>IIITL Connect</span>
-        </div>
-
-        {/* Main hero text */}
-        <div className="space-y-8">
-          <div className={`space-y-4 transition-all duration-700 delay-150 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium"
-              style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)", color: "#a855f7" }}>
-              <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
-              CampusOS for IIIT Lucknow
-            </div>
-            <h1 className="text-5xl xl:text-6xl font-black leading-tight tracking-tight" style={{ color: "#f4f4f8" }}>
-              Your campus,{" "}
-              <span className="gradient-text block">all in one place.</span>
+      {/* CENTERED LOGIN CARD */}
+      <div 
+        className={`relative z-10 w-full max-w-md rounded-2xl bg-[#111111]/80 p-8 sm:p-12 backdrop-blur-2xl border border-white/5 shadow-2xl transition-all duration-1000 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      >
+        <div className="flex flex-col items-center text-center space-y-8">
+          
+          {/* Logo & Tagline */}
+          <div className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-white">
+              iiitl<span className="opacity-90">.connect</span>
             </h1>
-            <p className="text-lg max-w-md" style={{ color: "#8b8ba7" }}>
-              Academic resources, anonymous confessions, clubs, placements, marketplace — built exclusively for IIITL students.
+            <p className="text-sm text-neutral-400 font-medium">
+              The digital hub for your academic life.
             </p>
           </div>
 
-          {/* Stats row */}
-          <div className={`grid grid-cols-4 gap-4 transition-all duration-700 delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            {STATS.map((stat, i) => (
-              <div key={i} className="glass-card rounded-xl p-4 text-center">
-                <div className="text-2xl font-black gradient-text">{stat.value}</div>
-                <div className="text-xs mt-1" style={{ color: "#8b8ba7" }}>{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Floating activity cards */}
-        <div className={`relative h-52 transition-all duration-700 delay-500 ${mounted ? "opacity-100" : "opacity-0"}`}>
-          {FLOATING_CARDS.map((card, i) => (
-            <div
-              key={i}
-              className={`absolute glass-card rounded-xl p-3 flex items-center gap-3 animate-float`}
-              style={{
-                left: `${i % 2 === 0 ? i * 22 : i * 18 + 5}%`,
-                top: `${i < 2 ? 0 : 55}%`,
-                animationDelay: `${i * 0.7}s`,
-                minWidth: "180px",
-                background: `linear-gradient(135deg, ${card.color.replace("from-", "").replace(" to-", ", ")})`,
-              }}
+          {/* Sign In Button */}
+          <div className="w-full pt-4">
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 rounded-lg bg-black/60 px-4 py-3.5 text-xs sm:text-sm font-bold tracking-widest text-white border border-white/10 hover:bg-black/80 hover:border-white/20 transition-all duration-300 disabled:opacity-50"
             >
-              <span className="text-xl">{card.icon}</span>
-              <div>
-                <div className="text-xs font-semibold" style={{ color: "#f4f4f8" }}>{card.title}</div>
-                <div className="text-xs" style={{ color: "#8b8ba7" }}>{card.sub}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* === RIGHT PANEL — Auth card === */}
-      <div className="relative flex w-full lg:w-[45%] items-center justify-center p-6">
-
-        {/* Decorative side border on desktop */}
-        <div className="hidden lg:block absolute left-0 top-[10%] bottom-[10%] w-px"
-          style={{ background: "linear-gradient(180deg, transparent, rgba(124,58,237,0.4), rgba(6,182,212,0.3), transparent)" }} />
-
-        <div className={`w-full max-w-md transition-all duration-700 delay-200 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-
-          {/* Card */}
-          <div className="relative rounded-2xl p-8 space-y-8"
-            style={{
-              background: "rgba(13, 13, 20, 0.85)",
-              backdropFilter: "blur(24px)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              boxShadow: "0 0 0 1px rgba(124,58,237,0.15), 0 24px 80px rgba(0,0,0,0.8)"
-            }}>
-
-            {/* Gradient border glow at top */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 rounded-full"
-              style={{ background: "linear-gradient(90deg, transparent, rgba(124,58,237,0.6), rgba(6,182,212,0.4), transparent)" }} />
-
-            {/* Header */}
-            <div className="text-center space-y-3">
-              {/* Logo */}
-              <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center">
-                <div className="absolute inset-0 rounded-full animate-glow-pulse"
-                  style={{ background: "rgba(124,58,237,0.2)", border: "1px solid rgba(124,58,237,0.3)" }} />
-                <div className="absolute inset-0 rounded-full animate-ring-pulse"
-                  style={{ border: "1px solid rgba(124,58,237,0.2)" }} />
-                <svg viewBox="0 0 40 40" className="h-8 w-8">
-                  <polygon points="20,2 37,11 37,29 20,38 3,29 3,11" fill="none" stroke="url(#hexGrad2)" strokeWidth="1.5" />
-                  <text x="50%" y="56%" textAnchor="middle" fontSize="11" fontWeight="900" fill="url(#hexGrad2)">II</text>
-                  <defs>
-                    <linearGradient id="hexGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#a855f7" />
-                      <stop offset="100%" stopColor="#22d3ee" />
-                    </linearGradient>
-                  </defs>
+              {loading ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                 </svg>
-              </div>
-
-              <h2 className="text-2xl font-black tracking-tight" style={{ color: "#f4f4f8" }}>
-                Welcome back
-              </h2>
-              <p className="text-sm" style={{ color: "#8b8ba7" }}>
-                Sign in to your IIITL Connect account
-              </p>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
-
-            {/* Google Sign In Button */}
-            <div className="space-y-4">
-              <button
-                id="google-signin-btn"
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-                className="btn-shimmer relative w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
-                style={{
-                  background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
-                  color: "#fff",
-                  border: "1px solid rgba(124,58,237,0.4)",
-                  boxShadow: "0 4px 15px rgba(124,58,237,0.3)",
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 20px rgba(124,58,237,0.5), 0 4px 15px rgba(124,58,237,0.3)";
-                  (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 15px rgba(124,58,237,0.3)";
-                  (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-                }}
-              >
-                {loading ? (
-                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                ) : (
-                  <svg className="h-4 w-4" viewBox="0 0 488 512" aria-hidden="true">
-                    <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
-                  </svg>
-                )}
-                {loading ? "Signing in..." : "Continue with Google"}
-              </button>
-
-              {/* Restriction notice */}
-              <div className="flex items-center gap-2 justify-center">
-                <svg className="h-3 w-3 shrink-0" style={{ color: "#8b8ba7" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <p className="text-xs" style={{ color: "#8b8ba7" }}>
-                  Restricted to{" "}
-                  <span style={{ color: "#a855f7" }}>@iiitl.ac.in</span>
-                  {" "}domain only
-                </p>
-              </div>
-            </div>
-
-            {/* Features list */}
-            <div className="grid grid-cols-2 gap-2 pt-2">
-              {[
-                { icon: "📚", text: "Study Resources" },
-                { icon: "🎭", text: "Anonymous Posts" },
-                { icon: "🏢", text: "Campus Events" },
-                { icon: "💼", text: "Placements" },
-              ].map((f, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.03)" }}>
-                  <span className="text-sm">{f.icon}</span>
-                  <span className="text-xs font-medium" style={{ color: "#8b8ba7" }}>{f.text}</span>
-                </div>
-              ))}
-            </div>
+              )}
+              SIGN IN WITH GOOGLE
+            </button>
           </div>
 
-          <p className="text-center text-xs mt-6" style={{ color: "#4a4a6a" }}>
-            By signing in, you agree to our{" "}
-            <span className="cursor-pointer hover:text-violet-400 transition-colors" style={{ color: "#8b8ba7" }}>Terms</span>
-            {" & "}
-            <span className="cursor-pointer hover:text-violet-400 transition-colors" style={{ color: "#8b8ba7" }}>Privacy Policy</span>
-          </p>
+          {/* Guidelines */}
+          <div className="space-y-2 pt-2">
+            <p className="text-xs text-neutral-500 font-medium">
+              Only @iiitl.ac.in emails allowed.
+            </p>
+            <p className="text-xs text-neutral-500 font-medium">
+              Please sign in with your college email ID only.
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div className="w-full h-px bg-white/5 my-2" />
+
+          {/* Footer */}
+          <div>
+            <p className="text-xs text-neutral-500">
+              Don&apos;t have an account? <a href="#" className="font-bold text-neutral-300 hover:text-white transition-colors">Request Access</a>
+            </p>
+          </div>
+
         </div>
       </div>
     </div>

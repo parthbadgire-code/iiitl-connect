@@ -28,6 +28,7 @@ export class EventService {
         title: data.title,
         date: new Date(data.date),
         venue: data.venue,
+        imageUrl: data.imageUrl,
         isRSVPRequired: data.isRSVPRequired || false,
         clubId: clubId,
       }

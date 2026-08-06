@@ -47,4 +47,11 @@ export class ProfileService {
       },
     });
   }
+
+  async updateAvatar(userId: string, imageUrl: string) {
+    return this.database.user.update({
+      where: { id: userId },
+      data: { image: imageUrl },
+    });
+  }
 }

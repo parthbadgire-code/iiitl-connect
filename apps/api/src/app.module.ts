@@ -9,9 +9,11 @@ import { ConnectionsModule } from './modules/connections/connections.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { ClubModule } from './modules/club/club.module';
 import { EventModule } from './modules/event/event.module';
+import { StorageModule } from './modules/storage/storage.module';
+import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, AcademicModule, SocialModule, ConnectionsModule, ProfileModule, ClubModule, EventModule],
+  imports: [DatabaseModule, AuthModule, AcademicModule, SocialModule, ConnectionsModule, ProfileModule, ClubModule, EventModule, StorageModule, MarketplaceModule],
   controllers: [AppController],
   providers: [AppService],
 })
