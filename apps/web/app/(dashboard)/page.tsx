@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Ghost, ShoppingBag, Calendar, Users, Building2, Briefcase, ArrowRight } from "lucide-react";
+import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Briefcase, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useUIStore } from "@/store/useUIStore";
 import { GlobalScene } from "@/components/3d/Scene";

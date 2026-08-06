@@ -161,7 +161,10 @@ export function Topbar() {
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-neutral-800/50" />
               <DropdownMenuItem
-                onClick={() => signOut()}
+                onClick={async () => {
+                  await signOut();
+                  router.push("/login");
+                }}
                 className="flex items-center gap-2 cursor-pointer text-red-400 focus:text-red-300 focus:bg-red-400/10 transition-colors"
               >
                 <LogOut className="h-3.5 w-3.5" /> Sign out
