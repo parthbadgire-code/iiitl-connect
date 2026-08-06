@@ -17,7 +17,9 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!isPending && !session && pathname !== "/about") {
-      router.push("/login");
+      const searchParams = new URLSearchParams(window.location.search);
+      const queryString = searchParams.toString();
+      router.push(queryString ? `/login?${queryString}` : "/login");
     }
   }, [session, isPending, router, pathname]);
 
