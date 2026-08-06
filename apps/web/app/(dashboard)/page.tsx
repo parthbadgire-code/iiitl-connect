@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { BookOpen, Ghost, ShoppingBag, Calendar, Users, Building2, Briefcase, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useUIStore } from "@/store/useUIStore";
+import { GlobalScene } from "@/components/3d/Scene";
 
 const MODULES = [
   {
@@ -10,6 +12,7 @@ const MODULES = [
     description: "Access PYQs, notes, and study resources",
     icon: BookOpen,
     href: "/academic",
+    id: "academic",
     color: "#E9D5FF",
     span: "md:col-span-2 md:row-span-2",
     bg: "bg-pastel-lavender/5"
@@ -19,6 +22,7 @@ const MODULES = [
     description: "Anonymous campus board",
     icon: Ghost,
     href: "/confessions",
+    id: "confessions",
     color: "#A7F3D0",
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-mint/5"
@@ -28,6 +32,7 @@ const MODULES = [
     description: "RSVP to fests & workshops",
     icon: Calendar,
     href: "/events",
+    id: "events",
     color: "#BAE6FD",
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-blue/5"
@@ -37,6 +42,7 @@ const MODULES = [
     description: "Buy & sell goods locally",
     icon: ShoppingBag,
     href: "/marketplace",
+    id: "marketplace",
     color: "#FFDAB9",
     span: "md:col-span-1 md:row-span-2",
     bg: "bg-pastel-peach/5"
@@ -46,6 +52,7 @@ const MODULES = [
     description: "Join campus organizations",
     icon: Building2,
     href: "/clubs",
+    id: "clubs",
     color: "#E9D5FF",
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-lavender/5"
@@ -55,6 +62,7 @@ const MODULES = [
     description: "Internships & offers",
     icon: Briefcase,
     href: "/placements",
+    id: "placements",
     color: "#A7F3D0",
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-mint/5"
@@ -64,6 +72,7 @@ const MODULES = [
     description: "Find your people",
     icon: Users,
     href: "/connections",
+    id: "connections",
     color: "#BAE6FD",
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-blue/5"
@@ -72,13 +81,16 @@ const MODULES = [
 
 export default function DashboardHome() {
   const [mounted, setMounted] = useState(false);
+  const setActiveTile = useUIStore((state) => state.setActiveTile);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-12 p-4 pt-8 md:p-8">
+    <>
+      <GlobalScene />
+      <div className="mx-auto max-w-6xl space-y-12 p-4 pt-8 md:p-8">
       
       {/* Hero Section */}
       <div className={`space-y-4 text-center transition-all duration-700 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
@@ -103,6 +115,8 @@ export default function DashboardHome() {
           <Link
             key={i}
             href={mod.href}
+            onMouseEnter={() => setActiveTile(mod.id)}
+            onMouseLeave={() => setActiveTile(null)}
             className={`group relative overflow-hidden rounded-3xl p-6 flex flex-col justify-between transition-all duration-700 hover:scale-[1.02] ${mod.span} ${mod.bg} border border-white/5 hover:border-white/20`}
             style={{ 
               animationDelay: `${i * 100}ms`,
@@ -134,5 +148,6 @@ export default function DashboardHome() {
       </div>
       
     </div>
+    </>
   );
 }

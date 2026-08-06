@@ -42,9 +42,9 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-fade-in-up">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8 animate-fade-in-up">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-6 rounded-3xl bg-[#0A0A0A]/50 border-neutral-800/80">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-pastel-blue/10 border border-pastel-blue/20">
             <Calendar className="h-7 w-7 text-pastel-blue" />
@@ -62,14 +62,14 @@ export default function EventsPage() {
           <Loader2 className="h-8 w-8 animate-spin text-pastel-blue" />
         </div>
       ) : events.length === 0 ? (
-        <div className="text-center py-20 glass-card rounded-3xl border-neutral-800/80">
+        <div className="text-center py-20 bg-black/40 backdrop-blur-xl border border-white/5 rounded-3xl">
           <Calendar className="h-10 w-10 text-neutral-500 mx-auto mb-4" />
           <p className="text-neutral-400">No upcoming events found.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {events.map((event) => (
-            <div key={event.id} className="group glass-card p-6 rounded-3xl bg-[#0A0A0A]/80 border-neutral-800/80 hover:border-pastel-blue/50 transition-colors relative overflow-hidden">
+            <div key={event.id} className="group p-6 rounded-3xl bg-black/40 backdrop-blur-xl border border-white/5 hover:border-pastel-blue/30 transition-all duration-500 relative overflow-hidden shadow-2xl">
               <div className="absolute top-0 right-0 p-8 w-32 h-32 bg-pastel-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-pastel-blue/20 transition-colors" />
               
               <div className="relative z-10 flex flex-col h-full">

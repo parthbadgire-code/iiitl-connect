@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Ghost, Sparkles, Filter, Send, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@parthbadgire/ui/components/card";
-import { Button } from "@parthbadgire/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +32,7 @@ const CATEGORIES = [
 
 function SkeletonPost() {
   return (
-    <Card className="bg-zinc-950 border-zinc-800">
+    <Card className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-3xl p-4">
       <CardHeader>
         <div className="flex justify-between items-center">
           <div className="skeleton h-5 w-1/3 rounded-lg" />
@@ -107,42 +106,32 @@ export default function ConfessionsPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 animate-fade-in-up">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <div className="h-1 w-6 rounded-full" style={{ background: "linear-gradient(90deg, #ec4899, #7c3aed)" }} />
-            <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "#8b8ba7" }}>
+            <div className="h-1 w-6 rounded-full bg-pastel-mint" />
+            <span className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
               Anonymous Feed
             </span>
           </div>
-          <h1 className="text-4xl font-black tracking-tight leading-none" style={{ color: "#f4f4f8" }}>
-            <span className="gradient-text-warm">Confessions</span> Hub
-          </h1>
-          <p className="text-sm" style={{ color: "#8b8ba7" }}>
-            Share what&apos;s on your mind. Your true identity is strictly hidden.
-          </p>
+          <h1 className="text-3xl font-black text-white">Campus <span className="bg-gradient-to-r from-pastel-mint to-teal-400 bg-clip-text text-transparent">Confessions</span></h1>
+          <p className="text-neutral-400 text-sm">Read what&apos;s on everyone&apos;s mind anonymously.</p>
         </div>
 
         {/* Compose Button */}
         <Dialog open={isComposeOpen} onOpenChange={setIsComposeOpen}>
           <DialogTrigger asChild>
-            <button className="btn-shimmer flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
-              style={{
-                background: "linear-gradient(135deg, #ec4899, #db2777)",
-                color: "#fff",
-                border: "1px solid rgba(236,72,153,0.4)",
-                boxShadow: "0 4px 15px rgba(236,72,153,0.25)",
-              }}>
+            <button className="group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 bg-pastel-mint text-black hover:bg-pastel-mint/90 hover:scale-105">
               <Sparkles className="h-4 w-4" />
               New Post
             </button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-lg bg-zinc-950 border-zinc-800 text-zinc-50">
+          <DialogContent className="sm:max-w-lg bg-[#0A0A0A] border border-neutral-800 rounded-3xl text-white shadow-[0_0_50px_rgba(167,243,208,0.15)]">
             <DialogHeader>
-              <DialogTitle className="text-xl">Create Anonymous Post</DialogTitle>
-              <DialogDescription className="text-zinc-400">
+              <DialogTitle className="text-xl font-bold">Create Anonymous Post</DialogTitle>
+              <DialogDescription className="text-neutral-400">
                 You will be assigned a random moniker (e.g. &quot;Silent Ninja&quot;). No one will know it&apos;s you.
               </DialogDescription>
             </DialogHeader>
@@ -151,7 +140,7 @@ export default function ConfessionsPage() {
                 value={newContent}
                 onChange={(e) => setNewContent(e.target.value)}
                 placeholder="What's happening on campus?"
-                className="w-full h-32 p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50 resize-none"
+                className="w-full h-32 p-4 bg-black border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-pastel-mint transition-colors resize-none"
               />
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-zinc-400 uppercase">Category</label>
@@ -174,15 +163,17 @@ export default function ConfessionsPage() {
               </div>
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="ghost" onClick={() => setIsComposeOpen(false)}>Cancel</Button>
-              <Button
+              <button onClick={() => setIsComposeOpen(false)} className="text-sm font-semibold px-4 py-2 text-neutral-400 hover:text-white transition-colors">
+                Cancel
+              </button>
+              <button
                 onClick={handleSubmit}
                 disabled={isSubmitting || !newContent.trim()}
-                className="bg-pink-600 hover:bg-pink-700 text-white"
+                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-black disabled:opacity-50 disabled:cursor-not-allowed transition-all bg-pastel-mint hover:bg-pastel-mint/90"
               >
                 {isSubmitting ? "Posting..." : "Post Anonymously"}
-                {!isSubmitting && <Send className="w-4 h-4 ml-2" />}
-              </Button>
+                {!isSubmitting && <Send className="w-4 h-4" />}
+              </button>
             </div>
           </DialogContent>
         </Dialog>
@@ -190,14 +181,14 @@ export default function ConfessionsPage() {
 
       {/* Filter Chips */}
       <div className="flex flex-wrap items-center gap-2 animate-fade-in-up delay-100">
-        <Filter className="h-4 w-4 mr-1" style={{ color: "#8b8ba7" }} />
+        <Filter className="h-4 w-4 mr-1 text-neutral-500" />
         <button
           onClick={() => setActiveCategory(null)}
           className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
           style={{
-            background: activeCategory === null ? "rgba(255,255,255,0.1)" : "rgba(13,13,20,0.8)",
+            background: activeCategory === null ? "rgba(255,255,255,0.1)" : "rgba(10,10,10,0.6)",
             color: activeCategory === null ? "#f4f4f8" : "#8b8ba7",
-            border: activeCategory === null ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(255,255,255,0.06)",
+            border: activeCategory === null ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(255,255,255,0.05)",
           }}
         >
           All
@@ -208,9 +199,9 @@ export default function ConfessionsPage() {
             onClick={() => setActiveCategory(c.key)}
             className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
             style={{
-              background: activeCategory === c.key ? `${c.color}20` : "rgba(13,13,20,0.8)",
+              background: activeCategory === c.key ? `${c.color}20` : "rgba(10,10,10,0.6)",
               color: activeCategory === c.key ? c.color : "#8b8ba7",
-              border: activeCategory === c.key ? `1px solid ${c.color}50` : "1px solid rgba(255,255,255,0.06)",
+              border: activeCategory === c.key ? `1px solid ${c.color}50` : "1px solid rgba(255,255,255,0.05)",
             }}
           >
             {c.label}
@@ -236,14 +227,14 @@ export default function ConfessionsPage() {
             return (
               <Card
                 key={post.id}
-                className="glass-card bg-zinc-950/80 border-zinc-800 animate-fade-in-up"
+                className="bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 rounded-3xl animate-fade-in-up hover:border-white/20 transition-all duration-500"
                 style={{ animationDelay: `${i * 50}ms` }}
               >
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex items-center gap-3">
                       <div className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold"
-                        style={{ background: `linear-gradient(135deg, ${catConf.color}, #3b82f6)`, color: "#fff" }}>
+                        style={{ background: `${catConf.color}20`, color: catConf.color, border: `1px solid ${catConf.color}40` }}>
                         {post.anonymousIdentity.avatarSeed.charAt(0)}
                       </div>
                       <div>
@@ -278,12 +269,11 @@ export default function ConfessionsPage() {
           })
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="h-16 w-16 rounded-2xl flex items-center justify-center mb-4 animate-float"
-              style={{ background: "rgba(236,72,153,0.1)", border: "1px solid rgba(236,72,153,0.2)" }}>
-              <Ghost className="h-8 w-8" style={{ color: "#ec4899" }} />
+            <div className="h-16 w-16 rounded-2xl flex items-center justify-center mb-4 animate-float bg-pastel-mint/10 border border-pastel-mint/20">
+              <Ghost className="h-8 w-8 text-pastel-mint" />
             </div>
-            <p className="text-zinc-100 font-medium">No posts in this category yet</p>
-            <p className="text-sm text-zinc-500 mt-1">Be the first to share something!</p>
+            <p className="text-white font-medium">No posts in this category yet</p>
+            <p className="text-sm text-neutral-500 mt-1">Be the first to share something!</p>
           </div>
         )}
       </div>

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Users, Heart, X, Sparkles, Target, Code, Dumbbell, UserPlus, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@parthbadgire/ui/components/card";
-import { Button } from "@parthbadgire/ui/components/button";
 
 type ConnectionProfile = {
   bio: string;
@@ -165,38 +164,38 @@ export default function ConnectionsPage() {
   // PROFILE CREATION SCREEN
   if (hasProfile === false) {
     return (
-      <div className="max-w-xl mx-auto space-y-8 animate-fade-in-up">
+      <div className="max-w-xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8 animate-fade-in-up">
         <div className="text-center space-y-2">
-          <div className="mx-auto h-16 w-16 rounded-full flex items-center justify-center bg-zinc-900 border border-zinc-800 mb-4">
-            <UserPlus className="h-8 w-8 text-cyan-400" />
+          <div className="mx-auto h-16 w-16 rounded-full flex items-center justify-center bg-pastel-blue/10 border border-pastel-blue/20 mb-4">
+            <UserPlus className="h-8 w-8 text-pastel-blue" />
           </div>
-          <h1 className="text-3xl font-black text-zinc-100">Join Connections</h1>
-          <p className="text-zinc-400 text-sm">Find your perfect study partner, gym buddy, or hackathon teammate.</p>
+          <h1 className="text-3xl font-black text-white">Join Connections</h1>
+          <p className="text-neutral-400 text-sm">Find your perfect study partner, gym buddy, or hackathon teammate.</p>
         </div>
 
-        <Card className="glass-card bg-zinc-950 border-zinc-800">
+        <Card className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 rounded-3xl p-4 shadow-2xl">
           <CardHeader>
-            <CardTitle>Create your profile</CardTitle>
+            <CardTitle className="text-white">Create your profile</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-zinc-400 uppercase">Bio (Optional)</label>
+              <label className="text-xs font-semibold text-neutral-400 uppercase">Bio (Optional)</label>
               <textarea
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                 placeholder="A little about yourself..."
-                className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500/50 resize-none h-24"
+                className="w-full p-4 bg-black border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-pastel-blue resize-none h-24 text-white"
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-zinc-400 uppercase">Interests (Comma separated)</label>
+              <label className="text-xs font-semibold text-neutral-400 uppercase">Interests (Comma separated)</label>
               <input
                 type="text"
                 value={interests}
                 onChange={e => setInterests(e.target.value)}
                 placeholder="React, Machine Learning, Anime, Calisthenics..."
-                className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500/50"
+                className="w-full p-4 bg-black border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-pastel-blue text-white"
               />
             </div>
 
@@ -224,13 +223,13 @@ export default function ConnectionsPage() {
               </div>
             </div>
 
-            <Button
+            <button
               onClick={createProfile}
               disabled={isSubmitting || !interests.trim()}
-              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-6 rounded-xl"
+              className="w-full bg-pastel-blue hover:bg-pastel-blue/90 text-black font-bold py-4 rounded-xl transition-all disabled:opacity-50"
             >
               {isSubmitting ? "Creating Profile..." : "Join the Engine"}
-            </Button>
+            </button>
           </CardContent>
         </Card>
       </div>
@@ -239,34 +238,34 @@ export default function ConnectionsPage() {
 
   // MAIN CONNECTIONS HUB
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8">
       {/* Header & Tabs */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 animate-fade-in-up">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <div className="h-1 w-6 rounded-full" style={{ background: "linear-gradient(90deg, #06b6d4, #3b82f6)" }} />
-            <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "#8b8ba7" }}>
+            <div className="h-1 w-6 rounded-full bg-pastel-blue" />
+            <span className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
               Connections Engine
             </span>
           </div>
-          <h1 className="text-4xl font-black tracking-tight leading-none text-zinc-100">
-            Find Your <span className="text-cyan-400">Match</span>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none text-white">
+            Find Your <span className="text-pastel-blue">Match</span>
           </h1>
         </div>
 
-        <div className="flex p-1 bg-zinc-900 border border-zinc-800 rounded-lg shrink-0">
+        <div className="flex p-1 bg-black/40 border border-white/5 rounded-xl shrink-0 backdrop-blur-md">
           <button
             onClick={() => setActiveTab("DISCOVER")}
-            className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
-              activeTab === "DISCOVER" ? "bg-zinc-800 text-white shadow" : "text-zinc-500 hover:text-zinc-300"
+            className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${
+              activeTab === "DISCOVER" ? "bg-pastel-blue text-black shadow-lg" : "text-neutral-400 hover:text-white"
             }`}
           >
             Discover
           </button>
           <button
             onClick={() => setActiveTab("MATCHES")}
-            className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
-              activeTab === "MATCHES" ? "bg-zinc-800 text-white shadow" : "text-zinc-500 hover:text-zinc-300"
+            className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${
+              activeTab === "MATCHES" ? "bg-pastel-blue text-black shadow-lg" : "text-neutral-400 hover:text-white"
             }`}
           >
             My Connections
@@ -290,15 +289,15 @@ export default function ConnectionsPage() {
             </Card>
           ) : currentProfileIndex < discoverProfiles.length ? (
             <div className="relative animate-fade-in-up">
-              <Card className="glass-card bg-zinc-950 border-zinc-800 overflow-hidden shadow-2xl">
-                <div className="h-32 bg-gradient-to-br from-cyan-900/40 to-blue-900/40 border-b border-zinc-800 relative">
+              <Card className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 overflow-hidden shadow-2xl rounded-3xl">
+                <div className="h-32 bg-pastel-blue/10 border-b border-white/5 relative">
                   <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
                     <div className="h-24 w-24 rounded-full border-4 border-zinc-950 bg-zinc-800 overflow-hidden">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       {discoverProfiles[currentProfileIndex].user.image ? (
                         <img src={discoverProfiles[currentProfileIndex].user.image} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-3xl font-bold text-zinc-500">
+                        <div className="w-full h-full flex items-center justify-center bg-black/60 text-3xl font-bold text-white">
                           {discoverProfiles[currentProfileIndex].user.name?.charAt(0) || '?'}
                         </div>
                       )}
@@ -308,7 +307,7 @@ export default function ConnectionsPage() {
                 
                 <CardContent className="pt-16 pb-8 px-6 text-center space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-zinc-100">{discoverProfiles[currentProfileIndex].user.name}</h2>
+                    <h2 className="text-2xl font-bold text-white">{discoverProfiles[currentProfileIndex].user.name}</h2>
                     <div className="flex items-center justify-center gap-1.5 mt-2">
                       {(() => {
                         const lf = LOOKING_FOR_OPTIONS.find(o => o.key === discoverProfiles[currentProfileIndex].lookingFor);
@@ -332,7 +331,7 @@ export default function ConnectionsPage() {
 
                   <div className="flex flex-wrap justify-center gap-2 pt-2">
                     {discoverProfiles[currentProfileIndex].interests.map((interest, i) => (
-                      <span key={i} className="px-3 py-1 bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs rounded-full">
+                      <span key={i} className="px-3 py-1 bg-black/40 border border-white/5 text-neutral-400 text-xs rounded-full">
                         {interest}
                       </span>
                     ))}
@@ -344,13 +343,13 @@ export default function ConnectionsPage() {
               <div className="flex justify-center gap-6 mt-8">
                 <button
                   onClick={() => handleSwipe("PASS")}
-                  className="h-16 w-16 rounded-full bg-zinc-900 border-2 border-zinc-700 flex items-center justify-center text-zinc-500 hover:text-red-500 hover:border-red-500/50 hover:bg-red-500/10 transition-all shadow-lg hover:scale-105 active:scale-95"
+                  className="h-16 w-16 rounded-full bg-black/60 border-2 border-white/10 flex items-center justify-center text-neutral-500 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all shadow-lg hover:scale-105 active:scale-95"
                 >
                   <X className="h-8 w-8" />
                 </button>
                 <button
                   onClick={() => handleSwipe("LIKE")}
-                  className="h-16 w-16 rounded-full bg-cyan-900/30 border-2 border-cyan-500/50 flex items-center justify-center text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/30 hover:border-cyan-400 transition-all shadow-[0_0_20px_rgba(6,182,212,0.2)] hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:scale-105 active:scale-95"
+                  className="h-16 w-16 rounded-full bg-pastel-blue/10 border-2 border-pastel-blue/30 flex items-center justify-center text-pastel-blue hover:bg-pastel-blue/20 hover:border-pastel-blue/50 transition-all shadow-[0_0_20px_rgba(186,230,253,0.2)] hover:shadow-[0_0_30px_rgba(186,230,253,0.4)] hover:scale-105 active:scale-95"
                 >
                   <Heart className="h-8 w-8 fill-current" />
                 </button>
@@ -381,7 +380,7 @@ export default function ConnectionsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
               {matches.map((match, i) => {
                 return (
-                  <Card key={match.matchId} className="glass-card bg-zinc-950/80 border-zinc-800 flex flex-col" style={{ animationDelay: `${i * 50}ms` }}>
+                  <Card key={match.matchId} className="bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 flex flex-col rounded-3xl shadow-2xl hover:border-white/20 transition-all" style={{ animationDelay: `${i * 50}ms` }}>
                     <CardHeader className="pb-4">
                       <div className="flex items-center gap-3">
                         <div className="h-12 w-12 rounded-full border-2 border-green-500/50 overflow-hidden bg-zinc-800 shrink-0">
@@ -421,11 +420,11 @@ export default function ConnectionsPage() {
                             )}
                           </div>
                         )}
-                        <div className="pt-4 border-t border-zinc-800/50">
-                          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Reach Out</p>
+                        <div className="pt-4 border-t border-white/5">
+                          <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">Reach Out</p>
                           <a 
                             href={`mailto:${match.user.email}`}
-                            className="block w-full text-center py-2.5 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-300 text-sm font-medium hover:bg-zinc-800 hover:text-white transition-colors"
+                            className="block w-full text-center py-2.5 rounded-lg bg-white/5 border border-white/10 text-neutral-300 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors"
                           >
                             {match.user.email}
                           </a>
