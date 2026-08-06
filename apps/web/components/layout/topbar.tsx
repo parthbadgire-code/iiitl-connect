@@ -22,6 +22,7 @@ const NAVIGATION = [
   { name: "Marketplace", href: "/marketplace", accent: "#FFDAB9" },
   { name: "Clubs", href: "/clubs", accent: "#E9D5FF" },
   { name: "Connections", href: "/connections", accent: "#BAE6FD" },
+  { name: "About Us", href: "/about", accent: "#FBCFE8" },
 ];
 
 export function Topbar() {
