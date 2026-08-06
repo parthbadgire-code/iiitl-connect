@@ -20,6 +20,7 @@ const NAVIGATION = [
   { name: "Anonymous Chat", href: "/anonymous-chat", accent: "#A7F3D0" },
   { name: "Events", href: "/events", accent: "#BAE6FD" },
   { name: "Marketplace", href: "/marketplace", accent: "#FFDAB9" },
+  { name: "Lost & Found", href: "/lost-found", accent: "#FCD34D" },
   { name: "Clubs", href: "/clubs", accent: "#E9D5FF" },
   { name: "Connections", href: "/connections", accent: "#BAE6FD" },
   { name: "About Us", href: "/about", accent: "#FBCFE8" },
