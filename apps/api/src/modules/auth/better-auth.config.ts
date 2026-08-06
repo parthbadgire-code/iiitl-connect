@@ -15,8 +15,13 @@ export const createBetterAuth = (prisma: DatabaseService) => {
         authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?hd=iiitl.ac.in',
       },
     },
-    trustedOrigins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', process.env.FRONTEND_URL].filter(Boolean) as string[],
+    trustedOrigins: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      process.env.FRONTEND_URL,
+    ].filter(Boolean) as string[],
     advanced: {
+      crossSubDomainCookies: { enabled: false },
       defaultCookieAttributes: {
         sameSite: 'none',
         secure: true,
