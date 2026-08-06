@@ -137,6 +137,8 @@ model AnonymousIdentity {
   updatedAt            DateTime              @updatedAt
   user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   posts                AnonymousPost[]
+  reactions            PostReaction[]
+  replies              PostReply[]
   interviewExperiences InterviewExperience[]
   salaryInsights       SalaryInsight[]
 }
@@ -148,6 +150,30 @@ model AnonymousPost {
   anonymousIdentityId String
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
+  anonymousIdentity   AnonymousIdentity @relation(fields: [anonymousIdentityId], references: [id], onDelete: Cascade)
+  reactions           PostReaction[]
+  replies             PostReply[]
+}
+
+model PostReaction {
+  id                  String            @id @default(cuid())
+  postId              String
+  anonymousIdentityId String
+  type                ReactionType
+  createdAt           DateTime          @default(now())
+  post                AnonymousPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  anonymousIdentity   AnonymousIdentity @relation(fields: [anonymousIdentityId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, anonymousIdentityId])
+}
+
+model PostReply {
+  id                  String            @id @default(cuid())
+  postId              String
+  content             String
+  anonymousIdentityId String
+  createdAt           DateTime          @default(now())
+  post                AnonymousPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
   anonymousIdentity   AnonymousIdentity @relation(fields: [anonymousIdentityId], references: [id], onDelete: Cascade)
 }
 
@@ -364,6 +390,11 @@ enum PostCategory {
   CONFESSIONS
   MEMES
   PLACEMENTS
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
 }
 
 enum ClubRole {

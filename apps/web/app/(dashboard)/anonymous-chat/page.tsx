@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Ghost, Sparkles, Filter, Send, MessageSquare } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Ghost, Sparkles, Filter, Send, ThumbsUp, ThumbsDown, MessageSquare, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@parthbadgire/ui/components/card";
 import {
   Dialog,
@@ -12,14 +12,25 @@ import {
   DialogTrigger,
 } from "@parthbadgire/ui/components/dialog";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
 type AnonymousPost = {
   id: string;
   content: string;
   category: string;
   createdAt: string;
-  anonymousIdentity: {
-    avatarSeed: string;
-  };
+  anonymousIdentity: { id: string; avatarSeed: string };
+  likes: number;
+  dislikes: number;
+  replyCount: number;
+  myReaction: "LIKE" | "DISLIKE" | null;
+};
+
+type PostReply = {
+  id: string;
+  content: string;
+  createdAt: string;
+  anonymousIdentity: { avatarSeed: string };
 };
 
 const CATEGORIES = [
@@ -50,6 +61,221 @@ function SkeletonPost() {
   );
 }
 
+function PostCard({
+  post,
+  onReact,
+}: {
+  post: AnonymousPost;
+  onReact: (postId: string, type: "LIKE" | "DISLIKE") => void;
+}) {
+  const [showReplies, setShowReplies] = useState(false);
+  const [replies, setReplies] = useState<PostReply[]>([]);
+  const [loadingReplies, setLoadingReplies] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+  const [localReplyCount, setLocalReplyCount] = useState(post.replyCount);
+  const replyInputRef = useRef<HTMLTextAreaElement>(null);
+
+  const catConf = CATEGORIES.find((c) => c.key === post.category) || CATEGORIES[0];
+  const timeStr = new Date(post.createdAt).toLocaleDateString("en-IN", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const fetchReplies = async () => {
+    setLoadingReplies(true);
+    try {
+      const res = await fetch(`${API}/social/feed/${post.id}/replies`, {
+        credentials: "include",
+      });
+      if (res.ok) setReplies(await res.json());
+    } finally {
+      setLoadingReplies(false);
+    }
+  };
+
+  const toggleReplies = () => {
+    if (!showReplies) fetchReplies();
+    setShowReplies((v) => !v);
+  };
+
+  const submitReply = async () => {
+    if (!replyText.trim()) return;
+    setIsSubmittingReply(true);
+    try {
+      const res = await fetch(`${API}/social/feed/${post.id}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ content: replyText }),
+      });
+      if (res.ok) {
+        const newReply = await res.json();
+        setReplies((prev) => [...prev, newReply]);
+        setReplyText("");
+        setLocalReplyCount((c) => c + 1);
+      }
+    } finally {
+      setIsSubmittingReply(false);
+    }
+  };
+
+  return (
+    <Card
+      className="bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 rounded-3xl animate-fade-in-up hover:border-white/10 transition-all duration-500"
+    >
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex items-center gap-3">
+            <div
+              className="h-9 w-9 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+              style={{
+                background: `${catConf.color}20`,
+                color: catConf.color,
+                border: `1px solid ${catConf.color}40`,
+              }}
+            >
+              {post.anonymousIdentity.avatarSeed.charAt(0)}
+            </div>
+            <div>
+              <CardTitle className="text-sm text-zinc-100 font-semibold">
+                {post.anonymousIdentity.avatarSeed}
+              </CardTitle>
+              <CardDescription className="text-xs text-zinc-500 mt-0.5">
+                {timeStr}
+              </CardDescription>
+            </div>
+          </div>
+          <span
+            className="text-[10px] font-bold uppercase px-2 py-1 rounded-full shrink-0"
+            style={{
+              background: `${catConf.color}15`,
+              color: catConf.color,
+              border: `1px solid ${catConf.color}30`,
+            }}
+          >
+            {catConf.label}
+          </span>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">
+          {post.content}
+        </p>
+
+        {/* Action Bar */}
+        <div className="flex items-center gap-3 pt-2 border-t border-zinc-800/50">
+          {/* Like */}
+          <button
+            onClick={() => onReact(post.id, "LIKE")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              post.myReaction === "LIKE"
+                ? "bg-green-500/15 text-green-400 border border-green-500/30"
+                : "text-zinc-500 hover:text-green-400 hover:bg-green-500/10 border border-transparent"
+            }`}
+          >
+            <ThumbsUp className="w-3.5 h-3.5" />
+            <span>{post.likes}</span>
+          </button>
+
+          {/* Dislike */}
+          <button
+            onClick={() => onReact(post.id, "DISLIKE")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              post.myReaction === "DISLIKE"
+                ? "bg-red-500/15 text-red-400 border border-red-500/30"
+                : "text-zinc-500 hover:text-red-400 hover:bg-red-500/10 border border-transparent"
+            }`}
+          >
+            <ThumbsDown className="w-3.5 h-3.5" />
+            <span>{post.dislikes}</span>
+          </button>
+
+          {/* Reply toggle */}
+          <button
+            onClick={toggleReplies}
+            className="flex items-center gap-1.5 ml-auto px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent transition-all"
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>{localReplyCount} {localReplyCount === 1 ? "reply" : "replies"}</span>
+            {showReplies ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+        </div>
+
+        {/* Reply Thread */}
+        {showReplies && (
+          <div className="mt-2 space-y-3 animate-fade-in-up">
+            <div className="pl-4 border-l-2 border-white/5 space-y-3">
+              {loadingReplies ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-zinc-600" />
+                </div>
+              ) : replies.length > 0 ? (
+                replies.map((reply) => (
+                  <div key={reply.id} className="flex gap-2.5">
+                    <div
+                      className="h-6 w-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5"
+                      style={{
+                        background: `${catConf.color}15`,
+                        color: catConf.color,
+                        border: `1px solid ${catConf.color}30`,
+                      }}
+                    >
+                      {reply.anonymousIdentity.avatarSeed.charAt(0)}
+                    </div>
+                    <div className="bg-white/3 rounded-xl px-3 py-2 flex-1 border border-white/5">
+                      <p className="text-[11px] font-semibold text-zinc-400 mb-1">
+                        {reply.anonymousIdentity.avatarSeed}
+                      </p>
+                      <p className="text-xs text-zinc-300 leading-relaxed">
+                        {reply.content}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-zinc-600 py-2 pl-1">No replies yet. Be the first!</p>
+              )}
+            </div>
+
+            {/* Reply compose */}
+            <div className="flex gap-2 mt-2">
+              <textarea
+                ref={replyInputRef}
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Write an anonymous reply..."
+                rows={1}
+                className="flex-1 p-2.5 bg-black/60 border border-neutral-800 rounded-xl text-xs focus:outline-none focus:border-zinc-600 transition-colors resize-none text-white placeholder:text-zinc-600"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    submitReply();
+                  }
+                }}
+              />
+              <button
+                onClick={submitReply}
+                disabled={isSubmittingReply || !replyText.trim()}
+                className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
+              >
+                {isSubmittingReply ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Send className="h-3.5 w-3.5" />
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function AnonymousChatPage() {
   const [posts, setPosts] = useState<AnonymousPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,9 +289,9 @@ export default function AnonymousChatPage() {
   const fetchFeed = async () => {
     setLoading(true);
     try {
-      const url = activeCategory 
-        ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/social/feed?category=${activeCategory}`
-        : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/social/feed`;
+      const url = activeCategory
+        ? `${API}/social/feed?category=${activeCategory}`
+        : `${API}/social/feed`;
       const res = await fetch(url, { credentials: "include" });
       if (res.ok) setPosts(await res.json());
     } catch (err) {
@@ -84,7 +310,7 @@ export default function AnonymousChatPage() {
     if (!newContent.trim()) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/social/feed`, {
+      const res = await fetch(`${API}/social/feed`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -93,15 +319,60 @@ export default function AnonymousChatPage() {
       if (res.ok) {
         setIsComposeOpen(false);
         setNewContent("");
-        fetchFeed(); // Refresh
+        fetchFeed();
       } else {
-        alert("Failed to post confession.");
+        alert("Failed to post.");
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert("Network error.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleReact = async (postId: string, type: "LIKE" | "DISLIKE") => {
+    // Optimistic update
+    setPosts((prev) =>
+      prev.map((p) => {
+        if (p.id !== postId) return p;
+        const wasLiked = p.myReaction === "LIKE";
+        const wasDisliked = p.myReaction === "DISLIKE";
+        const toggling = p.myReaction === type;
+
+        return {
+          ...p,
+          myReaction: toggling ? null : type,
+          likes:
+            type === "LIKE"
+              ? toggling
+                ? p.likes - 1
+                : p.likes + 1 - (wasDisliked ? 0 : 0)
+              : wasLiked
+              ? p.likes - 1
+              : p.likes,
+          dislikes:
+            type === "DISLIKE"
+              ? toggling
+                ? p.dislikes - 1
+                : p.dislikes + 1
+              : wasDisliked
+              ? p.dislikes - 1
+              : p.dislikes,
+        };
+      })
+    );
+
+    try {
+      await fetch(`${API}/social/feed/${postId}/react`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ type }),
+      });
+    } catch (err) {
+      console.error("React failed:", err);
+      // Revert by re-fetching
+      fetchFeed();
     }
   };
 
@@ -116,7 +387,9 @@ export default function AnonymousChatPage() {
               Anonymous Feed
             </span>
           </div>
-          <h1 className="text-3xl font-black text-white">Campus <span className="bg-gradient-to-r from-pastel-mint to-teal-400 bg-clip-text text-transparent">Anonymous Chat</span></h1>
+          <h1 className="text-3xl font-black text-white">
+            Campus <span className="bg-gradient-to-r from-pastel-mint to-teal-400 bg-clip-text text-transparent">Anonymous Chat</span>
+          </h1>
           <p className="text-neutral-400 text-sm">Read what&apos;s on everyone&apos;s mind anonymously.</p>
         </div>
 
@@ -145,7 +418,7 @@ export default function AnonymousChatPage() {
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-zinc-400 uppercase">Category</label>
                 <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map(c => (
+                  {CATEGORIES.map((c) => (
                     <button
                       key={c.key}
                       onClick={() => setNewCategory(c.key)}
@@ -153,7 +426,10 @@ export default function AnonymousChatPage() {
                       style={{
                         background: newCategory === c.key ? `${c.color}20` : "transparent",
                         color: newCategory === c.key ? c.color : "#8b8ba7",
-                        border: newCategory === c.key ? `1px solid ${c.color}50` : "1px solid rgba(255,255,255,0.1)",
+                        border:
+                          newCategory === c.key
+                            ? `1px solid ${c.color}50`
+                            : "1px solid rgba(255,255,255,0.1)",
                       }}
                     >
                       {c.label}
@@ -163,7 +439,10 @@ export default function AnonymousChatPage() {
               </div>
             </div>
             <div className="flex justify-end gap-3">
-              <button onClick={() => setIsComposeOpen(false)} className="text-sm font-semibold px-4 py-2 text-neutral-400 hover:text-white transition-colors">
+              <button
+                onClick={() => setIsComposeOpen(false)}
+                className="text-sm font-semibold px-4 py-2 text-neutral-400 hover:text-white transition-colors"
+              >
                 Cancel
               </button>
               <button
@@ -188,12 +467,15 @@ export default function AnonymousChatPage() {
           style={{
             background: activeCategory === null ? "rgba(255,255,255,0.1)" : "rgba(10,10,10,0.6)",
             color: activeCategory === null ? "#f4f4f8" : "#8b8ba7",
-            border: activeCategory === null ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(255,255,255,0.05)",
+            border:
+              activeCategory === null
+                ? "1px solid rgba(255,255,255,0.2)"
+                : "1px solid rgba(255,255,255,0.05)",
           }}
         >
           All
         </button>
-        {CATEGORIES.map(c => (
+        {CATEGORIES.map((c) => (
           <button
             key={c.key}
             onClick={() => setActiveCategory(c.key)}
@@ -201,7 +483,10 @@ export default function AnonymousChatPage() {
             style={{
               background: activeCategory === c.key ? `${c.color}20` : "rgba(10,10,10,0.6)",
               color: activeCategory === c.key ? c.color : "#8b8ba7",
-              border: activeCategory === c.key ? `1px solid ${c.color}50` : "1px solid rgba(255,255,255,0.05)",
+              border:
+                activeCategory === c.key
+                  ? `1px solid ${c.color}50`
+                  : "1px solid rgba(255,255,255,0.05)",
             }}
           >
             {c.label}
@@ -218,55 +503,9 @@ export default function AnonymousChatPage() {
             <SkeletonPost />
           </>
         ) : posts.length > 0 ? (
-          posts.map((post, i) => {
-            const catConf = CATEGORIES.find(c => c.key === post.category) || CATEGORIES[0];
-            const timeStr = new Date(post.createdAt).toLocaleDateString("en-IN", {
-              month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
-            });
-            
-            return (
-              <Card
-                key={post.id}
-                className="bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 rounded-3xl animate-fade-in-up hover:border-white/20 transition-all duration-500"
-                style={{ animationDelay: `${i * 50}ms` }}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start gap-2">
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold"
-                        style={{ background: `${catConf.color}20`, color: catConf.color, border: `1px solid ${catConf.color}40` }}>
-                        {post.anonymousIdentity.avatarSeed.charAt(0)}
-                      </div>
-                      <div>
-                        <CardTitle className="text-base text-zinc-100 font-semibold">
-                          {post.anonymousIdentity.avatarSeed}
-                        </CardTitle>
-                        <CardDescription className="text-xs text-zinc-500 mt-0.5">
-                          {timeStr}
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold uppercase px-2 py-1 rounded-full shrink-0"
-                      style={{ background: `${catConf.color}15`, color: catConf.color, border: `1px solid ${catConf.color}30` }}>
-                      {catConf.label}
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">
-                    {post.content}
-                  </p>
-                  
-                  <div className="flex items-center gap-4 mt-4 pt-3 border-t border-zinc-800/50">
-                    <button className="flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-300 transition-colors">
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      Reply
-                    </button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })
+          posts.map((post) => (
+            <PostCard key={post.id} post={post} onReact={handleReact} />
+          ))
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="h-16 w-16 rounded-2xl flex items-center justify-center mb-4 animate-float bg-pastel-mint/10 border border-pastel-mint/20">
