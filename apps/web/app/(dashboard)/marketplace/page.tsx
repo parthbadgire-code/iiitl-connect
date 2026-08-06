@@ -109,9 +109,9 @@ export default function MarketplacePage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-fade-in-up">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8 animate-fade-in-up">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-6 rounded-3xl bg-[#0A0A0A]/50 border-neutral-800/80">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-pastel-peach/10 border border-pastel-peach/20">
             <ShoppingBag className="h-7 w-7 text-pastel-peach" />
@@ -135,14 +135,14 @@ export default function MarketplacePage() {
           <Loader2 className="h-8 w-8 animate-spin text-pastel-peach" />
         </div>
       ) : listings.length === 0 ? (
-        <div className="text-center py-20 glass-card rounded-3xl border-neutral-800/80">
+        <div className="text-center py-20 bg-black/40 backdrop-blur-xl border border-white/5 rounded-3xl">
           <Tag className="h-10 w-10 text-neutral-500 mx-auto mb-4" />
           <p className="text-neutral-400">No items listed yet.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {listings.map((item) => (
-            <div key={item.id} className="group glass-card rounded-2xl overflow-hidden bg-[#0A0A0A]/80 border-neutral-800/80 hover:border-pastel-peach/50 transition-colors">
+            <div key={item.id} className="group rounded-3xl overflow-hidden bg-black/40 backdrop-blur-xl border border-white/5 hover:border-pastel-peach/30 transition-all duration-500 shadow-2xl">
               {item.images && item.images.length > 0 ? (
                 <div className="w-full h-48 bg-neutral-900 relative overflow-hidden">
                   <img src={item.images[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

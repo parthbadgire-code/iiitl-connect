@@ -55,19 +55,18 @@ export default function ClubDetailsPage() {
   const [transferError, setTransferError] = useState("");
 
   useEffect(() => {
+    const fetchClub = async () => {
+      try {
+        const res = await fetch(`http://localhost:3001/clubs/${clubId}`, { credentials: "include" });
+        if (res.ok) setClub(await res.json());
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchClub();
   }, [clubId]);
-
-  const fetchClub = async () => {
-    try {
-      const res = await fetch(`http://localhost:3001/clubs/${clubId}`, { credentials: "include" });
-      if (res.ok) setClub(await res.json());
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -10,8 +10,7 @@ import {
 } from "@parthbadgire/ui/components/dropdown-menu";
 import { useSession, signOut } from "@/lib/auth-client";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Search, LogOut, User, Settings } from "lucide-react";
-import { useState } from "react";
+import { Bell, LogOut, User, Settings } from "lucide-react";
 
 import Link from "next/link";
 import { cn } from "@parthbadgire/ui/lib/utils";
@@ -29,8 +28,6 @@ export function Topbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const router = useRouter();
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [searchVal, setSearchVal] = useState("");
 
   const initial = session?.user?.name
     ? session.user.name.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase()
@@ -50,8 +47,8 @@ export function Topbar() {
       <div className="absolute bottom-0 left-0 right-0 h-px"
         style={{ background: "linear-gradient(90deg, transparent, rgba(233,213,255,0.2), rgba(186,230,253,0.15), transparent)" }} />
 
-      {/* Left: Logo & Navigation */}
-      <div className="flex items-center gap-6">
+      {/* Left: Logo */}
+      <div className="flex-1 flex items-center justify-start">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="relative flex h-8 w-8 items-center justify-center group-hover:scale-110 transition-transform">
             <svg viewBox="0 0 40 40" className="h-8 w-8 animate-[spin_4s_linear_infinite]">
@@ -70,9 +67,11 @@ export function Topbar() {
             <div className="text-sm font-extrabold leading-none text-white tracking-tight">IIITL Connect</div>
           </div>
         </Link>
+      </div>
         
-        {/* Horizontal Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-1 bg-[#0A0A0A]/50 p-1 rounded-full border border-neutral-800/80 backdrop-blur-md">
+      {/* Center: Horizontal Navigation Links */}
+      <div className="hidden lg:flex justify-center">
+        <nav className="flex items-center gap-1 bg-[#0A0A0A]/50 p-1 rounded-full border border-neutral-800/80 backdrop-blur-md">
           {NAVIGATION.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
@@ -95,42 +94,11 @@ export function Topbar() {
               </Link>
             );
           })}
-        </nav>
-      </div>
-
-      {/* Center: Global Search (Only on huge screens or move to right) */}
-      <div className="absolute left-1/2 -translate-x-1/2 hidden xl:flex items-center">
-        <div
-          className="relative flex items-center gap-2 px-4 py-1.5 rounded-full transition-all duration-300"
-          style={{
-            background: searchFocused ? "rgba(10,10,10,0.9)" : "rgba(10,10,10,0.6)",
-            border: searchFocused
-              ? "1px solid rgba(233,213,255,0.4)"
-              : "1px solid rgba(255,255,255,0.05)",
-            boxShadow: searchFocused ? "0 0 0 3px rgba(233,213,255,0.1), 0 0 20px rgba(233,213,255,0.2)" : "none",
-            width: searchFocused ? "280px" : "220px",
-          }}
-        >
-          <Search className="h-3.5 w-3.5 shrink-0" style={{ color: "#8b8ba7" }} />
-          <input
-            type="text"
-            placeholder="Search campus..."
-            value={searchVal}
-            onChange={e => setSearchVal(e.target.value)}
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
-            className="bg-transparent text-sm outline-none flex-1 min-w-0"
-            style={{ color: "#f4f4f8", caretColor: "#E9D5FF" }}
-          />
-          <kbd className="text-[10px] px-1.5 py-0.5 rounded font-mono shrink-0"
-            style={{ background: "rgba(255,255,255,0.05)", color: "#4a4a6a" }}>
-            ⌘K
-          </kbd>
-        </div>
+          </nav>
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex-1 flex items-center justify-end gap-2">
         {/* Notification bell */}
         <button
           className="relative flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300 group"

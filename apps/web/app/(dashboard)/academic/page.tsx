@@ -15,15 +15,15 @@ type StudyResource = {
   createdAt?: string;
 };
 
-const TYPE_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType; badge: string }> = {
-  PYQ: { label: "PYQ", color: "#7c3aed", icon: FileText, badge: "badge-pyq" },
-  NOTES: { label: "Notes", color: "#06b6d4", icon: BookOpen, badge: "badge-notes" },
-  ASSIGNMENT: { label: "Assignment", color: "#ec4899", icon: ClipboardList, badge: "badge-assignment" },
+const TYPE_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
+  PYQ: { label: "PYQ", color: "#E9D5FF", icon: FileText },
+  NOTES: { label: "Notes", color: "#C084FC", icon: BookOpen },
+  ASSIGNMENT: { label: "Assignment", color: "#A78BFA", icon: ClipboardList },
 };
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl p-5 space-y-4" style={{ background: "rgba(13,13,20,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
+    <div className="rounded-3xl p-5 space-y-4 bg-black/40 backdrop-blur-xl border border-white/5">
       <div className="flex justify-between items-start">
         <div className="skeleton h-5 w-3/4 rounded-lg" />
         <div className="skeleton h-5 w-16 rounded-full" />
@@ -50,7 +50,7 @@ function ResourceCard({ resource, index }: { resource: StudyResource; index: num
 
   return (
     <div
-      className="glass-card group rounded-2xl p-5 flex flex-col gap-4 animate-fade-in-up"
+      className="group relative overflow-hidden rounded-3xl p-6 flex flex-col gap-4 animate-fade-in-up bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 hover:border-white/20 transition-all duration-500"
       style={{ animationDelay: `${index * 80}ms`, animationFillMode: "both", opacity: 0 }}
     >
       {/* Card top */}
@@ -74,7 +74,8 @@ function ResourceCard({ resource, index }: { resource: StudyResource; index: num
           </div>
         </div>
         {/* Type badge */}
-        <span className={`shrink-0 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${typeConf.badge}`}>
+        <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-1 rounded-full border"
+          style={{ background: `${typeConf.color}10`, color: typeConf.color, borderColor: `${typeConf.color}30` }}>
           {typeConf.label}
         </span>
       </div>
@@ -87,8 +88,7 @@ function ResourceCard({ resource, index }: { resource: StudyResource; index: num
       {/* Footer */}
       <div className="flex items-center justify-between mt-auto pt-2 border-t" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
         <div className="flex items-center gap-1.5">
-          <div className="h-5 w-5 rounded-full flex items-center justify-center text-[9px] font-bold"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #06b6d4)", color: "#fff" }}>
+          <div className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold bg-pastel-lavender/10 text-pastel-lavender border border-pastel-lavender/20">
             {resource.uploader?.name?.charAt(0) || "?"}
           </div>
           <div>
@@ -102,16 +102,7 @@ function ResourceCard({ resource, index }: { resource: StudyResource; index: num
           href={resource.url || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200"
-          style={{ background: "rgba(124,58,237,0.15)", color: "#a855f7", border: "1px solid rgba(124,58,237,0.25)" }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.25)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 0 12px rgba(124,58,237,0.3)";
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.15)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "none";
-          }}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-white/5 text-pastel-lavender hover:bg-pastel-lavender/10 border border-white/5 hover:border-pastel-lavender/30"
         >
           <Download className="h-3 w-3" />
           Download
@@ -210,44 +201,29 @@ export default function AcademicHubPage() {
   resources.forEach(r => { if (r.type in counts) (counts as Record<string, number>)[r.type]++; });
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8">
 
       {/* === HERO HEADER === */}
       <div className="animate-fade-in-up">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <div className="h-1 w-6 rounded-full" style={{ background: "linear-gradient(90deg, #7c3aed, #06b6d4)" }} />
-              <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "#8b8ba7" }}>
+              <div className="h-1 w-6 rounded-full bg-pastel-lavender" />
+              <span className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
                 Community Resources
               </span>
             </div>
-            <h1 className="text-4xl font-black tracking-tight leading-none" style={{ color: "#f4f4f8" }}>
-              Academic{" "}
-              <span className="gradient-text">Hub</span>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none text-white">
+              Academic <span className="bg-gradient-to-r from-pastel-lavender to-pastel-blue bg-clip-text text-transparent">Hub</span>
             </h1>
-            <p className="text-sm" style={{ color: "#8b8ba7" }}>
+            <p className="text-sm text-neutral-400 max-w-xl">
               PYQs, lecture notes, and assignments — uploaded by IIITL students, for IIITL students.
             </p>
           </div>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="btn-shimmer flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300"
-            style={{
-              background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
-              color: "#fff",
-              border: "1px solid rgba(124,58,237,0.4)",
-              boxShadow: "0 4px 15px rgba(124,58,237,0.25)",
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)";
-              (e.currentTarget as HTMLElement).style.boxShadow = "0 0 20px rgba(124,58,237,0.4), 0 4px 15px rgba(124,58,237,0.25)";
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-              (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 15px rgba(124,58,237,0.25)";
-            }}
+            className="group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 bg-pastel-lavender text-black hover:bg-pastel-lavender/90 hover:scale-105"
           >
             <Upload className="h-4 w-4" />
             Upload Resource
@@ -277,9 +253,9 @@ export default function AcademicHubPage() {
         <div
           className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl flex-1 min-w-[220px] max-w-sm transition-all duration-300"
           style={{
-            background: "rgba(13,13,20,0.8)",
-            border: searchFocused ? "1px solid rgba(124,58,237,0.4)" : "1px solid rgba(255,255,255,0.06)",
-            boxShadow: searchFocused ? "0 0 0 3px rgba(124,58,237,0.08), 0 0 20px rgba(124,58,237,0.15)" : "none",
+            background: "rgba(10,10,10,0.6)",
+            border: searchFocused ? "1px solid rgba(233,213,255,0.4)" : "1px solid rgba(255,255,255,0.05)",
+            boxShadow: searchFocused ? "0 0 0 3px rgba(233,213,255,0.1), 0 0 20px rgba(233,213,255,0.2)" : "none",
           }}
         >
           <Search className="h-4 w-4 shrink-0" style={{ color: "#8b8ba7" }} />
@@ -291,7 +267,7 @@ export default function AcademicHubPage() {
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
             className="bg-transparent text-sm outline-none flex-1"
-            style={{ color: "#f4f4f8", caretColor: "#a855f7" }}
+            style={{ color: "#f4f4f8", caretColor: "#E9D5FF" }}
           />
           {search && (
             <button onClick={() => setSearch("")} className="text-xs" style={{ color: "#8b8ba7" }}>✕</button>
@@ -317,11 +293,11 @@ export default function AcademicHubPage() {
                 style={{
                   background: isActive
                     ? (conf ? `${conf.color}20` : "rgba(255,255,255,0.1)")
-                    : "rgba(13,13,20,0.8)",
+                    : "rgba(10,10,10,0.6)",
                   color: isActive ? (conf?.color || "#f4f4f8") : "#8b8ba7",
                   border: isActive
                     ? `1px solid ${conf?.color || "rgba(255,255,255,0.2)"}50`
-                    : "1px solid rgba(255,255,255,0.06)",
+                    : "1px solid rgba(255,255,255,0.05)",
                   boxShadow: isActive && conf ? `0 0 10px ${conf.color}30` : "none",
                 }}
               >
@@ -343,9 +319,8 @@ export default function AcademicHubPage() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-24 space-y-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl animate-float"
-            style={{ background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.2)" }}>
-            <BookOpen className="h-8 w-8" style={{ color: "#7c3aed" }} />
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl animate-float bg-pastel-lavender/10 border border-pastel-lavender/20">
+            <BookOpen className="h-8 w-8 text-pastel-lavender" />
           </div>
           <div className="text-center">
             <p className="font-semibold" style={{ color: "#f4f4f8" }}>No resources found</p>
@@ -353,8 +328,7 @@ export default function AcademicHubPage() {
               {search ? `No results for "${search}"` : "Be the first to upload a resource!"}
             </p>
           </div>
-          <button className="text-sm font-semibold px-4 py-2 rounded-lg"
-            style={{ background: "rgba(124,58,237,0.1)", color: "#a855f7", border: "1px solid rgba(124,58,237,0.2)" }}
+          <button className="text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-300 bg-white/5 text-pastel-lavender hover:bg-pastel-lavender/10 border border-white/5 hover:border-pastel-lavender/30"
             onClick={() => { setSearch(""); setActiveType(null); }}>
             Clear filters
           </button>
@@ -364,7 +338,7 @@ export default function AcademicHubPage() {
       {/* Upload Resource Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#0A0A0A] border border-neutral-800 w-full max-w-md rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(124,58,237,0.15)]">
+          <div className="bg-[#0A0A0A] border border-neutral-800 w-full max-w-md rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(233,213,255,0.15)]">
             <div className="flex items-center justify-between p-6 border-b border-white/5">
               <h2 className="text-xl font-bold text-white">Upload Resource</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-neutral-500 hover:text-white transition-colors">
@@ -380,8 +354,8 @@ export default function AcademicHubPage() {
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors"
-                  placeholder="e.g. Midsem OS PYQ 2024"
+                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pastel-lavender transition-colors"
+                  placeholder="e.g. EndSem Notes 2024"
                 />
               </div>
 
@@ -417,14 +391,14 @@ export default function AcademicHubPage() {
                   required
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors min-h-[80px] resize-none"
+                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pastel-lavender transition-colors min-h-[80px] resize-none"
                   placeholder="Additional context or topics covered..."
                 />
               </div>
 
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">File (PDF/Image)</label>
-                <div className="relative border-2 border-dashed border-neutral-800 rounded-xl p-4 flex flex-col items-center justify-center text-neutral-500 hover:border-[#7c3aed] hover:bg-[#7c3aed]/5 transition-colors cursor-pointer overflow-hidden">
+                <div className="relative border-2 border-dashed border-neutral-800 rounded-xl p-4 flex flex-col items-center justify-center text-neutral-500 hover:border-pastel-lavender hover:bg-pastel-lavender/5 transition-colors cursor-pointer overflow-hidden">
                   <input
                     type="file"
                     required
@@ -433,7 +407,7 @@ export default function AcademicHubPage() {
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                   {selectedFile ? (
-                    <div className="text-sm font-medium text-[#7c3aed] truncate max-w-full px-4">
+                    <div className="text-sm font-medium text-pastel-lavender truncate max-w-full px-4">
                       {selectedFile.name}
                     </div>
                   ) : (
@@ -448,8 +422,7 @@ export default function AcademicHubPage() {
               <button
                 type="submit"
                 disabled={submitting || uploading}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                style={{ background: "linear-gradient(135deg, #7c3aed, #6d28d9)" }}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-black disabled:opacity-50 disabled:cursor-not-allowed transition-all bg-pastel-lavender hover:bg-pastel-lavender/90"
               >
                 {submitting ? (
                   <>
