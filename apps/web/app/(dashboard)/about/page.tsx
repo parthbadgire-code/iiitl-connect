@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+
 import { Sparkles, Code, Users, Rocket, Heart, ArrowRight } from "lucide-react";
 import { Card } from "@parthbadgire/ui/components/card";
 
