@@ -1,6 +1,6 @@
 export async function uploadFileToR2(file: File): Promise<string> {
   // 1. Get the pre-signed URL from NestJS backend
-  const presignResponse = await fetch('http://localhost:3001/storage/presign', {
+  const presignResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/storage/presign`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -51,7 +51,7 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/profile/me", { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/profile/me`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setProfile(data);
@@ -86,7 +86,7 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      const res = await fetch("http://localhost:3001/profile/me", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/profile/me`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

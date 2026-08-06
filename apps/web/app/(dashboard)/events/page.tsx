@@ -24,7 +24,7 @@ export default function EventsPage() {
 
   const fetchEvents = async () => {
     try {
-      const res = await fetch("http://localhost:3001/events", { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/events`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setEvents(data);

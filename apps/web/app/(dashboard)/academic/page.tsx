@@ -132,7 +132,7 @@ export default function AcademicHubPage() {
   useEffect(() => {
     async function fetchResources() {
       try {
-        const res = await fetch("http://localhost:3001/academic/resources", { credentials: "include" });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/academic/resources`, { credentials: "include" });
         if (res.ok) setResources(await res.json());
       } catch (err) {
         console.error("Failed to fetch resources:", err);
@@ -161,7 +161,7 @@ export default function AcademicHubPage() {
       const fileUrl = await uploadFileToR2(selectedFile);
       setUploading(false);
 
-      const res = await fetch("http://localhost:3001/academic/resources", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/academic/resources`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -182,7 +182,7 @@ export default function AcademicHubPage() {
         setType("NOTES");
         setSelectedFile(null);
         // refresh list
-        const refreshed = await fetch("http://localhost:3001/academic/resources", { credentials: "include" });
+        const refreshed = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/academic/resources`, { credentials: "include" });
         if (refreshed.ok) setResources(await refreshed.json());
       } else {
         const data = await res.json();

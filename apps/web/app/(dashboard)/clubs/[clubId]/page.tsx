@@ -54,7 +54,7 @@ export default function ClubDetailsPage() {
   const [isTransferring, setIsTransferring] = useState(false);
   const [transferError, setTransferError] = useState("");
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`;
 
   const fetchClub = useCallback(async () => {
     try {

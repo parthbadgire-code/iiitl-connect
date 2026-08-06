@@ -64,8 +64,8 @@ export default function AnonymousChatPage() {
     setLoading(true);
     try {
       const url = activeCategory 
-        ? `http://localhost:3001/social/feed?category=${activeCategory}`
-        : "http://localhost:3001/social/feed";
+        ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/social/feed?category=${activeCategory}`
+        : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/social/feed`;
       const res = await fetch(url, { credentials: "include" });
       if (res.ok) setPosts(await res.json());
     } catch (err) {
@@ -84,7 +84,7 @@ export default function AnonymousChatPage() {
     if (!newContent.trim()) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch("http://localhost:3001/social/feed", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/social/feed`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

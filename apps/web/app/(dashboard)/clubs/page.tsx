@@ -50,8 +50,8 @@ export default function ClubsPage() {
   const fetchData = async () => {
     try {
       const [clubsRes, eventsRes] = await Promise.all([
-        fetch("http://localhost:3001/clubs", { credentials: "include" }),
-        fetch("http://localhost:3001/events", { credentials: "include" })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs`, { credentials: "include" }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/events`, { credentials: "include" })
       ]);
       
       if (clubsRes.ok) setClubs(await clubsRes.json());
@@ -67,7 +67,7 @@ export default function ClubsPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch("http://localhost:3001/clubs", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

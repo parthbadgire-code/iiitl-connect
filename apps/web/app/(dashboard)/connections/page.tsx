@@ -73,7 +73,7 @@ export default function ConnectionsPage() {
 
   const checkProfile = async () => {
     try {
-      const res = await fetch("http://localhost:3001/connections/profile", { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections/profile`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setHasProfile(!!data);
@@ -90,7 +90,7 @@ export default function ConnectionsPage() {
     setIsSubmitting(true);
     const interestsArray = interests.split(",").map(i => i.trim()).filter(Boolean);
     try {
-      const res = await fetch("http://localhost:3001/connections/profile", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections/profile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -107,7 +107,7 @@ export default function ConnectionsPage() {
   const fetchDiscover = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/connections/discover", { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections/discover`, { credentials: "include" });
       if (res.ok) {
         setDiscoverProfiles(await res.json());
         setCurrentProfileIndex(0);
@@ -122,7 +122,7 @@ export default function ConnectionsPage() {
   const fetchMatches = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/connections/matches", { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections/matches`, { credentials: "include" });
       if (res.ok) setMatches(await res.json());
     } catch (err) {
       console.error(err);
@@ -139,7 +139,7 @@ export default function ConnectionsPage() {
     setCurrentProfileIndex(prev => prev + 1);
 
     try {
-      const res = await fetch("http://localhost:3001/connections/swipe", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections/swipe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

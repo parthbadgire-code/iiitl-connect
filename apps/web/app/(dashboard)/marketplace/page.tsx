@@ -39,7 +39,7 @@ export default function MarketplacePage() {
 
   const fetchListings = async () => {
     try {
-      const res = await fetch("http://localhost:3001/marketplace", { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/marketplace`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setListings(data);
@@ -72,7 +72,7 @@ export default function MarketplacePage() {
         setUploading(false);
       }
 
-      const res = await fetch("http://localhost:3001/marketplace", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/marketplace`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
