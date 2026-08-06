@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { ShieldAlert, Plus, Calendar as CalendarIcon, MapPin, Clock, ArrowLeft, Users, ShieldCheck, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@parthbadgire/ui/components/card";
@@ -54,26 +54,29 @@ export default function ClubDetailsPage() {
   const [isTransferring, setIsTransferring] = useState(false);
   const [transferError, setTransferError] = useState("");
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+  const fetchClub = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/clubs/${clubId}`, { credentials: "include" });
+      if (res.ok) setClub(await res.json());
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [clubId, API_URL]);
+
   useEffect(() => {
-    const fetchClub = async () => {
-      try {
-        const res = await fetch(`http://localhost:3001/clubs/${clubId}`, { credentials: "include" });
-        if (res.ok) setClub(await res.json());
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchClub();
-  }, [clubId]);
+  }, [fetchClub]);
 
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsAddingMember(true);
     setMemberError("");
     try {
-      const res = await fetch(`http://localhost:3001/clubs/${clubId}/members`, {
+      const res = await fetch(`${API_URL}/clubs/${clubId}/members`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -98,7 +101,7 @@ export default function ClubDetailsPage() {
     setIsTransferring(true);
     setTransferError("");
     try {
-      const res = await fetch(`http://localhost:3001/clubs/${clubId}/transfer-role`, {
+      const res = await fetch(`${API_URL}/clubs/${clubId}/transfer-role`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -122,7 +125,7 @@ export default function ClubDetailsPage() {
     e.preventDefault();
     setIsAddingEvent(true);
     try {
-      const res = await fetch(`http://localhost:3001/events/${clubId}`, {
+      const res = await fetch(`${API_URL}/events/${clubId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
