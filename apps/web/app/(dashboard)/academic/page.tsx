@@ -24,6 +24,46 @@ const TYPE_CONFIG: Record<string, { label: string; color: string; icon: React.El
   ASSIGNMENT: { label: "Assignment", color: "#A78BFA", icon: ClipboardList },
 };
 
+const SUBJECTS_BY_SEMESTER: Record<string, string[]> = {
+  "1": [
+    "Computational Thinking through Programming",
+    "Database Management System",
+    "System Programming & Scripting",
+    "Web Design & Application Development-I",
+    "Professional Communication - I",
+    "Sports - I"
+  ],
+  "2": [
+    "Object Oriented Programming & System Design",
+    "Data Structures",
+    "Computer Organization & Architecture",
+    "Web Design & Application Development-II",
+    "Professional Communication - II",
+    "Sports - II"
+  ],
+  "3": [
+    "Software Engineering",
+    "Theory of Automata",
+    "Data Communications",
+    "Probability and Statistics for CS",
+    "Design Analysis and Algorithm",
+    "Competitive Coding - I",
+    "Sports - III"
+  ],
+  "4": [
+    "Compiler Design",
+    "Mathematics for CS I (Discrete Mathematics)",
+    "Operating System",
+    "Computer Networks",
+    "Advanced Programming Language",
+    "Competitive Coding - II"
+  ],
+  "5": [],
+  "6": [],
+  "7": [],
+  "8": []
+};
+
 function SkeletonCard() {
   return (
     <div className="rounded-3xl p-5 space-y-4 bg-black/40 backdrop-blur-xl border border-white/5">
@@ -196,8 +236,8 @@ export default function AcademicHubPage() {
       if (res.ok) {
         setIsModalOpen(false);
         setTitle("");
-        setCourseCode("");
         setSemester("1");
+        setCourseCode(SUBJECTS_BY_SEMESTER["1"][0] || "");
         setDescription("");
         setType("NOTES");
         setExamType("MIDSEM");
@@ -383,27 +423,49 @@ export default function AcademicHubPage() {
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Subject</label>
-                  <input
-                    type="text"
-                    required
-                    value={courseCode}
-                    onChange={(e) => setCourseCode(e.target.value)}
-                    className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors"
-                    placeholder="e.g. OS, DBMS, CS101"
-                  />
-                </div>
-                <div className="space-y-1">
                   <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Semester</label>
                   <select
                     value={semester}
-                    onChange={(e) => setSemester(e.target.value)}
+                    onChange={(e) => {
+                      const newSem = e.target.value;
+                      setSemester(newSem);
+                      const subjects = SUBJECTS_BY_SEMESTER[newSem];
+                      if (subjects && subjects.length > 0) {
+                        setCourseCode(subjects[0]);
+                      } else {
+                        setCourseCode("");
+                      }
+                    }}
                     className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors appearance-none"
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
                       <option key={s} value={s}>Semester {s}</option>
                     ))}
                   </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Subject</label>
+                  {SUBJECTS_BY_SEMESTER[semester] && SUBJECTS_BY_SEMESTER[semester].length > 0 ? (
+                    <select
+                      required
+                      value={courseCode}
+                      onChange={(e) => setCourseCode(e.target.value)}
+                      className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors appearance-none"
+                    >
+                      {SUBJECTS_BY_SEMESTER[semester].map(sub => (
+                        <option key={sub} value={sub}>{sub}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      required
+                      value={courseCode}
+                      onChange={(e) => setCourseCode(e.target.value)}
+                      className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors"
+                      placeholder="e.g. OS, DBMS, CS101"
+                    />
+                  )}
                 </div>
                 <div className="space-y-1 md:col-span-1 col-span-2">
                   <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Type</label>
