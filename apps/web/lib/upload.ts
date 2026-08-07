@@ -19,14 +19,20 @@ export async function uploadFileToR2(file: File): Promise<string> {
 
   const { uploadUrl, publicUrl } = await presignResponse.json();
 
-  // 2. Upload the file directly to Cloudflare R2
-  const uploadResponse = await fetch(uploadUrl, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': file.type,
-    },
-    body: file,
-  });
+  let uploadResponse;
+  try {
+    // 2. Upload the file directly to Cloudflare R2
+    uploadResponse = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type,
+      },
+      body: file,
+    });
+  } catch (err: any) {
+    console.error("Fetch to R2 failed (likely CORS):", err);
+    throw new Error("Failed to upload to storage bucket. If you are the admin, please configure CORS on your Cloudflare R2 bucket to allow PUT requests.");
+  }
 
   if (!uploadResponse.ok) {
     throw new Error('Failed to upload file to storage');
