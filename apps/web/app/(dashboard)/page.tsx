@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Briefcase, ArrowRight } from "lucide-react";
+import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Briefcase, ArrowRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useUIStore } from "@/store/useUIStore";
 import { GlobalScene } from "@/components/3d/Scene";
@@ -15,7 +15,9 @@ const MODULES = [
     id: "academic",
     color: "#E9D5FF",
     span: "md:col-span-2 md:row-span-2",
-    bg: "bg-pastel-lavender/5"
+    bg: "bg-pastel-lavender/5",
+    iconClass: "h-24 w-24 md:h-32 md:w-32",
+    iconWrapperClass: "p-4 md:p-6"
   },
   {
     title: "Anonymous Chat",
@@ -77,6 +79,16 @@ const MODULES = [
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-blue/5"
   },
+  {
+    title: "Lost & Found",
+    description: "Report and find lost items",
+    icon: Search,
+    href: "/lost-found",
+    id: "lost-found",
+    color: "#FCD34D",
+    span: "md:col-span-1 md:row-span-1",
+    bg: "bg-amber-500/5"
+  }
 ];
 
 export default function DashboardHome() {
@@ -129,9 +141,9 @@ export default function DashboardHome() {
               style={{ background: mod.color }} />
 
             <div className="relative z-10 flex items-start justify-between">
-              <div className="p-3 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10"
+              <div className={`${mod.iconWrapperClass || "p-3"} rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10`}
                 style={{ color: mod.color }}>
-                <mod.icon className="h-6 w-6" />
+                <mod.icon className={mod.iconClass || "h-6 w-6"} />
               </div>
               <div className="h-8 w-8 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0"
                 style={{ color: mod.color }}>
