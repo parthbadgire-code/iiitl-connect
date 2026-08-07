@@ -105,8 +105,11 @@ model StudyResource {
   id              String         @id @default(cuid())
   title           String
   courseCode      String
+  semester        Int
   description     String?
   type            ResourceType
+  examType        ExamType?
+  year            Int?
   uploaderId      String
   url             String?
   markdownContent String?
@@ -376,6 +379,11 @@ enum ResourceType {
   NOTES
   PYQ
   ASSIGNMENT
+}
+
+enum ExamType {
+  MIDSEM
+  ENDSEM
 }
 
 enum RevisionStatus {

@@ -10,7 +10,10 @@ export class AcademicService {
       data: {
         title: dto.title,
         courseCode: dto.courseCode,
+        semester: dto.semester,
         type: dto.type,
+        examType: dto.examType,
+        year: dto.year,
         description: dto.description,
         url: dto.fileUrl,
         uploaderId: userId,

@@ -8,7 +8,10 @@ type StudyResource = {
   id: string;
   title: string;
   courseCode: string;
+  semester: number;
   type: string;
+  examType?: string;
+  year?: number;
   description?: string;
   url?: string;
   uploader?: { name: string; email: string };
@@ -65,11 +68,21 @@ function ResourceCard({ resource, index }: { resource: StudyResource; index: num
             <h3 className="text-sm font-semibold leading-snug line-clamp-2" style={{ color: "#f4f4f8" }}>
               {resource.title}
             </h3>
-            <div className="flex items-center gap-1.5 mt-1">
-              <span className="text-[11px] font-mono font-medium px-1.5 py-0.5 rounded-md"
+            <div className="flex items-center flex-wrap gap-1.5 mt-1.5">
+              <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md"
                 style={{ background: "rgba(255,255,255,0.05)", color: "#8b8ba7" }}>
                 {resource.courseCode}
               </span>
+              <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md"
+                style={{ background: "rgba(255,255,255,0.05)", color: "#8b8ba7" }}>
+                Sem {resource.semester}
+              </span>
+              {resource.type === "PYQ" && resource.examType && resource.year && (
+                <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md"
+                  style={{ background: "rgba(255,255,255,0.05)", color: "#8b8ba7" }}>
+                  {resource.examType === "MIDSEM" ? "Midsem" : "Endsem"} {resource.year}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -123,8 +136,11 @@ export default function AcademicHubPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [courseCode, setCourseCode] = useState("");
+  const [semester, setSemester] = useState("1");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("NOTES");
+  const [examType, setExamType] = useState("MIDSEM");
+  const [year, setYear] = useState(new Date().getFullYear().toString());
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -168,8 +184,11 @@ export default function AcademicHubPage() {
         body: JSON.stringify({
           title,
           courseCode,
+          semester: parseInt(semester, 10),
           description,
           type,
+          examType: type === "PYQ" ? examType : undefined,
+          year: type === "PYQ" ? parseInt(year, 10) : undefined,
           url: fileUrl,
         }),
       });
@@ -178,8 +197,11 @@ export default function AcademicHubPage() {
         setIsModalOpen(false);
         setTitle("");
         setCourseCode("");
+        setSemester("1");
         setDescription("");
         setType("NOTES");
+        setExamType("MIDSEM");
+        setYear(new Date().getFullYear().toString());
         setSelectedFile(null);
         // refresh list
         const refreshed = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/academic/resources`, { credentials: "include" });
@@ -348,30 +370,42 @@ export default function AcademicHubPage() {
             
             <form onSubmit={handleUploadSubmit} className="p-6 space-y-5">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Title</label>
+                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Name of Resource</label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pastel-lavender transition-colors"
-                  placeholder="e.g. EndSem Notes 2024"
+                  placeholder="e.g. Complete DSA Notes"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Course Code</label>
+                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Subject</label>
                   <input
                     type="text"
                     required
                     value={courseCode}
                     onChange={(e) => setCourseCode(e.target.value)}
-                    className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors uppercase"
-                    placeholder="e.g. CS101"
+                    className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors"
+                    placeholder="e.g. OS, DBMS, CS101"
                   />
                 </div>
                 <div className="space-y-1">
+                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Semester</label>
+                  <select
+                    value={semester}
+                    onChange={(e) => setSemester(e.target.value)}
+                    className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors appearance-none"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
+                      <option key={s} value={s}>Semester {s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1 md:col-span-1 col-span-2">
                   <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Type</label>
                   <select
                     value={type}
@@ -384,6 +418,35 @@ export default function AcademicHubPage() {
                   </select>
                 </div>
               </div>
+
+              {type === "PYQ" && (
+                <div className="grid grid-cols-2 gap-4 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Exam Type</label>
+                    <select
+                      value={examType}
+                      onChange={(e) => setExamType(e.target.value)}
+                      className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 transition-colors appearance-none"
+                    >
+                      <option value="MIDSEM">Midsem</option>
+                      <option value="ENDSEM">Endsem</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Year</label>
+                    <input
+                      type="number"
+                      required
+                      min="2010"
+                      max="2030"
+                      value={year}
+                      onChange={(e) => setYear(e.target.value)}
+                      className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 transition-colors"
+                      placeholder="e.g. 2024"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Description</label>
