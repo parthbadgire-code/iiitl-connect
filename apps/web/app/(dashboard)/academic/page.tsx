@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, BookOpen, FileText, ClipboardList, Filter, Search, Upload, X, Loader2 } from "lucide-react";
+import { Download, BookOpen, FileText, ClipboardList, Filter, Search, Upload, X, Loader2, Eye } from "lucide-react";
 import { uploadFileToR2 } from "@/lib/upload";
 
 type StudyResource = {
@@ -91,6 +91,27 @@ function ResourceCard({ resource, index }: { resource: StudyResource; index: num
     ? new Date(resource.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
     : "Recently";
 
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!resource.url) return;
+    try {
+      // Fetch the file to force download via blob (works if CORS GET is enabled)
+      const response = await fetch(resource.url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = resource.title || 'download';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed, falling back to new tab", error);
+      window.open(resource.url, '_blank');
+    }
+  };
+
   return (
     <div
       className="group relative overflow-hidden rounded-3xl p-6 flex flex-col gap-4 animate-fade-in-up bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 hover:border-white/20 transition-all duration-500"
@@ -151,15 +172,25 @@ function ResourceCard({ resource, index }: { resource: StudyResource; index: num
           </div>
         </div>
 
-        <a
-          href={resource.url || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-white/5 text-pastel-lavender hover:bg-pastel-lavender/10 border border-white/5 hover:border-pastel-lavender/30"
-        >
-          <Download className="h-3 w-3" />
-          Download
-        </a>
+        <div className="flex items-center gap-2">
+          {resource.url && (
+            <a
+              href={resource.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-white/5 text-pastel-blue hover:bg-pastel-blue/10 border border-white/5 hover:border-pastel-blue/30"
+            >
+              <Eye className="h-3 w-3" /> Preview
+            </a>
+          )}
+          <button
+            onClick={handleDownload}
+            disabled={!resource.url}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-white/5 text-pastel-lavender hover:bg-pastel-lavender/10 border border-white/5 hover:border-pastel-lavender/30 disabled:opacity-50"
+          >
+            <Download className="h-3 w-3" /> Download
+          </button>
+        </div>
       </div>
     </div>
   );
