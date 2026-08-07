@@ -127,12 +127,10 @@ export function Topbar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="group flex items-center gap-3 rounded-full outline-none transition-all" id="user-menu-trigger">
-                {/* Avatar with crazy rotating gradient ring */}
-                <div className="relative flex h-9 w-9 items-center justify-center rounded-full overflow-hidden"
-                  style={{ padding: "2px" }}>
-                  <div className="absolute inset-0 bg-gradient-to-tr from-pastel-lavender via-pastel-blue to-pastel-mint animate-[spin_3s_linear_infinite]" />
-                  <div className="relative flex h-full w-full items-center justify-center rounded-full text-xs font-bold z-10 transition-transform group-hover:scale-95"
-                    style={{ background: "#050505", color: "#fff" }}>
+                {/* Premium User Avatar */}
+                <div className="relative flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/50 shadow-[0_0_15px_rgba(233,213,255,0.15)] overflow-hidden transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(233,213,255,0.3)] group-hover:border-pastel-lavender/30 group-hover:scale-105">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-pastel-lavender/20 to-pastel-blue/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative z-10 text-xs font-extrabold text-white">
                     {initial}
                   </div>
                 </div>
@@ -158,7 +156,7 @@ export function Topbar() {
               <DropdownMenuItem onClick={() => router.push("/profile")} className="flex items-center gap-2 cursor-pointer focus:bg-white/5 focus:text-white transition-colors">
                 <User className="h-3.5 w-3.5 text-pastel-lavender" /> Profile
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2 cursor-pointer focus:bg-white/5 focus:text-white transition-colors">
+              <DropdownMenuItem onClick={() => router.push("/settings")} className="flex items-center gap-2 cursor-pointer focus:bg-white/5 focus:text-white transition-colors">
                 <Settings className="h-3.5 w-3.5 text-pastel-blue" /> Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-neutral-800/50" />
