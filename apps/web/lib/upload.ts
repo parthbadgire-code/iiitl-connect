@@ -29,7 +29,7 @@ export async function uploadFileToR2(file: File): Promise<string> {
       },
       body: file,
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Fetch to R2 failed (likely CORS):", err);
     throw new Error("Failed to upload to storage bucket. If you are the admin, please configure CORS on your Cloudflare R2 bucket to allow PUT requests.");
   }
