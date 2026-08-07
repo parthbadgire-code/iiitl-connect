@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, PackageX, Package, Plus, CheckCircle2, Loader2, Calendar } from "lucide-react";
+import { Search, PackageX, Package, Plus, CheckCircle2, Loader2, Calendar, Image as ImageIcon, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@parthbadgire/ui/components/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@parthbadgire/ui/components/dialog";
 import { useSession } from "@/lib/auth-client";
+import { uploadFileToR2 } from "@/lib/upload";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -39,7 +40,8 @@ export default function LostFoundPage() {
 
   // Compose
   const [isOpen, setIsOpen] = useState(false);
-  const [form, setForm] = useState({ type: "LOST", title: "", description: "", imageUrl: "" });
+  const [form, setForm] = useState({ type: "LOST", title: "", description: "" });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchItems = async () => {
@@ -63,6 +65,11 @@ export default function LostFoundPage() {
     if (!form.title.trim() || !form.description.trim()) return;
     setIsSubmitting(true);
     try {
+      let imageUrl = undefined;
+      if (selectedFile) {
+        imageUrl = await uploadFileToR2(selectedFile);
+      }
+
       const res = await fetch(`${API}/lost-found`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,14 +78,17 @@ export default function LostFoundPage() {
           type: form.type,
           title: form.title,
           description: form.description,
-          imageUrl: form.imageUrl || undefined,
+          imageUrl,
         }),
       });
       if (res.ok) {
         setIsOpen(false);
-        setForm({ type: "LOST", title: "", description: "", imageUrl: "" });
+        setForm({ type: "LOST", title: "", description: "" });
+        setSelectedFile(null);
         fetchItems();
       }
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -159,12 +169,33 @@ export default function LostFoundPage() {
                 className="w-full p-3.5 bg-black border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-amber-500/50 resize-none text-white"
               />
 
-              <input
-                value={form.imageUrl}
-                onChange={e => setForm(f => ({ ...f, imageUrl: e.target.value }))}
-                placeholder="Image URL (optional)"
-                className="w-full p-3.5 bg-black border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-amber-500/50 text-white"
-              />
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-zinc-400 uppercase">Image (Optional)</label>
+                {selectedFile ? (
+                  <div className="relative h-32 w-full rounded-xl overflow-hidden border border-neutral-800">
+                    <img src={URL.createObjectURL(selectedFile)} alt="Preview" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => setSelectedFile(null)}
+                      className="absolute top-2 right-2 p-1.5 bg-black/60 backdrop-blur-md rounded-full text-white hover:bg-black transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center h-32 w-full bg-black border border-dashed border-neutral-800 rounded-xl cursor-pointer hover:border-amber-500/50 hover:bg-amber-500/5 transition-all">
+                    <div className="h-10 w-10 rounded-full bg-neutral-900 flex items-center justify-center mb-2">
+                      <ImageIcon className="h-5 w-5 text-neutral-500" />
+                    </div>
+                    <span className="text-sm font-medium text-neutral-400">Click to upload an image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={e => e.target.files && setSelectedFile(e.target.files[0])}
+                    />
+                  </label>
+                )}
+              </div>
             </div>
             <div className="flex justify-end gap-3">
               <button onClick={() => setIsOpen(false)} className="text-sm px-4 py-2 text-neutral-400 hover:text-white">Cancel</button>
@@ -321,8 +352,8 @@ export default function LostFoundPage() {
               {activeFilter === "LOST"
                 ? "Nobody has reported a lost item yet."
                 : activeFilter === "FOUND"
-                ? "Nobody has found an item yet."
-                : "Be the first to report a lost or found item!"}
+                  ? "Nobody has found an item yet."
+                  : "Be the first to report a lost or found item!"}
             </p>
           </div>
         )}
