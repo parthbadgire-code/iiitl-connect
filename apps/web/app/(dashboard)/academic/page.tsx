@@ -175,7 +175,7 @@ export default function AcademicHubPage() {
   // Upload State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [courseCode, setCourseCode] = useState("");
+  const [courseCode, setCourseCode] = useState(SUBJECTS_BY_SEMESTER["1"][0]);
   const [semester, setSemester] = useState("1");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("NOTES");
@@ -452,6 +452,7 @@ export default function AcademicHubPage() {
                       onChange={(e) => setCourseCode(e.target.value)}
                       className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors appearance-none"
                     >
+                      <option value="" disabled>Select a subject</option>
                       {SUBJECTS_BY_SEMESTER[semester].map(sub => (
                         <option key={sub} value={sub}>{sub}</option>
                       ))}
