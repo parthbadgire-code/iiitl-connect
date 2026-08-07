@@ -260,7 +260,7 @@ export default function AcademicHubPage() {
           type,
           examType: type === "PYQ" ? examType : undefined,
           year: type === "PYQ" ? parseInt(year, 10) : undefined,
-          url: fileUrl,
+          fileUrl,
         }),
       });
 
