@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -14,7 +15,9 @@ type Club = {
   _count: { members: number; events: number };
 };
 
-const WING_ICONS: Record<string, any> = {
+import React from "react";
+
+const WING_ICONS: Record<string, React.ElementType> = {
   "axios-cp": Terminal,
   "axios-web": Globe,
   "axios-foss": Code,

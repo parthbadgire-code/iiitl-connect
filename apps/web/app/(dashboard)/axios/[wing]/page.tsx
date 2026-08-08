@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -31,7 +32,7 @@ export default function AxiosWingPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs`);
       if (res.ok) {
         const clubs = await res.json();
-        const wing = clubs.find((c: any) => c.slug === slug);
+        const wing = clubs.find((c: { slug: string; id: string }) => c.slug === slug);
         if (wing) {
           const detailRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs/${wing.id}`, { credentials: "include" });
           if (detailRes.ok) {
@@ -76,7 +77,7 @@ export default function AxiosWingPage() {
         ].map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id as "PEOPLE" | "EVENTS" | "RESOURCES")}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               activeTab === tab.id 
                 ? "bg-white/10 text-white shadow-lg" 
