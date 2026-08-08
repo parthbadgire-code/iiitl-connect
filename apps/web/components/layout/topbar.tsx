@@ -10,7 +10,7 @@ import {
 } from "@parthbadgire/ui/components/dropdown-menu";
 import { useSession, signOut } from "@/lib/auth-client";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, LogOut, User, Settings, Search, Loader2 } from "lucide-react";
+import { LogOut, User, Settings, Search, Loader2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 import Link from "next/link";
