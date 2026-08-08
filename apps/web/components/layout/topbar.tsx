@@ -115,7 +115,7 @@ export function Topbar() {
             <span className="absolute text-[9px] font-black text-white" style={{ textShadow: "0 0 10px rgba(233,213,255,0.8)" }}>II</span>
           </div>
           <div className="hidden sm:block">
-            <div className="text-xl font-medium leading-none text-white tracking-wide">iiitl<span className="text-pastel-lavender">.</span>connect</div>
+            <div className="text-2xl font-black tracking-tighter text-white">iiitl<span className="opacity-90">.connect</span></div>
           </div>
         </Link>
       </div>
@@ -149,7 +149,7 @@ export function Topbar() {
       </div>
 
       {/* Right: Actions */}
-      <div className="flex-1 flex items-center justify-end gap-3 md:gap-5">
+      <div className="flex-1 flex items-center justify-end gap-4 md:gap-8">
         
         {/* Search */}
         <div ref={searchRef} className="relative hidden md:block">

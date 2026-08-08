@@ -53,7 +53,7 @@ export default function ClubsPage() {
         fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs`, { credentials: "include" }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/events`, { credentials: "include" })
       ]);
-      
+
       if (clubsRes.ok) setClubs(await clubsRes.json());
       if (eventsRes.ok) setEvents(await eventsRes.json());
     } catch (err) {
@@ -106,10 +106,10 @@ export default function ClubsPage() {
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none text-white">
-            Clubs & <span className="bg-gradient-to-r from-pastel-lavender to-pastel-blue bg-clip-text text-transparent">Events</span>
+            Clubs & <span className="bg-gradient-to-r from-pastel-lavender to-pastel-blue bg-clip-text text-transparent"></span>
           </h1>
         </div>
-        <button 
+        <button
           onClick={() => setShowNewClub(!showNewClub)}
           className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 bg-pastel-lavender text-black hover:bg-pastel-lavender/90 hover:scale-105"
         >
@@ -175,7 +175,7 @@ export default function ClubsPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* Left: Clubs Grid */}
         <div className="lg:col-span-2 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
