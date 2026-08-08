@@ -85,7 +85,7 @@ export function Topbar() {
 
   return (
     <header
-      className="relative flex h-16 items-center justify-between px-6 border-b sticky top-0 z-50"
+      className="relative flex h-[72px] items-center justify-between px-8 md:px-12 border-b sticky top-0 z-50"
       style={{
         background: "rgba(5,5,5,0.8)",
         backdropFilter: "blur(40px)",
@@ -114,7 +114,7 @@ export function Topbar() {
             <span className="absolute text-[9px] font-black text-white" style={{ textShadow: "0 0 10px rgba(233,213,255,0.8)" }}>II</span>
           </div>
           <div className="hidden sm:block">
-            <div className="text-lg font-black leading-none text-white tracking-tight">IIITL Connect</div>
+            <div className="text-2xl font-black leading-none text-white tracking-tighter font-mono">iiitl<span className="text-pastel-lavender">.</span>connect</div>
           </div>
         </Link>
       </div>
