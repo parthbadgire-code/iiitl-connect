@@ -3,8 +3,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Card, CardContent } from "@parthbadgire/ui/components/card";
-import { Users, Calendar, BookOpen, Link as LinkIcon, Download, Upload } from "lucide-react";
+import { Card } from "@parthbadgire/ui/components/card";
+import { Users, Calendar, BookOpen, Link as LinkIcon, Upload } from "lucide-react";
 
 type ClubDetails = {
   id: string;
@@ -23,6 +23,7 @@ export default function AxiosWingPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"PEOPLE" | "EVENTS" | "RESOURCES">("PEOPLE");
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (slug) fetchWingDetails();
   }, [slug]);
