@@ -17,7 +17,7 @@ type Club = {
 
 import React from "react";
 
-const WING_ICONS: Record<string, React.ElementType> = {
+const WING_ICONS: Record<string, any> = {
   "axios-cp": Terminal,
   "axios-web": Globe,
   "axios-foss": Code,
