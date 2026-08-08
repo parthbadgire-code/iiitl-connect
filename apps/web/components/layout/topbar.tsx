@@ -10,7 +10,8 @@ import {
 } from "@parthbadgire/ui/components/dropdown-menu";
 import { useSession, signOut } from "@/lib/auth-client";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, LogOut, User, Settings } from "lucide-react";
+import { Bell, LogOut, User, Settings, Search, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 
 import Link from "next/link";
 import { cn } from "@parthbadgire/ui/lib/utils";
@@ -31,9 +32,50 @@ export function Topbar() {
   const pathname = usePathname();
   const router = useRouter();
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
   const initial = session?.user?.name
     ? session.user.name.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase()
     : "ST";
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearchDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setShowSearchDropdown(false);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      setShowSearchDropdown(true);
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/profile/search?q=${encodeURIComponent(searchQuery)}`, { credentials: "include" });
+        if (res.ok) {
+          setSearchResults(await res.json());
+        }
+      } catch (err) {
+        console.error("Search failed", err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   return (
     <header
@@ -100,7 +142,63 @@ export function Topbar() {
       </div>
 
       {/* Right: Actions */}
-      <div className="flex-1 flex items-center justify-end gap-2">
+      <div className="flex-1 flex items-center justify-end gap-2 md:gap-4">
+        
+        {/* Search */}
+        <div ref={searchRef} className="relative hidden md:block">
+          <div className="relative flex items-center">
+            <Search className="absolute left-3 h-4 w-4 text-neutral-500" />
+            <input
+              type="text"
+              placeholder="Search people..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => { if (searchQuery.trim()) setShowSearchDropdown(true); }}
+              className="w-48 lg:w-64 pl-9 pr-4 py-1.5 bg-black/40 border border-neutral-800 rounded-full text-xs text-white focus:outline-none focus:border-pastel-lavender/50 transition-all placeholder:text-neutral-600"
+            />
+          </div>
+          
+          {/* Search Dropdown */}
+          {showSearchDropdown && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-[#0A0A0A]/95 backdrop-blur-xl border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl py-2 z-50 animate-fade-in-up" style={{ minWidth: "100%" }}>
+              {isSearching ? (
+                <div className="flex items-center justify-center py-4 text-neutral-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
+              ) : searchResults.length > 0 ? (
+                <div className="flex flex-col max-h-[300px] overflow-y-auto">
+                  {searchResults.map((user) => (
+                    <button
+                      key={user.id}
+                      onClick={() => {
+                        setShowSearchDropdown(false);
+                        setSearchQuery("");
+                        router.push(`/u/${user.id}`);
+                      }}
+                      className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors text-left"
+                    >
+                      <div className="h-8 w-8 rounded-full overflow-hidden bg-neutral-900 border border-neutral-800 shrink-0 flex items-center justify-center text-xs font-bold text-white">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {user.image ? <img src={user.image} alt="" className="h-full w-full object-cover" /> : user.name.charAt(0)}
+                      </div>
+                      <div className="overflow-hidden">
+                        <div className="text-sm font-semibold text-white truncate">{user.name}</div>
+                        <div className="text-[10px] text-neutral-500 truncate">
+                          {user.role} {user.studentProfile?.batch ? `· Class of ${user.studentProfile.batch}` : ""}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-4 text-center text-xs text-neutral-500">
+                  No users found
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Notification bell */}
         <button
           className="relative flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300 group"

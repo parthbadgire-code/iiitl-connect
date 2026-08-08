@@ -54,4 +54,46 @@ export class ProfileService {
       data: { image: imageUrl },
     });
   }
+
+  async searchProfiles(query: string) {
+    return this.database.user.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        role: true,
+        studentProfile: {
+          select: {
+            batch: true,
+          }
+        }
+      },
+      take: 10,
+    });
+  }
+
+  async getPublicProfile(userId: string) {
+    return this.database.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        role: true,
+        studentProfile: true,
+        clubMemberships: {
+          include: {
+            club: true,
+          }
+        },
+      }
+    });
+  }
 }

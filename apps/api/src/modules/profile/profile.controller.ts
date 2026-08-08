@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Body, UseGuards, Query, Param, NotFoundException } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { UpsertProfileDto } from './dto/profile.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -28,5 +28,22 @@ export class ProfileController {
     @Body('imageUrl') imageUrl: string,
   ) {
     return this.profileService.updateAvatar(user.id, imageUrl);
+  }
+
+  @Get('search')
+  async searchProfiles(@Query('q') query: string) {
+    if (!query || query.trim().length === 0) {
+      return [];
+    }
+    return this.profileService.searchProfiles(query.trim());
+  }
+
+  @Get('public/:id')
+  async getPublicProfile(@Param('id') id: string) {
+    const profile = await this.profileService.getPublicProfile(id);
+    if (!profile) {
+      throw new NotFoundException('Profile not found');
+    }
+    return profile;
   }
 }
