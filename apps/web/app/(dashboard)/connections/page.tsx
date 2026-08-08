@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Users, Heart, X, Sparkles, Target, Code, Dumbbell, UserPlus, CheckCircle2, MessageSquare, Send, Trash2, Edit2, ArrowLeft } from "lucide-react";
+import { Users, Heart, X, Sparkles, Target, Code, Dumbbell, UserPlus, MessageSquare, Send, Trash2, Edit2, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@parthbadgire/ui/components/card";
 
 type ConnectionProfile = {
