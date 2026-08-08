@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { ConnectionsService } from './connections.service';
-import { CreateProfileDto, SwipeDto } from './dto/connections.dto';
+import { CreateProfileDto, SwipeDto, SendMessageDto } from './dto/connections.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 
@@ -22,6 +22,19 @@ export class ConnectionsController {
     return this.connectionsService.createProfile(data, user.id);
   }
 
+  @Put('profile')
+  async updateProfile(
+    @Body() data: CreateProfileDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.connectionsService.createProfile(data, user.id); // Upsert handles both
+  }
+
+  @Delete('profile')
+  async deleteProfile(@CurrentUser() user: any) {
+    return this.connectionsService.deleteProfile(user.id);
+  }
+
   @Get('discover')
   async getDiscoverFeed(@CurrentUser() user: any) {
     return this.connectionsService.getDiscoverFeed(user.id);
@@ -38,5 +51,22 @@ export class ConnectionsController {
   @Get('matches')
   async getMatches(@CurrentUser() user: any) {
     return this.connectionsService.getMatches(user.id);
+  }
+
+  @Get('matches/:matchId/messages')
+  async getMessages(
+    @Param('matchId') matchId: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.connectionsService.getMessages(matchId, user.id);
+  }
+
+  @Post('matches/:matchId/messages')
+  async sendMessage(
+    @Param('matchId') matchId: string,
+    @Body() data: SendMessageDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.connectionsService.sendMessage(matchId, data, user.id);
   }
 }

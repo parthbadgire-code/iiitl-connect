@@ -1,6 +1,6 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { CreateProfileDto, SwipeDto } from './dto/connections.dto';
+import { CreateProfileDto, SwipeDto, SendMessageDto } from './dto/connections.dto';
 
 @Injectable()
 export class ConnectionsService {
@@ -13,19 +13,48 @@ export class ConnectionsService {
   }
 
   async createProfile(data: CreateProfileDto, userId: string) {
+    // Check username uniqueness if they are changing it or creating new
+    const existing = await this.database.connectionProfile.findUnique({
+      where: { username: data.username }
+    });
+    
+    if (existing && existing.userId !== userId) {
+      throw new ConflictException("Username already taken.");
+    }
+
     return this.database.connectionProfile.upsert({
       where: { userId },
       update: {
+        username: data.username,
+        gender: data.gender,
         bio: data.bio,
         interests: data.interests,
         lookingFor: data.lookingFor,
       },
       create: {
         userId,
+        username: data.username,
+        gender: data.gender,
         bio: data.bio,
         interests: data.interests,
         lookingFor: data.lookingFor,
       },
+    });
+  }
+
+  async deleteProfile(userId: string) {
+    // Also delete their mutual connections and swipes and messages
+    // Handled by Prisma cascade on userId where possible, but MutualConnection has two user IDs
+    await this.database.swipe.deleteMany({
+      where: { OR: [{ senderId: userId }, { receiverId: userId }] }
+    });
+    
+    await this.database.mutualConnection.deleteMany({
+      where: { OR: [{ user1Id: userId }, { user2Id: userId }] }
+    });
+
+    return this.database.connectionProfile.delete({
+      where: { userId },
     });
   }
 
@@ -52,8 +81,8 @@ export class ConnectionsService {
         user: {
           select: {
             id: true,
-            name: true,
             image: true,
+            // Hiding name for privacy!
           }
         }
       },
@@ -158,6 +187,40 @@ export class ConnectionsService {
         matchedAt: match.createdAt,
         user: otherUser,
       };
+    });
+  }
+
+  async getMessages(matchId: string, userId: string) {
+    // Verify user is part of the match
+    const match = await this.database.mutualConnection.findUnique({
+      where: { id: matchId }
+    });
+
+    if (!match || (match.user1Id !== userId && match.user2Id !== userId)) {
+      throw new ConflictException("Invalid match access");
+    }
+
+    return this.database.connectionMessage.findMany({
+      where: { matchId },
+      orderBy: { createdAt: 'asc' }
+    });
+  }
+
+  async sendMessage(matchId: string, data: SendMessageDto, userId: string) {
+    const match = await this.database.mutualConnection.findUnique({
+      where: { id: matchId }
+    });
+
+    if (!match || (match.user1Id !== userId && match.user2Id !== userId)) {
+      throw new ConflictException("Invalid match access");
+    }
+
+    return this.database.connectionMessage.create({
+      data: {
+        matchId,
+        senderId: userId,
+        content: data.content,
+      }
     });
   }
 }

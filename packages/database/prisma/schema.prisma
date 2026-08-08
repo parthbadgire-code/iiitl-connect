@@ -39,6 +39,7 @@ model User {
   sentSwipes           Swipe[]               @relation("SwipeSender")
   studyResources       StudyResource[]
   uploadedClubResources ClubResource[]
+  connectionMessages   ConnectionMessage[]
 }
 
 model Session {
@@ -327,6 +328,8 @@ model RoomExchangeRequest {
 model ConnectionProfile {
   id         String     @id @default(cuid())
   userId     String     @unique
+  username   String     @unique
+  gender     Gender
   bio        String?
   interests  String[]
   lookingFor LookingFor
@@ -354,8 +357,20 @@ model MutualConnection {
   createdAt DateTime @default(now())
   user1     User     @relation("MutualUser1", fields: [user1Id], references: [id], onDelete: Cascade)
   user2     User     @relation("MutualUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+  messages  ConnectionMessage[]
 
   @@unique([user1Id, user2Id])
+}
+
+model ConnectionMessage {
+  id         String           @id @default(cuid())
+  matchId    String
+  senderId   String
+  content    String
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  match      MutualConnection @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  sender     User             @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
 
 model CampusEvent {
@@ -469,4 +484,11 @@ enum ClubResourceType {
   CLASS
   RESOURCE
   ASSIGNMENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  OTHER
 }
