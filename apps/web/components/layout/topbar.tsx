@@ -85,7 +85,7 @@ export function Topbar() {
 
   return (
     <header
-      className="relative flex h-14 items-center justify-between px-4 border-b sticky top-0 z-50"
+      className="relative flex h-16 items-center justify-between px-6 border-b sticky top-0 z-50"
       style={{
         background: "rgba(5,5,5,0.8)",
         backdropFilter: "blur(40px)",
@@ -114,7 +114,7 @@ export function Topbar() {
             <span className="absolute text-[9px] font-black text-white" style={{ textShadow: "0 0 10px rgba(233,213,255,0.8)" }}>II</span>
           </div>
           <div className="hidden sm:block">
-            <div className="text-sm font-extrabold leading-none text-white tracking-tight">IIITL Connect</div>
+            <div className="text-lg font-black leading-none text-white tracking-tight">IIITL Connect</div>
           </div>
         </Link>
       </div>
@@ -148,7 +148,7 @@ export function Topbar() {
       </div>
 
       {/* Right: Actions */}
-      <div className="flex-1 flex items-center justify-end gap-2 md:gap-4">
+      <div className="flex-1 flex items-center justify-end gap-3 md:gap-5">
         
         {/* Search */}
         <div ref={searchRef} className="relative hidden md:block">
@@ -205,46 +205,20 @@ export function Topbar() {
           )}
         </div>
 
-        {/* Notification bell */}
-        <button
-          className="relative flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300 group"
-          style={{ color: "#737373" }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)";
-            (e.currentTarget as HTMLElement).style.color = "#fff";
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.background = "transparent";
-            (e.currentTarget as HTMLElement).style.color = "#737373";
-          }}
-          aria-label="Notifications"
-        >
-          <Bell className="h-4 w-4 group-hover:scale-110 transition-transform" />
-          {/* Notification dot with pulse */}
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-pastel-mint animate-pulse"
-            style={{ boxShadow: "0 0 10px #A7F3D0" }} />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-pastel-mint animate-ping" />
-        </button>
-
         {/* User dropdown */}
         {session?.user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="group flex items-center gap-3 rounded-full outline-none transition-all" id="user-menu-trigger">
+              <button className="group flex items-center gap-2.5 rounded-full bg-white/5 border border-white/5 pr-4 pl-1.5 py-1.5 outline-none transition-all hover:bg-white/10 hover:border-white/10 shadow-lg hover:shadow-xl" id="user-menu-trigger">
                 {/* Premium User Avatar */}
-                <div className="relative flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/50 shadow-[0_0_15px_rgba(233,213,255,0.15)] overflow-hidden transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(233,213,255,0.3)] group-hover:border-pastel-lavender/30 group-hover:scale-105">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-pastel-lavender/20 to-pastel-blue/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative z-10 text-xs font-extrabold text-white">
+                <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-pastel-lavender/90 to-pastel-blue/90 overflow-hidden shadow-inner transition-transform group-hover:scale-105">
+                  <div className="relative z-10 text-xs font-black text-black">
                     {initial}
                   </div>
                 </div>
-                <div className="hidden sm:block text-left group-hover:opacity-80 transition-opacity">
-                  <div className="text-xs font-extrabold leading-none text-white tracking-tight">
+                <div className="hidden sm:block text-left">
+                  <div className="text-[13px] font-bold leading-none text-white tracking-tight">
                     {session.user.name?.split(" ")[0] || "Student"}
-                  </div>
-                  <div className="text-[10px] mt-0.5 text-neutral-500 font-mono tracking-tighter">
-                    {session.user.email?.replace("@iiitl.ac.in", "") || ""}
-                    <span className="text-pastel-lavender">@iiitl</span>
                   </div>
                 </div>
               </button>
