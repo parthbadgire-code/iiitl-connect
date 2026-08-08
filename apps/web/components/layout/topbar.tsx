@@ -24,6 +24,7 @@ const NAVIGATION = [
   { name: "Lost & Found", href: "/lost-found", accent: "#FCD34D" },
   { name: "Clubs", href: "/clubs", accent: "#E9D5FF" },
   { name: "Connections", href: "/connections", accent: "#BAE6FD" },
+  { name: "Axios", href: "/axios", accent: "#E9D5FF" },
   { name: "About Us", href: "/about", accent: "#FBCFE8" },
 ];
 
@@ -114,7 +115,7 @@ export function Topbar() {
             <span className="absolute text-[9px] font-black text-white" style={{ textShadow: "0 0 10px rgba(233,213,255,0.8)" }}>II</span>
           </div>
           <div className="hidden sm:block">
-            <div className="text-2xl font-black leading-none text-white tracking-tighter font-mono">iiitl<span className="text-pastel-lavender">.</span>connect</div>
+            <div className="text-xl font-medium leading-none text-white tracking-wide">iiitl<span className="text-pastel-lavender">.</span>connect</div>
           </div>
         </Link>
       </div>

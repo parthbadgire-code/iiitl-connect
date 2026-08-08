@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException, NotFoundException, ConflictException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { CreateClubDto, AddMemberDto } from './dto/club.dto';
+import { CreateClubDto, AddMemberDto, CreateClubResourceDto } from './dto/club.dto';
 import { ClubRole } from '@prisma/client';
 
 @Injectable()
@@ -64,6 +64,14 @@ export class ClubService {
         },
         events: {
           orderBy: { date: 'asc' }
+        },
+        resources: {
+          include: {
+            uploader: {
+              select: { name: true, image: true, email: true }
+            }
+          },
+          orderBy: { createdAt: 'desc' }
         }
       }
     });
@@ -152,5 +160,27 @@ export class ClubService {
         data: { role: ClubRole.SENIOR_MEMBER }
       })
     ]);
+  }
+
+  async addResourceToClub(clubId: string, data: CreateClubResourceDto, userId: string) {
+    // 1. Verify executing user is LEAD or COORDINATOR
+    const executorMembership = await this.database.clubMember.findUnique({
+      where: { userId_clubId: { userId, clubId } }
+    });
+
+    if (!executorMembership || (executorMembership.role !== ClubRole.LEAD && executorMembership.role !== ClubRole.COORDINATOR && executorMembership.role !== ClubRole.CORE)) {
+      throw new ForbiddenException("You must be a LEAD, CORE, or COORDINATOR of this club to add resources.");
+    }
+
+    return this.database.clubResource.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        url: data.url,
+        type: data.type,
+        clubId,
+        uploaderId: userId,
+      }
+    });
   }
 }

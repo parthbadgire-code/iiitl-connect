@@ -1,5 +1,5 @@
-import { IsString, IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
-import { ClubRole } from '@prisma/client';
+import { IsString, IsEnum, IsNotEmpty, IsOptional, IsUrl } from 'class-validator';
+import { ClubRole, ClubResourceType } from '@prisma/client';
 
 export class CreateClubDto {
   @IsString()
@@ -28,4 +28,21 @@ export class TransferRoleDto {
   @IsString()
   @IsNotEmpty()
   email: string;
+}
+
+export class CreateClubResourceDto {
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsUrl()
+  @IsOptional()
+  url?: string;
+
+  @IsEnum(ClubResourceType)
+  type: ClubResourceType;
 }

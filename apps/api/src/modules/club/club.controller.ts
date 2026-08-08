@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { ClubService } from './club.service';
-import { CreateClubDto, AddMemberDto, TransferRoleDto } from './dto/club.dto';
+import { CreateClubDto, AddMemberDto, TransferRoleDto, CreateClubResourceDto } from './dto/club.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 
@@ -40,5 +40,14 @@ export class ClubController {
     @CurrentUser() user: any,
   ) {
     return this.clubService.transferRole(clubId, data, user.id);
+  }
+
+  @Post(':id/resources')
+  async addResourceToClub(
+    @Param('id') clubId: string,
+    @Body() data: CreateClubResourceDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.clubService.addResourceToClub(clubId, data, user.id);
   }
 }

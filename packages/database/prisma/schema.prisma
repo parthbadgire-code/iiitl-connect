@@ -38,6 +38,7 @@ model User {
   receivedSwipes       Swipe[]               @relation("SwipeReceiver")
   sentSwipes           Swipe[]               @relation("SwipeSender")
   studyResources       StudyResource[]
+  uploadedClubResources ClubResource[]
 }
 
 model Session {
@@ -190,6 +191,7 @@ model Club {
   updatedAt   DateTime      @updatedAt
   events      CampusEvent[]
   members     ClubMember[]
+  resources   ClubResource[]
 }
 
 model ClubMember {
@@ -203,6 +205,20 @@ model ClubMember {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, clubId])
+}
+
+model ClubResource {
+  id          String           @id @default(cuid())
+  title       String
+  description String?
+  url         String?
+  type        ClubResourceType
+  clubId      String
+  uploaderId  String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  club        Club             @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  uploader    User             @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
 }
 
 model Company {
@@ -447,4 +463,10 @@ enum LookingFor {
 enum SwipeAction {
   LIKE
   PASS
+}
+
+enum ClubResourceType {
+  CLASS
+  RESOURCE
+  ASSIGNMENT
 }
