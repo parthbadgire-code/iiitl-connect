@@ -33,7 +33,13 @@ export function Topbar() {
   const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<Array<{
+    id: string;
+    name: string;
+    image: string | null;
+    role: string;
+    studentProfile: { batch: string } | null;
+  }>>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
