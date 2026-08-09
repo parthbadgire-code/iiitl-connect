@@ -25,6 +25,7 @@ const NAVIGATION = [
   { name: "Clubs", href: "/clubs", accent: "#E9D5FF" },
   { name: "Connections", href: "/connections", accent: "#BAE6FD" },
   { name: "Axios", href: "/axios", accent: "#E9D5FF" },
+  { name: "Guide", href: "/guide", accent: "#A7F3D0" },
   { name: "About Us", href: "/about", accent: "#FBCFE8" },
 ];
 
