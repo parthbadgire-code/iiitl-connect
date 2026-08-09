@@ -34,6 +34,11 @@ export class ClubService {
 
   async getAllClubs() {
     return this.database.club.findMany({
+      where: {
+        NOT: {
+          slug: { startsWith: 'axios-' }
+        }
+      },
       include: {
         _count: {
           select: { members: true, events: true }

@@ -7,7 +7,7 @@ import { CurrentUser } from '../../common/decorators/user.decorator';
 @Controller('clubs')
 @UseGuards(AuthGuard)
 export class ClubController {
-  constructor(private readonly clubService: ClubService) {}
+  constructor(private readonly clubService: ClubService) { }
 
   @Get()
   async getAllClubs() {

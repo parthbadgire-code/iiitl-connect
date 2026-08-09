@@ -106,7 +106,7 @@ export default function ClubsPage() {
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none text-white">
-            Clubs & <span className="bg-gradient-to-r from-pastel-lavender to-pastel-blue bg-clip-text text-transparent"></span>
+            Clubs <span className="bg-gradient-to-r from-pastel-lavender to-pastel-blue bg-clip-text text-transparent"></span>
           </h1>
         </div>
         <button
