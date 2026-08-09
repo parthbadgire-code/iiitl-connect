@@ -10,8 +10,7 @@ import {
   MessageSquare,
   Sparkles,
   Search,
-  Building2,
-  Users
+  Building2
 } from "lucide-react";
 import Link from "next/link";
 
