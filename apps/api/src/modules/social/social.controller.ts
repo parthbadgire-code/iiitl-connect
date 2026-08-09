@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Query, Param, UseGuards } from '@nestjs/common';
 import { SocialService } from './social.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -13,9 +13,11 @@ export class SocialController {
   @Get('feed')
   async getFeed(
     @Query('category') category?: PostCategory,
+    @Query('month') month?: string,
+    @Query('year') year?: string,
     @CurrentUser() user?: any,
   ) {
-    return this.socialService.getFeed(category, user?.id);
+    return this.socialService.getFeed(category, month, year, user?.id);
   }
 
   @Post('feed')
@@ -47,5 +49,13 @@ export class SocialController {
   @Get('feed/:postId/replies')
   async getReplies(@Param('postId') postId: string) {
     return this.socialService.getReplies(postId);
+  }
+
+  @Delete('feed/:postId')
+  async deletePost(
+    @Param('postId') postId: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.socialService.deletePost(postId, user.id);
   }
 }

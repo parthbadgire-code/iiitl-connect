@@ -122,8 +122,8 @@ export function Topbar() {
       </div>
         
       {/* Center: Horizontal Navigation Links */}
-      <div className="hidden lg:flex justify-center">
-        <nav className="flex items-center gap-1 bg-[#0A0A0A]/50 p-1 rounded-full border border-neutral-800/80 backdrop-blur-md">
+      <div className="hidden lg:flex justify-center flex-1 mx-4 overflow-hidden">
+        <nav className="flex items-center gap-1 bg-[#0A0A0A]/50 p-1 rounded-full border border-neutral-800/80 backdrop-blur-md overflow-x-auto no-scrollbar max-w-full">
           {NAVIGATION.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (

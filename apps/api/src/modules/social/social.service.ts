@@ -57,8 +57,18 @@ export class SocialService {
     });
   }
 
-  async getFeed(category?: PostCategory, userId?: string) {
-    const where = category ? { category } : {};
+  async getFeed(category?: PostCategory, month?: string, year?: string, userId?: string) {
+    const where: any = {};
+    if (category) where.category = category;
+    
+    if (month && year) {
+      const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+      const endDate = new Date(parseInt(year), parseInt(month), 1);
+      where.createdAt = {
+        gte: startDate,
+        lt: endDate,
+      };
+    }
 
     const identity = userId ? await this.database.anonymousIdentity.findUnique({ where: { userId } }) : null;
 
@@ -158,6 +168,18 @@ export class SocialService {
       include: {
         anonymousIdentity: { select: { avatarSeed: true } },
       },
+    });
+  }
+
+  async deletePost(postId: string, userId: string) {
+    // Verify user is SUPER_ADMIN
+    const user = await this.database.user.findUnique({ where: { id: userId } });
+    if (!user || user.role !== 'SUPER_ADMIN') {
+      throw new Error('Unauthorized. Admin access required.');
+    }
+
+    return this.database.anonymousPost.delete({
+      where: { id: postId }
     });
   }
 }

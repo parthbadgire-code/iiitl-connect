@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Ghost, Sparkles, Filter, Send, ThumbsUp, ThumbsDown, MessageSquare, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { Ghost, Sparkles, Filter, Send, ThumbsUp, ThumbsDown, MessageSquare, ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@parthbadgire/ui/components/card";
 import {
   Dialog,
@@ -64,9 +65,13 @@ function SkeletonPost() {
 function PostCard({
   post,
   onReact,
+  isAdmin,
+  onDelete,
 }: {
   post: AnonymousPost;
   onReact: (postId: string, type: "LIKE" | "DISLIKE") => void;
+  isAdmin: boolean;
+  onDelete: (postId: string) => void;
 }) {
   const [showReplies, setShowReplies] = useState(false);
   const [replies, setReplies] = useState<PostReply[]>([]);
@@ -158,6 +163,11 @@ function PostCard({
           >
             {catConf.label}
           </span>
+          {isAdmin && (
+            <button onClick={() => onDelete(post.id)} className="p-1 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors">
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </CardHeader>
 
@@ -277,9 +287,17 @@ function PostCard({
 }
 
 export default function AnonymousChatPage() {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.email === "lit2025021@iiitl.ac.in" || (session?.user as any)?.role === "SUPER_ADMIN";
+
   const [posts, setPosts] = useState<AnonymousPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  
+  const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
+  const currentYear = new Date().getFullYear().toString();
+  const [activeMonth, setActiveMonth] = useState<string>(currentMonth);
+  const [activeYear, setActiveYear] = useState<string>(currentYear);
 
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [newContent, setNewContent] = useState("");
@@ -289,9 +307,12 @@ export default function AnonymousChatPage() {
   const fetchFeed = async () => {
     setLoading(true);
     try {
-      const url = activeCategory
-        ? `${API}/social/feed?category=${activeCategory}`
-        : `${API}/social/feed`;
+      const params = new URLSearchParams();
+      if (activeCategory) params.append("category", activeCategory);
+      if (activeMonth) params.append("month", activeMonth);
+      if (activeYear) params.append("year", activeYear);
+      
+      const url = `${API}/social/feed?${params.toString()}`;
       const res = await fetch(url, { credentials: "include" });
       if (res.ok) setPosts(await res.json());
     } catch (err) {
@@ -304,7 +325,7 @@ export default function AnonymousChatPage() {
   useEffect(() => {
     fetchFeed();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory]);
+  }, [activeCategory, activeMonth, activeYear]);
 
   const handleSubmit = async () => {
     if (!newContent.trim()) return;
@@ -373,6 +394,24 @@ export default function AnonymousChatPage() {
       console.error("React failed:", err);
       // Revert by re-fetching
       fetchFeed();
+    }
+  };
+
+  const handleDelete = async (postId: string) => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+    try {
+      const res = await fetch(`${API}/social/feed/${postId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setPosts((prev) => prev.filter((p) => p.id !== postId));
+      } else {
+        alert("Failed to delete post");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting post");
     }
   };
 
@@ -459,8 +498,9 @@ export default function AnonymousChatPage() {
       </div>
 
       {/* Filter Chips */}
-      <div className="flex flex-wrap items-center gap-2 animate-fade-in-up delay-100">
-        <Filter className="h-4 w-4 mr-1 text-neutral-500" />
+      <div className="flex flex-col md:flex-row gap-4 animate-fade-in-up delay-100 items-start md:items-center justify-between bg-[#0A0A0A]/50 p-4 rounded-3xl border border-white/5">
+        <div className="flex flex-wrap items-center gap-2">
+          <Filter className="h-4 w-4 mr-1 text-neutral-500" />
         <button
           onClick={() => setActiveCategory(null)}
           className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
@@ -492,6 +532,36 @@ export default function AnonymousChatPage() {
             {c.label}
           </button>
         ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <select 
+            value={activeMonth} 
+            onChange={e => setActiveMonth(e.target.value)}
+            className="bg-black border border-white/10 text-white text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-pastel-mint"
+          >
+            <option value="01">Jan</option>
+            <option value="02">Feb</option>
+            <option value="03">Mar</option>
+            <option value="04">Apr</option>
+            <option value="05">May</option>
+            <option value="06">Jun</option>
+            <option value="07">Jul</option>
+            <option value="08">Aug</option>
+            <option value="09">Sep</option>
+            <option value="10">Oct</option>
+            <option value="11">Nov</option>
+            <option value="12">Dec</option>
+          </select>
+          <select 
+            value={activeYear} 
+            onChange={e => setActiveYear(e.target.value)}
+            className="bg-black border border-white/10 text-white text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-pastel-mint"
+          >
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+          </select>
+        </div>
       </div>
 
       {/* Feed */}
@@ -504,7 +574,7 @@ export default function AnonymousChatPage() {
           </>
         ) : posts.length > 0 ? (
           posts.map((post) => (
-            <PostCard key={post.id} post={post} onReact={handleReact} />
+            <PostCard key={post.id} post={post} onReact={handleReact} isAdmin={isAdmin} onDelete={handleDelete} />
           ))
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">

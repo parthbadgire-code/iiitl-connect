@@ -35,6 +35,14 @@ export class ConnectionsController {
     return this.connectionsService.deleteProfile(user.id);
   }
 
+  @Delete('admin/profiles/:id')
+  async adminDeleteProfile(
+    @Param('id') profileId: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.connectionsService.adminDeleteProfile(profileId, user.id);
+  }
+
   @Get('discover')
   async getDiscoverFeed(@CurrentUser() user: any) {
     return this.connectionsService.getDiscoverFeed(user.id);

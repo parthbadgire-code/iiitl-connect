@@ -12,6 +12,17 @@ export class ConnectionsService {
     });
   }
 
+  async adminDeleteProfile(profileUserId: string, adminId: string) {
+    const admin = await this.database.user.findUnique({ where: { id: adminId } });
+    if (!admin || admin.role !== 'SUPER_ADMIN') {
+      throw new Error('Unauthorized. Admin access required.');
+    }
+
+    return this.database.connectionProfile.delete({
+      where: { userId: profileUserId },
+    });
+  }
+
   async createProfile(data: CreateProfileDto, userId: string) {
     // Check username uniqueness if they are changing it or creating new
     const existing = await this.database.connectionProfile.findUnique({
