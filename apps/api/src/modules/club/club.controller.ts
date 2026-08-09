@@ -14,6 +14,11 @@ export class ClubController {
     return this.clubService.getAllClubs();
   }
 
+  @Get('axios-wings')
+  async getAxiosWings() {
+    return this.clubService.getAxiosWings();
+  }
+
   @Post()
   async createClub(@Body() data: CreateClubDto, @CurrentUser() user: any) {
     return this.clubService.createClub(data, user.id);

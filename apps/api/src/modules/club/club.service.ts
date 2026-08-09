@@ -48,6 +48,16 @@ export class ClubService {
     });
   }
 
+  async getAxiosWings() {
+    return this.database.club.findMany({
+      where: { slug: { startsWith: 'axios-' } },
+      include: {
+        _count: { select: { members: true, events: true } }
+      },
+      orderBy: { name: 'asc' }
+    });
+  }
+
   async getClubDetails(clubId: string) {
     const club = await this.database.club.findUnique({
       where: { id: clubId },

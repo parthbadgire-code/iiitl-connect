@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Card } from "@parthbadgire/ui/components/card";
-import { Users, Calendar, BookOpen, Link as LinkIcon, Upload } from "lucide-react";
+import { Users, Calendar, BookOpen, Link as LinkIcon, Upload, Star, Crown } from "lucide-react";
 
 type ClubDetails = {
   id: string;
@@ -14,6 +14,98 @@ type ClubDetails = {
   members: any[];
   events: any[];
   resources: any[];
+};
+
+type WingMember = {
+  name: string;
+  role: "COORDINATOR" | "SENIOR_MEMBER";
+};
+
+// ─── Static member data from Axios roster ────────────────────────────────────
+const AXIOS_MEMBERS: Record<string, WingMember[]> = {
+  "axios-foss": [
+    { name: "Shivansh Jain", role: "COORDINATOR" },
+    { name: "Kinshuk", role: "COORDINATOR" },
+    { name: "Aryan Singh", role: "SENIOR_MEMBER" },
+    { name: "Naman Khandelwal", role: "SENIOR_MEMBER" },
+    { name: "Merin Theres Jose", role: "SENIOR_MEMBER" },
+    { name: "Anirudh Singh Rajora", role: "SENIOR_MEMBER" },
+    { name: "Venella", role: "SENIOR_MEMBER" },
+  ],
+  "axios-cp": [
+    { name: "Avinash Singh", role: "COORDINATOR" },
+    { name: "Ayush Verma", role: "COORDINATOR" },
+    { name: "Shreyansh Jain", role: "SENIOR_MEMBER" },
+    { name: "Parth Vijay", role: "SENIOR_MEMBER" },
+    { name: "Parteek Babbal", role: "SENIOR_MEMBER" },
+    { name: "Md Anas Ali Usmani", role: "SENIOR_MEMBER" },
+    { name: "Surendra", role: "SENIOR_MEMBER" },
+    { name: "Aditya Chandak", role: "SENIOR_MEMBER" },
+    { name: "Vansh Tomar", role: "SENIOR_MEMBER" },
+  ],
+  "axios-ml": [
+    { name: "Vennela", role: "COORDINATOR" },
+    { name: "Nischal Chandel", role: "COORDINATOR" },
+    { name: "Rushil Dhingra", role: "SENIOR_MEMBER" },
+    { name: "Arushi", role: "SENIOR_MEMBER" },
+    { name: "Ravi Kumar", role: "SENIOR_MEMBER" },
+    { name: "Sanjana", role: "SENIOR_MEMBER" },
+  ],
+  "axios-infosec": [
+    { name: "Varun Baisane", role: "COORDINATOR" },
+    { name: "Aaryan Dadu", role: "COORDINATOR" },
+    { name: "Anirudh Singh Rajora", role: "SENIOR_MEMBER" },
+    { name: "Jay Parashar", role: "SENIOR_MEMBER" },
+    { name: "Soumaditya Masanta", role: "SENIOR_MEMBER" },
+    { name: "Dhanush Annam", role: "SENIOR_MEMBER" },
+  ],
+  "axios-web": [
+    { name: "Divyanshu Singh", role: "COORDINATOR" },
+    { name: "Naman Khandelwal", role: "COORDINATOR" },
+    { name: "Vedant Kulkarni", role: "SENIOR_MEMBER" },
+    { name: "Vaidik Saxena", role: "SENIOR_MEMBER" },
+    { name: "Arham Kachhara", role: "SENIOR_MEMBER" },
+    { name: "Shivansh Jain", role: "SENIOR_MEMBER" },
+    { name: "Shreyansh Patil", role: "SENIOR_MEMBER" },
+  ],
+  "axios-web3": [
+    { name: "Sumanth", role: "COORDINATOR" },
+    { name: "Rohan", role: "COORDINATOR" },
+    { name: "Janmesh Shewale", role: "SENIOR_MEMBER" },
+    { name: "Kaustubh Goge", role: "SENIOR_MEMBER" },
+    { name: "Ishaan Bansal", role: "SENIOR_MEMBER" },
+  ],
+  "axios-design": [
+    { name: "Manas Srivastava", role: "COORDINATOR" },
+    { name: "Md Mozammil Ali", role: "COORDINATOR" },
+    { name: "Diya Anna Varghese", role: "SENIOR_MEMBER" },
+    { name: "Diksha Narayan", role: "SENIOR_MEMBER" },
+    { name: "Khushi Singh", role: "SENIOR_MEMBER" },
+    { name: "Hansika Reddy", role: "SENIOR_MEMBER" },
+  ],
+  "axios-app": [
+    { name: "Sandesh Raj", role: "COORDINATOR" },
+    { name: "Naman Gulati", role: "COORDINATOR" },
+    { name: "Krishan", role: "SENIOR_MEMBER" },
+    { name: "Insha", role: "SENIOR_MEMBER" },
+    { name: "Prabnoor", role: "SENIOR_MEMBER" },
+    { name: "Md Anas Ali Usmani", role: "SENIOR_MEMBER" },
+  ],
+};
+
+const ROLE_CONFIG = {
+  COORDINATOR: {
+    label: "Coordinator",
+    icon: Crown,
+    badgeClass: "bg-pastel-lavender/10 text-pastel-lavender border-pastel-lavender/20",
+    avatarClass: "from-pastel-lavender to-pastel-blue",
+  },
+  SENIOR_MEMBER: {
+    label: "Senior Member",
+    icon: Star,
+    badgeClass: "bg-pastel-blue/10 text-pastel-blue border-pastel-blue/20",
+    avatarClass: "from-pastel-blue to-pastel-mint",
+  },
 };
 
 export default function AxiosWingPage() {
@@ -30,10 +122,11 @@ export default function AxiosWingPage() {
 
   const fetchWingDetails = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs`);
+      // Use the axios-wings endpoint which bypasses the filter
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs/axios-wings`);
       if (res.ok) {
-        const clubs = await res.json();
-        const wing = clubs.find((c: { slug: string; id: string }) => c.slug === slug);
+        const wings = await res.json();
+        const wing = wings.find((c: { slug: string }) => c.slug === slug);
         if (wing) {
           const detailRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs/${wing.id}`, { credentials: "include" });
           if (detailRes.ok) {
@@ -50,6 +143,10 @@ export default function AxiosWingPage() {
 
   if (loading) return <div className="flex justify-center items-center h-screen text-neutral-500">Loading Wing...</div>;
   if (!club) return <div className="flex justify-center items-center h-screen text-neutral-500">Wing not found.</div>;
+
+  const staticMembers = AXIOS_MEMBERS[slug] || [];
+  const coordinators = staticMembers.filter(m => m.role === "COORDINATOR");
+  const seniorMembers = staticMembers.filter(m => m.role === "SENIOR_MEMBER");
 
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8 overflow-y-auto w-full max-w-[1400px] mx-auto animate-fade-in">
@@ -92,22 +189,70 @@ export default function AxiosWingPage() {
       </div>
 
       {/* Content */}
-      <div className="mt-8">
+      <div className="mt-4">
         {activeTab === "PEOPLE" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {club.members.map((member) => (
-              <Card key={member.id} className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 shadow-2xl rounded-3xl p-6 flex items-center gap-4">
-                <div className="h-12 w-12 rounded-full overflow-hidden bg-neutral-900 border border-neutral-800 shrink-0 flex items-center justify-center font-bold text-white">
-                  {member.user.image ? <img src={member.user.image} alt="" className="h-full w-full object-cover" /> : member.user.name.charAt(0)}
+          <div className="space-y-8">
+            {/* Coordinators */}
+            {coordinators.length > 0 && (
+              <div>
+                <h2 className="text-xs font-black uppercase tracking-widest text-neutral-400 mb-4 flex items-center gap-2">
+                  <Crown className="h-3.5 w-3.5 text-pastel-lavender" /> Coordinators
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {coordinators.map((member, i) => {
+                    const config = ROLE_CONFIG[member.role];
+                    return (
+                      <Card key={i} className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 border-pastel-lavender/10 shadow-2xl rounded-3xl p-5 flex items-center gap-4 hover:border-pastel-lavender/30 transition-colors">
+                        <div className={`h-12 w-12 rounded-full bg-gradient-to-br ${config.avatarClass} flex items-center justify-center font-black text-white text-lg shrink-0 shadow-lg`}>
+                          {member.name.charAt(0)}
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold leading-tight">{member.name}</h3>
+                          <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border mt-1 font-bold uppercase tracking-wider ${config.badgeClass}`}>
+                            <Crown className="h-2.5 w-2.5" />
+                            {config.label}
+                          </span>
+                        </div>
+                      </Card>
+                    );
+                  })}
                 </div>
-                <div>
-                  <h3 className="text-white font-bold">{member.user.name}</h3>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-pastel-lavender/10 text-pastel-lavender border border-pastel-lavender/20">
-                    {member.role}
-                  </span>
+              </div>
+            )}
+
+            {/* Senior Members */}
+            {seniorMembers.length > 0 && (
+              <div>
+                <h2 className="text-xs font-black uppercase tracking-widest text-neutral-400 mb-4 flex items-center gap-2">
+                  <Star className="h-3.5 w-3.5 text-pastel-blue" /> Senior Members
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {seniorMembers.map((member, i) => {
+                    const config = ROLE_CONFIG[member.role];
+                    return (
+                      <Card key={i} className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 shadow-2xl rounded-3xl p-5 flex items-center gap-4 hover:border-pastel-blue/20 transition-colors">
+                        <div className={`h-12 w-12 rounded-full bg-gradient-to-br ${config.avatarClass} flex items-center justify-center font-black text-white text-lg shrink-0 shadow-lg`}>
+                          {member.name.charAt(0)}
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold leading-tight">{member.name}</h3>
+                          <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border mt-1 font-bold uppercase tracking-wider ${config.badgeClass}`}>
+                            <Star className="h-2.5 w-2.5" />
+                            {config.label}
+                          </span>
+                        </div>
+                      </Card>
+                    );
+                  })}
                 </div>
-              </Card>
-            ))}
+              </div>
+            )}
+
+            {staticMembers.length === 0 && (
+              <div className="py-16 text-center border border-dashed border-white/10 rounded-3xl text-neutral-500">
+                Member list coming soon.
+              </div>
+            )}
           </div>
         )}
 
