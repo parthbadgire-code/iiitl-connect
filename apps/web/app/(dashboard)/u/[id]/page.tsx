@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Mail, GraduationCap, Github, Linkedin, Instagram, Sparkles, BadgeCheck } from "lucide-react";
+import { Mail, GraduationCap, Github, Linkedin, Instagram, Sparkles, BadgeCheck, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@parthbadgire/ui/components/card";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 
 type ClubMembership = {
   club: {
@@ -33,10 +34,15 @@ type FullProfile = {
 
 export default function PublicProfilePage() {
   const params = useParams();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.email === "lit2025021@iiitl.ac.in";
+  
   const id = params?.id as string;
   const [profile, setProfile] = useState<FullProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (id) fetchProfile();
@@ -58,6 +64,28 @@ export default function PublicProfilePage() {
       setError(true);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!confirm("Are you sure you want to permanently delete this user? This action cannot be undone.")) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/profile/admin/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        alert("User deleted successfully.");
+        router.push("/");
+      } else {
+        alert("Failed to delete user.");
+        setIsDeleting(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting user.");
+      setIsDeleting(false);
     }
   };
 
@@ -85,6 +113,16 @@ export default function PublicProfilePage() {
             {profile.name.split(" ")[0]}&apos;s <span className="bg-gradient-to-r from-pastel-lavender to-pastel-blue bg-clip-text text-transparent">Profile</span>
           </h1>
         </div>
+        
+        {isAdmin && (
+          <button 
+            onClick={handleDeleteUser}
+            disabled={isDeleting}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all font-bold text-sm disabled:opacity-50"
+          >
+            <Trash2 className="h-4 w-4" /> {isDeleting ? "Deleting..." : "Delete User"}
+          </button>
+        )}
       </div>
 
       <Card className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 overflow-hidden shadow-2xl rounded-3xl">

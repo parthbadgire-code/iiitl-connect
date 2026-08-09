@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { UpsertProfileDto } from './dto/profile.dto';
 
@@ -94,6 +94,17 @@ export class ProfileService {
           }
         },
       }
+    });
+  }
+
+  async adminDeleteUser(userIdToDelete: string, adminId: string) {
+    const admin = await this.database.user.findUnique({ where: { id: adminId } });
+    if (!admin || admin.role !== 'SUPER_ADMIN') {
+      throw new ForbiddenException('Unauthorized. Admin access required.');
+    }
+
+    return this.database.user.delete({
+      where: { id: userIdToDelete },
     });
   }
 }

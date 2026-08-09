@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, UseGuards, Query, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Body, UseGuards, Query, Param, NotFoundException } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { UpsertProfileDto } from './dto/profile.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -45,5 +45,13 @@ export class ProfileController {
       throw new NotFoundException('Profile not found');
     }
     return profile;
+  }
+
+  @Delete('admin/:id')
+  async deleteUser(
+    @Param('id') id: string,
+    @CurrentUser() admin: any,
+  ) {
+    return this.profileService.adminDeleteUser(id, admin.id);
   }
 }
