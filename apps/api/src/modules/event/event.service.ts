@@ -8,6 +8,8 @@ export class EventService {
   constructor(private readonly database: DatabaseService) {}
 
   async createEvent(data: CreateEventDto, clubId: string, userId: string) {
+    const user = await this.database.user.findUnique({ where: { id: userId } });
+    
     // Verify executing user is LEAD or CORE of the club
     const membership = await this.database.clubMember.findUnique({
       where: {
@@ -19,7 +21,9 @@ export class EventService {
     });
 
     const allowedRoles = [ClubRole.LEAD, ClubRole.CORE, ClubRole.COORDINATOR, ClubRole.SENIOR_MEMBER] as ClubRole[];
-    if (!membership || !allowedRoles.includes(membership.role)) {
+    const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+    
+    if (!isSuperAdmin && (!membership || !allowedRoles.includes(membership.role))) {
       throw new ForbiddenException("Only LEAD, CORE, COORDINATOR, or SENIOR_MEMBER can create events for this club.");
     }
 

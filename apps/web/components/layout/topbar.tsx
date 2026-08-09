@@ -17,15 +17,14 @@ import Link from "next/link";
 import { cn } from "@parthbadgire/ui/lib/utils";
 
 const NAVIGATION = [
-  { name: "Academic Hub", href: "/academic", accent: "#E9D5FF" },
-  { name: "Anonymous Chat", href: "/anonymous-chat", accent: "#A7F3D0" },
+  { name: "Academics", href: "/academic", accent: "#E9D5FF" },
+  { name: "Chat", href: "/anonymous-chat", accent: "#A7F3D0" },
   { name: "Events", href: "/events", accent: "#BAE6FD" },
-  { name: "Marketplace", href: "/marketplace", accent: "#FFDAB9" },
-  { name: "Lost & Found", href: "/lost-found", accent: "#FCD34D" },
+  { name: "Market", href: "/marketplace", accent: "#FFDAB9" },
+  { name: "Lost&Found", href: "/lost-found", accent: "#FCD34D" },
   { name: "Clubs", href: "/clubs", accent: "#E9D5FF" },
   { name: "Connections", href: "/connections", accent: "#BAE6FD" },
   { name: "Axios", href: "/axios", accent: "#E9D5FF" },
-  { name: "Guide", href: "/guide", accent: "#A7F3D0" },
   { name: "About Us", href: "/about", accent: "#FBCFE8" },
 ];
 
@@ -122,8 +121,8 @@ export function Topbar() {
       </div>
         
       {/* Center: Horizontal Navigation Links */}
-      <div className="hidden lg:flex justify-center flex-1 mx-4 overflow-hidden">
-        <nav className="flex items-center gap-1 bg-[#0A0A0A]/50 p-1 rounded-full border border-neutral-800/80 backdrop-blur-md overflow-x-auto no-scrollbar max-w-full">
+      <div className="hidden lg:flex justify-center flex-1 mx-2">
+        <nav className="flex items-center justify-center bg-[#0A0A0A]/50 p-1 rounded-full border border-neutral-800/80 backdrop-blur-md">
           {NAVIGATION.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
@@ -131,7 +130,7 @@ export function Topbar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "relative px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300",
+                  "relative px-3 py-1.5 rounded-full text-[11px] xl:text-xs font-semibold transition-all duration-300 whitespace-nowrap",
                   isActive ? "text-white" : "text-neutral-500 hover:text-white"
                 )}
                 style={{
@@ -150,7 +149,7 @@ export function Topbar() {
       </div>
 
       {/* Right: Actions */}
-      <div className="flex-1 flex items-center justify-end gap-4 md:gap-8">
+      <div className="flex-1 flex items-center justify-end gap-3 md:gap-4">
         
         {/* Search */}
         <div ref={searchRef} className="relative hidden md:block">

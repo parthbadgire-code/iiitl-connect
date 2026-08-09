@@ -153,6 +153,7 @@ export default function ClubDetailsPage() {
   const isCoordinator = myMembership?.role === "COORDINATOR";
   const isSeniorMember = myMembership?.role === "SENIOR_MEMBER";
   
+  const isAdmin = session?.user?.email === "lit2025021@iiitl.ac.in";
   const canTransferRole = myMembership && !["MEMBER", "VOLUNTEER"].includes(myMembership.role);
 
   return (
@@ -305,7 +306,7 @@ export default function ClubDetailsPage() {
             </Card>
           )}
 
-          {(isLead || isCore || isCoordinator || isSeniorMember) && (
+          {(isLead || isCore || isCoordinator || isSeniorMember || isAdmin) && (
             <Card className="bg-red-950/20 border-red-900/50">
               <CardHeader className="pb-3 border-b border-red-900/30">
                 <CardTitle className="text-red-400 flex items-center gap-2"><CalendarIcon className="h-5 w-5" /> Host Event</CardTitle>

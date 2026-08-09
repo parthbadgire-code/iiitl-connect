@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Briefcase, ArrowRight, Search } from "lucide-react";
+import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Briefcase, ArrowRight, Search, Compass } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useUIStore } from "@/store/useUIStore";
 import { GlobalScene } from "@/components/3d/Scene";
@@ -119,6 +119,12 @@ export default function DashboardHome() {
         <p className="text-neutral-400 max-w-xl mx-auto text-sm md:text-base">
           Your unified campus operating system. Access academics, anonymous boards, marketplace, and more from a single hub.
         </p>
+        <div className="pt-6">
+          <Link href="/guide" className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-pastel-mint to-pastel-blue text-black font-extrabold hover:scale-105 transition-transform shadow-[0_0_30px_rgba(167,243,208,0.3)]">
+            <Compass className="h-5 w-5" />
+            Take a Tour of IIITL.Connect
+          </Link>
+        </div>
       </div>
 
       {/* Bento Grid */}
