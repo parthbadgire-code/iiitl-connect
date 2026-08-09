@@ -118,10 +118,6 @@ export default function AxiosHubPage() {
                   <p className="text-sm text-neutral-400 flex-1">{wing.description}</p>
                   <div className="mt-6 flex items-center gap-4 text-xs font-medium text-neutral-500">
                     <span className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-full border border-white/5">
-                      <div className="h-1.5 w-1.5 rounded-full bg-pastel-lavender" />
-                      {wing._count.members} Members
-                    </span>
-                    <span className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-full border border-white/5">
                       <div className="h-1.5 w-1.5 rounded-full bg-pastel-blue" />
                       {wing._count.events} Events
                     </span>

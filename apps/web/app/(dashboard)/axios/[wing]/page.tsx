@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Card } from "@parthbadgire/ui/components/card";
-import { Users, Calendar, BookOpen, Link as LinkIcon, Upload, Star, Crown } from "lucide-react";
+import { Users, Calendar, BookOpen, Link as LinkIcon, Upload, Star, Crown, X } from "lucide-react";
 
 type ClubDetails = {
   id: string;
@@ -115,6 +115,14 @@ export default function AxiosWingPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"PEOPLE" | "EVENTS" | "RESOURCES">("PEOPLE");
 
+  // Modal State
+  const [showResourceModal, setShowResourceModal] = useState(false);
+  const [resourceTitle, setResourceTitle] = useState("");
+  const [resourceDesc, setResourceDesc] = useState("");
+  const [resourceUrl, setResourceUrl] = useState("");
+  const [resourceType, setResourceType] = useState("DOCUMENT");
+  const [isUploading, setIsUploading] = useState(false);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (slug) fetchWingDetails();
@@ -138,6 +146,40 @@ export default function AxiosWingPage() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUploadResource = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!club) return;
+    setIsUploading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs/${club.id}/resources`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          title: resourceTitle,
+          description: resourceDesc,
+          url: resourceUrl,
+          type: resourceType,
+        }),
+      });
+      if (res.ok) {
+        setShowResourceModal(false);
+        setResourceTitle("");
+        setResourceDesc("");
+        setResourceUrl("");
+        fetchWingDetails();
+      } else {
+        const err = await res.json();
+        alert(err.message || "Failed to upload resource");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error uploading resource.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -260,7 +302,10 @@ export default function AxiosWingPage() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold text-white">Materials & Assignments</h2>
-              <button className="flex items-center gap-2 px-4 py-2 bg-pastel-lavender text-black font-bold text-sm rounded-full hover:scale-105 transition-transform">
+              <button 
+                onClick={() => setShowResourceModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-pastel-lavender text-black font-bold text-sm rounded-full hover:scale-105 transition-transform"
+              >
                 <Upload className="h-4 w-4" /> Upload Resource
               </button>
             </div>
@@ -313,6 +358,81 @@ export default function AxiosWingPage() {
           </div>
         )}
       </div>
+
+      {/* Upload Resource Modal */}
+      {showResourceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <Card className="w-full max-w-md bg-[#121212] border-white/10 shadow-2xl">
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h3 className="font-bold text-white">Upload Resource</h3>
+              <button onClick={() => setShowResourceModal(false)} className="text-neutral-400 hover:text-white">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <form onSubmit={handleUploadResource} className="p-4 space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-400 uppercase">Title</label>
+                <input
+                  required
+                  type="text"
+                  value={resourceTitle}
+                  onChange={e => setResourceTitle(e.target.value)}
+                  className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-pastel-lavender"
+                  placeholder="e.g. Week 1: Introduction"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-400 uppercase">Type</label>
+                <select
+                  value={resourceType}
+                  onChange={e => setResourceType(e.target.value)}
+                  className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-pastel-lavender"
+                >
+                  <option value="DOCUMENT">Document</option>
+                  <option value="VIDEO">Video</option>
+                  <option value="LINK">Link</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-400 uppercase">URL / Link</label>
+                <input
+                  required
+                  type="url"
+                  value={resourceUrl}
+                  onChange={e => setResourceUrl(e.target.value)}
+                  className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-pastel-lavender"
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-400 uppercase">Description (Optional)</label>
+                <textarea
+                  value={resourceDesc}
+                  onChange={e => setResourceDesc(e.target.value)}
+                  className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-pastel-lavender h-20 resize-none"
+                  placeholder="Additional notes..."
+                />
+              </div>
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowResourceModal(false)}
+                  className="px-4 py-2 rounded-xl text-sm font-bold text-neutral-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUploading}
+                  className="px-4 py-2 rounded-xl text-sm font-bold bg-pastel-lavender text-black disabled:opacity-50"
+                >
+                  {isUploading ? "Uploading..." : "Upload"}
+                </button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
