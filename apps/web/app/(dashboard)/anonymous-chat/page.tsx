@@ -288,7 +288,7 @@ function PostCard({
 
 export default function AnonymousChatPage() {
   const { data: session } = useSession();
-  const isAdmin = session?.user?.email === "lit2025021@iiitl.ac.in" || (session?.user as any)?.role === "SUPER_ADMIN";
+  const isAdmin = session?.user?.email === "lit2025021@iiitl.ac.in";
 
   const [posts, setPosts] = useState<AnonymousPost[]>([]);
   const [loading, setLoading] = useState(true);

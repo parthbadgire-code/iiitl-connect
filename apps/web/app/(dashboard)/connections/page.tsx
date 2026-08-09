@@ -56,7 +56,7 @@ const GENDER_OPTIONS = ["MALE", "FEMALE", "NON_BINARY", "OTHER"];
 
 export default function ConnectionsPage() {
   const { data: session } = useSession();
-  const isAdmin = session?.user?.email === "lit2025021@iiitl.ac.in" || (session?.user as any)?.role === "SUPER_ADMIN";
+  const isAdmin = session?.user?.email === "lit2025021@iiitl.ac.in";
 
   const [activeTab, setActiveTab] = useState<"DISCOVER" | "MATCHES" | "PROFILE">("DISCOVER");
   const [loading, setLoading] = useState(true);
