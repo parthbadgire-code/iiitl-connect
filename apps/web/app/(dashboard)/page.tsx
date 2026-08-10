@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Briefcase, ArrowRight, Search, Compass } from "lucide-react";
+import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Shield, ArrowRight, Search, Compass } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useUIStore } from "@/store/useUIStore";
 import { GlobalScene } from "@/components/3d/Scene";
@@ -60,11 +60,11 @@ const MODULES = [
     bg: "bg-pastel-lavender/5"
   },
   {
-    title: "Placements",
-    description: "Internships & offers",
-    icon: Briefcase,
-    href: "/placements",
-    id: "placements",
+    title: "Axios",
+    description: "Student governing body",
+    icon: Shield,
+    href: "/axios",
+    id: "axios",
     color: "#A7F3D0",
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-mint/5"
