@@ -410,13 +410,18 @@ export default function ConnectionsPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-semibold text-neutral-400 uppercase">Year</label>
-              <input
-                type="text"
+              <select
                 value={year}
                 onChange={e => setYear(e.target.value)}
-                placeholder="e.g. 2nd Year, 2025..."
-                className="w-full p-4 bg-black border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-pastel-blue text-white"
-              />
+                className="w-full p-4 bg-black border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-pastel-blue text-white appearance-none"
+              >
+                <option value="" disabled>Select Year</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+              </select>
             </div>
 
             <div className="space-y-2">
@@ -591,10 +596,11 @@ export default function ConnectionsPage() {
               <div className="mb-6 p-4 bg-zinc-900/50 border border-white/5 rounded-2xl grid grid-cols-3 gap-2">
                 <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)} className="bg-black border border-white/10 rounded-lg text-xs p-2 text-white">
                   <option value="">Any Year</option>
-                  <option value="1">1st Year</option>
-                  <option value="2">2nd Year</option>
-                  <option value="3">3rd Year</option>
-                  <option value="4">4th Year</option>
+                  <option value="2026">2026</option>
+                  <option value="2027">2027</option>
+                  <option value="2028">2028</option>
+                  <option value="2029">2029</option>
+                  <option value="2030">2030</option>
                 </select>
                 <select value={filterGender} onChange={(e) => setFilterGender(e.target.value)} className="bg-black border border-white/10 rounded-lg text-xs p-2 text-white">
                   <option value="">Any Gender</option>

@@ -10,20 +10,26 @@ const englishMatcher = new RegExpMatcher({
   ...englishRecommendedTransformers,
 });
 
-// Custom Hindi/Hinglish profanity list
-const hindiProfanity = [
-  "mc", "bc", "bsdk",
-  "bhenchod", "behenchod", "madarchod", "bhosdike", "bhosada", "bhosidi",
-  "chutiya", "gandu", "lodu", "laude", "lawde", "lund", "land", "randi", 
-  "raand", "kutiya", "chinal", "mutthal", "harami", "kaminey", 
-  "chodu", "chod", "chudai"
+// Words that MUST have word boundaries to avoid false positives (e.g. "island" contains "land", "blunder" contains "lund")
+const exactHindiProfanity = [
+  "mc", "bc", "land", "lund", "laude", "chod", "randi", "lodu"
 ];
 
-// Create a regex pattern for each word that allows optional spaces between letters
-const hindiRegexPatterns = hindiProfanity.map(word => word.split('').join('\\s*'));
+// Longer, distinct words that can be matched even if they are mashed together without spaces (e.g. "gandumadarchod")
+const jointHindiProfanity = [
+  "bsdk", "bhenchod", "behenchod", "madarchod", "bhosdike", 
+  "bhosada", "bhosidi", "chutiya", "gandu", "lawde", 
+  "raand", "kutiya", "chinal", "mutthal", "harami", 
+  "kaminey", "chodu", "chudai"
+];
 
-// Regex for Hindi words, ensuring word boundaries and case-insensitivity
-const hindiRegex = new RegExp(`\\b(${hindiRegexPatterns.join('|')})\\b`, 'i');
+// 1. Spaced pattern WITH boundaries (\b) for ALL words (matches "g a n d u" and "b c")
+const allWords = [...exactHindiProfanity, ...jointHindiProfanity];
+const spacedRegexPatterns = allWords.map(word => word.split('').join('\\s*'));
+const hindiSpacedRegex = new RegExp(`\\b(${spacedRegexPatterns.join('|')})\\b`, 'i');
+
+// 2. Joint pattern WITHOUT boundaries but ONLY for the distinct joint words (matches "chutiyamadarchod")
+const hindiJointRegex = new RegExp(`(${jointHindiProfanity.join('|')})`, 'i');
 
 /**
  * Normalizes text to prevent bypasses using repetitive letters or leetspeak
@@ -51,8 +57,8 @@ export const isProfane = (text: string): boolean => {
   
   if (englishMatcher.hasMatch(text)) return true;
   
-  if (hindiRegex.test(text)) return true;
+  if (hindiSpacedRegex.test(text) || hindiJointRegex.test(text)) return true;
   
   const normalized = normalizeHinglish(text);
-  return hindiRegex.test(normalized);
+  return hindiSpacedRegex.test(normalized) || hindiJointRegex.test(normalized);
 };
