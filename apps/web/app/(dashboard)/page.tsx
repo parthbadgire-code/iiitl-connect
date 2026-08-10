@@ -135,7 +135,7 @@ export default function DashboardHome() {
             href={mod.href}
             onMouseEnter={() => setActiveTile(mod.id)}
             onMouseLeave={() => setActiveTile(null)}
-            className={`group relative overflow-hidden rounded-3xl p-6 flex flex-col justify-between transition-all duration-700 hover:scale-[1.02] ${mod.span} ${mod.bg} border border-white/5 hover:border-white/20`}
+            className={`group relative overflow-hidden rounded-3xl p-6 flex flex-col justify-between transition-all duration-700 hover:scale-[1.02] hover:-translate-y-2 hover:shadow-2xl hover:shadow-white/5 ${mod.span} ${mod.bg} border border-white/5 hover:border-white/20`}
             style={{ 
               animationDelay: `${i * 100}ms`,
               opacity: mounted ? 1 : 0,
@@ -147,7 +147,7 @@ export default function DashboardHome() {
               style={{ background: mod.color }} />
 
             <div className="relative z-10 flex items-start justify-between">
-              <div className={`${mod.iconWrapperClass || "p-3"} rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10`}
+              <div className={`${mod.iconWrapperClass || "p-3"} rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}
                 style={{ color: mod.color }}>
                 <mod.icon className={mod.iconClass || "h-6 w-6"} />
               </div>

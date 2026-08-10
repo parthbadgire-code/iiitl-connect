@@ -192,26 +192,26 @@ function PostCard({
           {/* Like */}
           <button
             onClick={() => onReact(post.id, "LIKE")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
               post.myReaction === "LIKE"
                 ? "bg-green-500/15 text-green-400 border border-green-500/30"
                 : "text-zinc-500 hover:text-green-400 hover:bg-green-500/10 border border-transparent"
             }`}
           >
-            <ThumbsUp className="w-3.5 h-3.5" />
+            <ThumbsUp className={`w-3.5 h-3.5 transition-transform group-hover:scale-110 ${post.myReaction === "LIKE" ? "animate-heartbeat-fast" : ""}`} />
             <span>{post.likes}</span>
           </button>
 
           {/* Dislike */}
           <button
             onClick={() => onReact(post.id, "DISLIKE")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
               post.myReaction === "DISLIKE"
                 ? "bg-red-500/15 text-red-400 border border-red-500/30"
                 : "text-zinc-500 hover:text-red-400 hover:bg-red-500/10 border border-transparent"
             }`}
           >
-            <ThumbsDown className="w-3.5 h-3.5" />
+            <ThumbsDown className={`w-3.5 h-3.5 transition-transform group-hover:scale-110 ${post.myReaction === "DISLIKE" ? "animate-heartbeat-fast" : ""}`} />
             <span>{post.dislikes}</span>
           </button>
 
@@ -236,7 +236,7 @@ function PostCard({
                 </div>
               ) : replies.length > 0 ? (
                 replies.map((reply) => (
-                  <div key={reply.id} className="flex gap-2.5 group">
+                  <div key={reply.id} className="flex gap-2.5 group animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div
                       className="h-6 w-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5"
                       style={{

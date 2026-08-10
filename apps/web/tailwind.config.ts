@@ -125,6 +125,22 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        heartbeat: {
+          "0%": { transform: "scale(1)" },
+          "14%": { transform: "scale(1.3)" },
+          "28%": { transform: "scale(1)" },
+          "42%": { transform: "scale(1.3)" },
+          "70%": { transform: "scale(1)" },
+        },
+        slideInRight: {
+          from: { opacity: "0", transform: "translateX(20px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        tilt: {
+          "0%, 50%, 100%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(1deg)" },
+          "75%": { transform: "rotate(-1deg)" },
+        },
       },
       animation: {
         "fade-in-up": "fadeInUp 0.5s ease forwards",
@@ -136,6 +152,10 @@ const config: Config = {
         "gradient-rotate": "gradient-rotate 4s linear infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        heartbeat: "heartbeat 1.5s ease-in-out infinite",
+        "heartbeat-fast": "heartbeat 0.5s ease-in-out",
+        "slide-in-right": "slideInRight 0.4s ease-out forwards",
+        tilt: "tilt 10s infinite linear",
       },
     },
   },

@@ -625,7 +625,7 @@ export default function ConnectionsPage() {
                 <div className="skeleton h-32 w-32 rounded-full mb-4" />
               </Card>
             ) : currentProfileIndex < discoverProfiles.length ? (
-              <div className="relative animate-fade-in-up">
+              <div className="relative animate-slide-in-right" key={currentProfileIndex}>
                 <Card className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 overflow-hidden shadow-2xl rounded-3xl">
                   <div className="h-32 bg-pastel-blue/10 border-b border-white/5 relative">
                     <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
@@ -666,7 +666,7 @@ export default function ConnectionsPage() {
                           if (!lf) return null;
                           const Icon = lf.icon;
                           return (
-                            <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                            <span key={i} className="px-3 py-1 text-xs rounded-full flex items-center gap-1.5 font-medium hover:scale-105 hover:animate-glow-pulse transition-all"
                               style={{ background: `${lf.color}15`, color: lf.color, border: `1px solid ${lf.color}30` }}>
                               <Icon className="h-3 w-3" />
                               {lf.label}
@@ -703,15 +703,15 @@ export default function ConnectionsPage() {
                 <div className="flex justify-center gap-6 mt-8">
                   <button
                     onClick={() => handleSwipe("PASS")}
-                    className="h-16 w-16 rounded-full bg-black/60 border-2 border-white/10 flex items-center justify-center text-neutral-500 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all shadow-lg hover:scale-105 active:scale-95"
+                    className="group h-16 w-16 rounded-full bg-black/60 border-2 border-white/10 flex items-center justify-center text-neutral-500 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all shadow-lg hover:scale-110 active:scale-95"
                   >
-                    <X className="h-8 w-8" />
+                    <X className="h-8 w-8 transition-transform group-hover:rotate-12" />
                   </button>
                   <button
                     onClick={() => handleSwipe("LIKE")}
-                    className="h-16 w-16 rounded-full bg-pastel-blue/10 border-2 border-pastel-blue/30 flex items-center justify-center text-pastel-blue hover:bg-pastel-blue/20 hover:border-pastel-blue/50 transition-all shadow-[0_0_20px_rgba(186,230,253,0.2)] hover:shadow-[0_0_30px_rgba(186,230,253,0.4)] hover:scale-105 active:scale-95"
+                    className="group h-16 w-16 rounded-full bg-pastel-blue/10 border-2 border-pastel-blue/30 flex items-center justify-center text-pastel-blue hover:bg-pastel-blue/20 hover:border-pastel-blue/50 transition-all shadow-[0_0_20px_rgba(186,230,253,0.2)] hover:shadow-[0_0_30px_rgba(186,230,253,0.4)] hover:scale-110 active:scale-95"
                   >
-                    <Heart className="h-8 w-8 fill-current" />
+                    <Heart className="h-8 w-8 fill-current transition-transform group-hover:animate-heartbeat" />
                   </button>
                 </div>
               </div>
