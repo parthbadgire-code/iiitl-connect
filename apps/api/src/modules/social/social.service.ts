@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { isProfane } from '../../common/utils/profanity.util';
 import { PostCategory, ReactionType } from '@prisma/client';
 
 const ADJECTIVES = ['Silent', 'Neon', 'Cyber', 'Quantum', 'Shadow', 'Cosmic', 'Phantom', 'Glitch', 'Midnight', 'Electric', 'Rogue', 'Mystic', 'Hyper', 'Stellar'];
@@ -39,6 +40,10 @@ export class SocialService {
 
     if (identity.isBanned) {
       throw new Error('Your anonymous identity has been banned.');
+    }
+
+    if (isProfane(data.content)) {
+      throw new BadRequestException("Content contains inappropriate words.");
     }
 
     return this.database.anonymousPost.create({
@@ -151,6 +156,10 @@ export class SocialService {
 
     if (identity.isBanned) {
       throw new Error('Your anonymous identity has been banned.');
+    }
+
+    if (isProfane(content)) {
+      throw new BadRequestException("Content contains inappropriate words.");
     }
 
     return this.database.postReply.create({

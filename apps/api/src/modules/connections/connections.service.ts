@@ -1,6 +1,7 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { CreateProfileDto, SwipeDto, SendMessageDto } from './dto/connections.dto';
+import { isProfane } from '../../common/utils/profanity.util';
 
 @Injectable()
 export class ConnectionsService {
@@ -260,6 +261,10 @@ export class ConnectionsService {
 
     if (!match || (match.user1Id !== userId && match.user2Id !== userId)) {
       throw new ConflictException("Invalid match access");
+    }
+
+    if (isProfane(data.content)) {
+      throw new BadRequestException("Message contains inappropriate content.");
     }
 
     return this.database.connectionMessage.create({
