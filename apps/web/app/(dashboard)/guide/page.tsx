@@ -1,16 +1,15 @@
 "use client";
 
 import { Card, CardContent } from "@parthbadgire/ui/components/card";
-import { 
-  Heart, 
+import {
+  Heart,
   Terminal, 
   ShoppingCart, 
   BookOpen, 
-  MapPin, 
   MessageSquare,
   Sparkles,
-  Search,
-  Building2
+  Building2,
+  Search
 } from "lucide-react";
 import Link from "next/link";
 
@@ -59,15 +58,6 @@ const FEATURES = [
     color: "from-pastel-pink to-pastel-lavender",
     href: "/clubs",
     highlights: ["Event Timelines", "Club Registration", "Member Tracking"]
-  },
-  {
-    id: "lost-found",
-    title: "Lost & Found",
-    description: "Lost your ID card or found a stray pair of AirPods? Post it here. This campus-wide board ensures misplaced items find their way back to their rightful owners quickly.",
-    icon: MapPin,
-    color: "from-red-400 to-pink-500",
-    href: "/lost-found",
-    highlights: ["Active Board", "Image Support", "Claim Items"]
   },
   {
     id: "anonymous-chat",

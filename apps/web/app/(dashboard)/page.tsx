@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Shield, ArrowRight, Search, Compass } from "lucide-react";
+import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Shield, ArrowRight, Compass } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useUIStore } from "@/store/useUIStore";
 import { GlobalScene } from "@/components/3d/Scene";
@@ -78,16 +78,6 @@ const MODULES = [
     color: "#BAE6FD",
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-blue/5"
-  },
-  {
-    title: "Lost & Found",
-    description: "Report and find lost items",
-    icon: Search,
-    href: "/lost-found",
-    id: "lost-found",
-    color: "#FCD34D",
-    span: "md:col-span-1 md:row-span-1",
-    bg: "bg-amber-500/5"
   }
 ];
 

@@ -25,7 +25,7 @@ model User {
   interviewExperiences InterviewExperience[]
   receivedMessages     ListingMessage[]      @relation("MessageReceiver")
   sentMessages         ListingMessage[]      @relation("MessageSender")
-  lostAndFoundItems    LostAndFoundItem[]
+
   maintenanceTickets   MaintenanceTicket[]
   marketplaceListings  MarketplaceListing[]
   mutualConnections1   MutualConnection[]    @relation("MutualUser1")
@@ -293,18 +293,6 @@ model ListingMessage {
   sender     User               @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
 }
 
-model LostAndFoundItem {
-  id          String   @id @default(cuid())
-  reporterId  String
-  type        ItemType
-  title       String
-  description String
-  imageUrl    String?
-  isResolved  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  reporter    User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
-}
 
 model MaintenanceTicket {
   id          String       @id @default(cuid())
@@ -477,10 +465,6 @@ enum ListingStatus {
   SOLD
 }
 
-enum ItemType {
-  LOST
-  FOUND
-}
 
 enum TicketStatus {
   OPEN
