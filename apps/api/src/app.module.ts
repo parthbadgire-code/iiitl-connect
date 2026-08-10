@@ -18,4 +18,4 @@ import { LostFoundModule } from './modules/lost-found/lost-found.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

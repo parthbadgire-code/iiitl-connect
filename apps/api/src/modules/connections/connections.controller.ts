@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ConnectionsService } from './connections.service';
-import { CreateProfileDto, SwipeDto, SendMessageDto } from './dto/connections.dto';
+import { CreateProfileDto, SwipeDto, SendMessageDto, BlockUserDto, ReportUserDto } from './dto/connections.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 
@@ -44,8 +44,29 @@ export class ConnectionsController {
   }
 
   @Get('discover')
-  async getDiscoverFeed(@CurrentUser() user: any) {
-    return this.connectionsService.getDiscoverFeed(user.id);
+  async getDiscoverFeed(
+    @CurrentUser() user: any,
+    @Query('year') year?: string,
+    @Query('gender') gender?: string,
+    @Query('lookingFor') lookingFor?: string,
+  ) {
+    return this.connectionsService.getDiscoverFeed(user.id, { year, gender, lookingFor });
+  }
+
+  @Post('block')
+  async blockUser(
+    @Body() data: BlockUserDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.connectionsService.blockUser(data.userIdToBlock, user.id);
+  }
+
+  @Post('report')
+  async reportUser(
+    @Body() data: ReportUserDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.connectionsService.reportUser(data.userIdToReport, data.reason, user.id);
   }
 
   @Post('swipe')

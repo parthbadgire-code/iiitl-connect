@@ -11,14 +11,23 @@ export class CreateProfileDto {
 
   @IsString()
   @IsOptional()
+  year?: string;
+
+  @IsString()
+  @IsOptional()
   bio?: string;
 
   @IsArray()
   @IsString({ each: true })
   interests: string[];
 
-  @IsEnum(LookingFor)
-  lookingFor: LookingFor;
+  @IsArray()
+  @IsEnum(LookingFor, { each: true })
+  lookingFor: LookingFor[];
+
+  @IsArray()
+  @IsOptional()
+  prompts?: any[];
 }
 
 export class SwipeDto {
@@ -34,4 +43,20 @@ export class SendMessageDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+}
+
+export class BlockUserDto {
+  @IsString()
+  @IsNotEmpty()
+  userIdToBlock: string;
+}
+
+export class ReportUserDto {
+  @IsString()
+  @IsNotEmpty()
+  userIdToReport: string;
+
+  @IsString()
+  @IsNotEmpty()
+  reason: string;
 }

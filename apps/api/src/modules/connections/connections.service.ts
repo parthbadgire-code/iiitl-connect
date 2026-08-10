@@ -38,7 +38,9 @@ export class ConnectionsService {
       update: {
         username: data.username,
         gender: data.gender,
+        year: data.year,
         bio: data.bio,
+        prompts: data.prompts || [],
         interests: data.interests,
         lookingFor: data.lookingFor,
       },
@@ -46,7 +48,9 @@ export class ConnectionsService {
         userId,
         username: data.username,
         gender: data.gender,
+        year: data.year,
         bio: data.bio,
+        prompts: data.prompts || [],
         interests: data.interests,
         lookingFor: data.lookingFor,
       },
@@ -69,12 +73,12 @@ export class ConnectionsService {
     });
   }
 
-  async getDiscoverFeed(userId: string) {
+  async getDiscoverFeed(userId: string, filters: any = {}) {
     // Fetch profiles of users that:
     // 1. Are not the current user
     // 2. The current user has NOT already swiped on
+    // 3. Are not blocked
     
-    // First get all swiped receiver IDs
     const swiped = await this.database.swipe.findMany({
       where: { senderId: userId },
       select: { receiverId: true },
@@ -82,23 +86,57 @@ export class ConnectionsService {
     const swipedIds = swiped.map((s) => s.receiverId);
     swipedIds.push(userId); // also exclude self
 
-    return this.database.connectionProfile.findMany({
-      where: {
-        userId: {
-          notIn: swipedIds,
-        },
-      },
+    const blocksGiven = await this.database.connectionBlock.findMany({ where: { blockerId: userId } });
+    const blocksReceived = await this.database.connectionBlock.findMany({ where: { blockedId: userId } });
+    const blockedIds = [
+      ...blocksGiven.map(b => b.blockedId),
+      ...blocksReceived.map(b => b.blockerId)
+    ];
+
+    const excludeIds = [...new Set([...swipedIds, ...blockedIds])];
+
+    const whereClause: any = {
+      userId: { notIn: excludeIds },
+    };
+    if (filters.year) whereClause.year = filters.year;
+    if (filters.gender) whereClause.gender = filters.gender;
+    if (filters.lookingFor) whereClause.lookingFor = { has: filters.lookingFor };
+
+    const myProfile = await this.database.connectionProfile.findUnique({ where: { userId } });
+
+    const profiles = await this.database.connectionProfile.findMany({
+      where: whereClause,
       include: {
         user: {
           select: {
             id: true,
-            image: true,
-            // Hiding name for privacy!
+            // Hiding name and image for privacy!
           }
         }
       },
       take: 20, // return a batch
     });
+
+    if (!myProfile) return profiles;
+
+    // Match scoring
+    const scored = profiles.map(p => {
+      let score = 15; // Base score
+      
+      const myInterests = myProfile.interests.map(i => i.toLowerCase());
+      const commonInterests = p.interests.filter(i => myInterests.includes(i.toLowerCase())).length;
+      score += commonInterests * 15;
+      
+      const commonGoals = p.lookingFor.filter(g => myProfile.lookingFor.includes(g)).length;
+      score += commonGoals * 20;
+
+      return {
+        ...p,
+        matchScore: Math.min(score, 99)
+      };
+    });
+
+    return scored.sort((a, b) => b.matchScore - a.matchScore);
   }
 
   async submitSwipe(data: SwipeDto, userId: string) {
@@ -174,7 +212,6 @@ export class ConnectionsService {
             id: true,
             name: true,
             email: true,
-            image: true,
             connectionProfile: true,
           }
         },
@@ -183,7 +220,6 @@ export class ConnectionsService {
             id: true,
             name: true,
             email: true,
-            image: true,
             connectionProfile: true,
           }
         }
@@ -233,5 +269,48 @@ export class ConnectionsService {
         content: data.content,
       }
     });
+  }
+
+  async blockUser(userIdToBlock: string, currentUserId: string) {
+    if (userIdToBlock === currentUserId) throw new ConflictException("Cannot block yourself");
+    
+    await this.database.connectionBlock.upsert({
+      where: { blockerId_blockedId: { blockerId: currentUserId, blockedId: userIdToBlock } },
+      create: { blockerId: currentUserId, blockedId: userIdToBlock },
+      update: {}
+    });
+
+    await this.database.swipe.deleteMany({
+      where: {
+        OR: [
+          { senderId: currentUserId, receiverId: userIdToBlock },
+          { senderId: userIdToBlock, receiverId: currentUserId }
+        ]
+      }
+    });
+    
+    await this.database.mutualConnection.deleteMany({
+      where: {
+        OR: [
+          { user1Id: currentUserId, user2Id: userIdToBlock },
+          { user1Id: userIdToBlock, user2Id: currentUserId }
+        ]
+      }
+    });
+    return { success: true };
+  }
+
+  async reportUser(userIdToReport: string, reason: string, currentUserId: string) {
+    if (userIdToReport === currentUserId) throw new ConflictException("Cannot report yourself");
+    await this.database.connectionReport.create({
+      data: {
+        reporterId: currentUserId,
+        reportedUserId: userIdToReport,
+        reason
+      }
+    });
+    // Auto-block the reported user
+    await this.blockUser(userIdToReport, currentUserId);
+    return { success: true };
   }
 }

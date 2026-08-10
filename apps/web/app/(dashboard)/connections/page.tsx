@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Users, Heart, X, Sparkles, Target, Code, Dumbbell, UserPlus, MessageSquare, Send, Trash2, Edit2, ArrowLeft } from "lucide-react";
+import { Heart, X, Sparkles, Target, Code, Dumbbell, UserPlus, MessageSquare, Send, Trash2, Edit2, ArrowLeft, MoreVertical, ShieldAlert, UserX } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@parthbadgire/ui/components/card";
 import { useSession } from "@/lib/auth-client";
+import { io, Socket } from "socket.io-client";
 
 type ConnectionProfile = {
   username: string;
   gender: string;
+  year?: string;
   bio: string;
+  prompts?: { question: string, answer: string }[];
   interests: string[];
-  lookingFor: string;
+  lookingFor: string[];
 };
 
 type DiscoverProfile = {
@@ -18,11 +21,12 @@ type DiscoverProfile = {
   username: string;
   gender: string;
   bio: string;
+  prompts?: { question: string, answer: string }[];
   interests: string[];
-  lookingFor: string;
+  lookingFor: string[];
+  matchScore?: number;
   user: {
     id: string;
-    image: string;
   };
 };
 
@@ -33,7 +37,6 @@ type MatchProfile = {
     id: string;
     name: string;
     email: string;
-    image: string;
     connectionProfile: ConnectionProfile;
   };
 };
@@ -68,9 +71,11 @@ export default function ConnectionsPage() {
   // Form State
   const [username, setUsername] = useState("");
   const [gender, setGender] = useState("MALE");
+  const [year, setYear] = useState("");
   const [bio, setBio] = useState("");
   const [interests, setInterests] = useState("");
-  const [lookingFor, setLookingFor] = useState("STUDY_PARTNER");
+  const [lookingFor, setLookingFor] = useState<string[]>([]);
+  const [prompts, setPrompts] = useState<{ question: string, answer: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formError, setFormError] = useState("");
@@ -79,6 +84,10 @@ export default function ConnectionsPage() {
   const [discoverProfiles, setDiscoverProfiles] = useState<DiscoverProfile[]>([]);
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [matchNotification, setMatchNotification] = useState<string | null>(null);
+  const [filterYear, setFilterYear] = useState("");
+  const [filterGender, setFilterGender] = useState("");
+  const [filterLookingFor, setFilterLookingFor] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   // Matches & Chat State
   const [matches, setMatches] = useState<MatchProfile[]>([]);
@@ -86,6 +95,8 @@ export default function ConnectionsPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [showChatMenu, setShowChatMenu] = useState(false);
 
   useEffect(() => {
     checkProfile();
@@ -99,12 +110,28 @@ export default function ConnectionsPage() {
   }, [hasProfile, activeTab]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    if (session?.user?.id) {
+      const newSocket = io(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections`, {
+        auth: { userId: session.user.id }
+      });
+      setSocket(newSocket);
+
+      newSocket.on("newMessage", (msg: ChatMessage) => {
+        setMessages(prev => {
+          if (prev.some(m => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
+      });
+
+      return () => { newSocket.close(); };
+    }
+  }, [session?.user?.id]);
+
+  useEffect(() => {
     if (selectedMatch) {
       fetchMessages(selectedMatch.matchId);
-      interval = setInterval(() => fetchMessages(selectedMatch.matchId), 3000);
+      setShowChatMenu(false);
     }
-    return () => clearInterval(interval);
   }, [selectedMatch]);
 
   useEffect(() => {
@@ -124,9 +151,11 @@ export default function ConnectionsPage() {
           setMyProfile(data);
           setUsername(data.username);
           setGender(data.gender);
+          setYear(data.year || "");
           setBio(data.bio || "");
+          setPrompts(data.prompts || []);
           setInterests(data.interests.join(", "));
-          setLookingFor(data.lookingFor);
+          setLookingFor(data.lookingFor || []);
         } else {
           setHasProfile(false);
         }
@@ -154,7 +183,7 @@ export default function ConnectionsPage() {
         method: isEditing ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ username, gender, bio, interests: interestsArray, lookingFor }),
+        body: JSON.stringify({ username, gender, year, bio, prompts, interests: interestsArray, lookingFor }),
       });
       if (res.ok) {
         setHasProfile(true);
@@ -214,7 +243,12 @@ export default function ConnectionsPage() {
   const fetchDiscover = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections/discover`, { credentials: "include" });
+      const params = new URLSearchParams();
+      if (filterYear) params.append("year", filterYear);
+      if (filterGender) params.append("gender", filterGender);
+      if (filterLookingFor) params.append("lookingFor", filterLookingFor);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections/discover?${params.toString()}`, { credentials: "include" });
       if (res.ok) {
         setDiscoverProfiles(await res.json());
         setCurrentProfileIndex(0);
@@ -273,17 +307,51 @@ export default function ConnectionsPage() {
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedMatch) return;
+    if (!newMessage.trim() || !selectedMatch || !socket) return;
+    const content = newMessage;
+    setNewMessage("");
+    socket.emit("sendMessage", {
+      matchId: selectedMatch.matchId,
+      receiverId: selectedMatch.user.id,
+      content,
+    });
+  };
+
+  const handleBlockUser = async () => {
+    if (!selectedMatch) return;
+    if (!confirm("Are you sure you want to block this user? This will unmatch them permanently.")) return;
     try {
-      const msg = newMessage;
-      setNewMessage("");
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections/matches/${selectedMatch.matchId}/messages`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections/block`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ content: msg }),
+        body: JSON.stringify({ userIdToBlock: selectedMatch.user.id }),
       });
-      fetchMessages(selectedMatch.matchId);
+      if (res.ok) {
+        setMatches(prev => prev.filter(m => m.matchId !== selectedMatch.matchId));
+        setSelectedMatch(null);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleReportUser = async () => {
+    if (!selectedMatch) return;
+    const reason = prompt("Please provide a reason for reporting this user:");
+    if (!reason) return;
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/connections/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ userIdToReport: selectedMatch.user.id, reason }),
+      });
+      if (res.ok) {
+        alert("User reported successfully. They have been unmatched.");
+        setMatches(prev => prev.filter(m => m.matchId !== selectedMatch.matchId));
+        setSelectedMatch(null);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -337,6 +405,17 @@ export default function ConnectionsPage() {
             </div>
 
             <div className="space-y-2">
+              <label className="text-xs font-semibold text-neutral-400 uppercase">Year</label>
+              <input
+                type="text"
+                value={year}
+                onChange={e => setYear(e.target.value)}
+                placeholder="e.g. 2nd Year, 2025..."
+                className="w-full p-4 bg-black border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-pastel-blue text-white"
+              />
+            </div>
+
+            <div className="space-y-2">
               <label className="text-xs font-semibold text-neutral-400 uppercase">Bio (Optional)</label>
               <textarea
                 value={bio}
@@ -358,19 +437,20 @@ export default function ConnectionsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-zinc-400 uppercase">I&apos;m looking for a...</label>
+              <label className="text-xs font-semibold text-zinc-400 uppercase">I&apos;m looking for... (Select multiple)</label>
               <div className="grid grid-cols-2 gap-3">
                 {LOOKING_FOR_OPTIONS.map(opt => {
                   const Icon = opt.icon;
+                  const isSelected = lookingFor.includes(opt.key);
                   return (
                     <button
                       key={opt.key}
-                      onClick={() => setLookingFor(opt.key)}
+                      onClick={() => setLookingFor(prev => prev.includes(opt.key) ? prev.filter(k => k !== opt.key) : [...prev, opt.key])}
                       className="flex flex-col items-center justify-center p-4 rounded-xl border transition-all"
                       style={{
-                        background: lookingFor === opt.key ? `${opt.color}15` : "rgba(24,24,27,0.5)",
-                        borderColor: lookingFor === opt.key ? `${opt.color}50` : "rgba(39,39,42,0.8)",
-                        color: lookingFor === opt.key ? opt.color : "#a1a1aa",
+                        background: isSelected ? `${opt.color}15` : "rgba(24,24,27,0.5)",
+                        borderColor: isSelected ? `${opt.color}50` : "rgba(39,39,42,0.8)",
+                        color: isSelected ? opt.color : "#a1a1aa",
                       }}
                     >
                       <Icon className="h-6 w-6 mb-2" />
@@ -379,6 +459,44 @@ export default function ConnectionsPage() {
                   );
                 })}
               </div>
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-xs font-semibold text-neutral-400 uppercase">Profile Prompts (Icebreakers)</label>
+              {prompts.map((p, index) => (
+                <div key={index} className="space-y-2 bg-neutral-900/50 p-4 rounded-xl border border-white/5 relative">
+                  <button onClick={() => setPrompts(prev => prev.filter((_, i) => i !== index))} className="absolute top-2 right-2 text-neutral-500 hover:text-red-500">
+                    <X className="h-4 w-4" />
+                  </button>
+                  <select
+                    value={p.question}
+                    onChange={(e) => setPrompts(prev => { const n = [...prev]; n[index].question = e.target.value; return n; })}
+                    className="w-full bg-transparent border-b border-neutral-700 text-sm font-semibold text-pastel-blue pb-1 focus:outline-none focus:border-pastel-blue"
+                  >
+                    <option value="" disabled>Select a prompt...</option>
+                    <option value="A controversial campus opinion I have is...">A controversial campus opinion I have is...</option>
+                    <option value="My ideal study session involves...">My ideal study session involves...</option>
+                    <option value="I geek out on...">I geek out on...</option>
+                    <option value="The best hackathon idea I ever had...">The best hackathon idea I ever had...</option>
+                    <option value="You should swipe right if...">You should swipe right if...</option>
+                  </select>
+                  <input
+                    type="text"
+                    value={p.answer}
+                    onChange={(e) => setPrompts(prev => { const n = [...prev]; n[index].answer = e.target.value; return n; })}
+                    placeholder="Your answer..."
+                    className="w-full bg-transparent text-sm text-white focus:outline-none pt-2"
+                  />
+                </div>
+              ))}
+              {prompts.length < 3 && (
+                <button
+                  onClick={() => setPrompts(prev => [...prev, { question: "", answer: "" }])}
+                  className="w-full py-3 border border-dashed border-neutral-700 rounded-xl text-neutral-400 hover:text-white hover:border-neutral-500 transition-colors text-sm font-medium"
+                >
+                  + Add Prompt
+                </button>
+              )}
             </div>
 
             <div className="flex gap-4">
@@ -460,6 +578,38 @@ export default function ConnectionsPage() {
       {activeTab === "DISCOVER" && (
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-md mx-auto py-8">
+            <div className="mb-4 flex justify-end">
+              <button onClick={() => setShowFilters(!showFilters)} className="text-xs font-bold uppercase text-pastel-blue tracking-wider bg-pastel-blue/10 px-3 py-1.5 rounded-lg border border-pastel-blue/20 hover:bg-pastel-blue/20 transition-colors">
+                {showFilters ? "Hide Filters" : "Filters"}
+              </button>
+            </div>
+            {showFilters && (
+              <div className="mb-6 p-4 bg-zinc-900/50 border border-white/5 rounded-2xl grid grid-cols-3 gap-2">
+                <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)} className="bg-black border border-white/10 rounded-lg text-xs p-2 text-white">
+                  <option value="">Any Year</option>
+                  <option value="1">1st Year</option>
+                  <option value="2">2nd Year</option>
+                  <option value="3">3rd Year</option>
+                  <option value="4">4th Year</option>
+                </select>
+                <select value={filterGender} onChange={(e) => setFilterGender(e.target.value)} className="bg-black border border-white/10 rounded-lg text-xs p-2 text-white">
+                  <option value="">Any Gender</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                </select>
+                <select value={filterLookingFor} onChange={(e) => setFilterLookingFor(e.target.value)} className="bg-black border border-white/10 rounded-lg text-xs p-2 text-white">
+                  <option value="">Any Goal</option>
+                  <option value="STUDY_PARTNER">Study Partner</option>
+                  <option value="GYM_BUDDY">Gym Buddy</option>
+                  <option value="HACKATHON">Hackathon</option>
+                  <option value="CRUSH">Crush</option>
+                </select>
+                <button onClick={fetchDiscover} className="col-span-3 mt-2 bg-white/10 text-white text-xs font-bold py-2 rounded-lg hover:bg-white/20 transition-colors">
+                  Apply Filters
+                </button>
+              </div>
+            )}
+            
             {loading ? (
               <Card className="h-[450px] bg-zinc-950 border-zinc-800 flex items-center justify-center">
                 <div className="skeleton h-32 w-32 rounded-full mb-4" />
@@ -470,14 +620,9 @@ export default function ConnectionsPage() {
                   <div className="h-32 bg-pastel-blue/10 border-b border-white/5 relative">
                     <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
                       <div className="h-24 w-24 rounded-full border-4 border-zinc-950 bg-zinc-800 overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        {discoverProfiles[currentProfileIndex].user.image ? (
-                          <img src={discoverProfiles[currentProfileIndex].user.image} alt="Avatar" className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-black/60 text-3xl font-bold text-white">
-                            {discoverProfiles[currentProfileIndex].username.charAt(0).toUpperCase()}
-                          </div>
-                        )}
+                        <div className="w-full h-full flex items-center justify-center bg-black/60 text-3xl font-bold text-white">
+                          {discoverProfiles[currentProfileIndex].username.charAt(0).toUpperCase()}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -495,23 +640,29 @@ export default function ConnectionsPage() {
                   )}
                   
                   <CardContent className="pt-16 pb-8 px-6 text-center space-y-6">
+                    {discoverProfiles[currentProfileIndex].matchScore !== undefined && (
+                      <div className="absolute top-4 left-4 h-10 px-4 rounded-full bg-pastel-blue/10 border border-pastel-blue/20 flex items-center justify-center text-pastel-blue font-bold shadow-[0_0_15px_rgba(186,230,253,0.3)] z-10 text-xs uppercase tracking-wider">
+                        🔥 {discoverProfiles[currentProfileIndex].matchScore}% Match
+                      </div>
+                    )}
                     <div>
                       <h2 className="text-2xl font-bold text-white">{discoverProfiles[currentProfileIndex].username}</h2>
-                      <div className="flex items-center justify-center gap-2 mt-2">
+                      <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
                         <span className="px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300 text-[10px] font-bold tracking-widest uppercase">
                           {discoverProfiles[currentProfileIndex].gender}
                         </span>
-                        {(() => {
-                          const lf = LOOKING_FOR_OPTIONS.find(o => o.key === discoverProfiles[currentProfileIndex].lookingFor);
-                          const Icon = lf?.icon || Target;
+                        {discoverProfiles[currentProfileIndex].lookingFor?.map((lfKey, i) => {
+                          const lf = LOOKING_FOR_OPTIONS.find(o => o.key === lfKey);
+                          if (!lf) return null;
+                          const Icon = lf.icon;
                           return (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                              style={{ background: `${lf?.color || '#fff'}15`, color: lf?.color, border: `1px solid ${lf?.color || '#fff'}30` }}>
+                            <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                              style={{ background: `${lf.color}15`, color: lf.color, border: `1px solid ${lf.color}30` }}>
                               <Icon className="h-3 w-3" />
-                              {lf?.label}
+                              {lf.label}
                             </span>
                           );
-                        })()}
+                        })}
                       </div>
                     </div>
 
@@ -520,6 +671,13 @@ export default function ConnectionsPage() {
                         &quot;{discoverProfiles[currentProfileIndex].bio}&quot;
                       </p>
                     )}
+
+                    {discoverProfiles[currentProfileIndex].prompts?.map((p, i) => (
+                      <div key={i} className="text-left bg-white/5 p-4 rounded-xl border border-white/10 mt-4">
+                        <p className="text-[10px] text-pastel-blue font-bold uppercase tracking-wider mb-1">{p.question}</p>
+                        <p className="text-sm text-white">{p.answer}</p>
+                      </div>
+                    ))}
 
                     <div className="flex flex-wrap justify-center gap-2 pt-2">
                       {discoverProfiles[currentProfileIndex].interests.map((interest, i) => (
@@ -584,9 +742,8 @@ export default function ConnectionsPage() {
                       selectedMatch?.matchId === match.matchId ? 'bg-pastel-blue/10 border-pastel-blue/20' : 'hover:bg-white/5 border-transparent'
                     } border`}
                   >
-                    <div className="h-10 w-10 rounded-full bg-neutral-800 shrink-0 overflow-hidden border border-white/10">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {match.user.image ? <img src={match.user.image} className="h-full w-full object-cover" alt="" /> : <Users className="h-5 w-5 m-2.5 text-neutral-500" />}
+                    <div className="h-10 w-10 rounded-full bg-neutral-800 shrink-0 overflow-hidden border border-white/10 flex items-center justify-center font-bold text-white text-lg">
+                      {match.user.connectionProfile.username.charAt(0).toUpperCase()}
                     </div>
                     <div className="text-left flex-1 min-w-0">
                       <h4 className="text-sm font-bold text-white truncate">{match.user.name}</h4>
@@ -601,17 +758,34 @@ export default function ConnectionsPage() {
           {/* Chat Interface */}
           {selectedMatch ? (
             <div className="flex-1 bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex flex-col min-w-0">
-              <div className="p-4 border-b border-white/5 bg-black/20 flex items-center gap-4">
-                <button onClick={() => setSelectedMatch(null)} className="md:hidden text-neutral-400 hover:text-white">
-                  <ArrowLeft className="h-5 w-5" />
-                </button>
-                <div className="h-10 w-10 rounded-full bg-neutral-800 shrink-0 overflow-hidden border border-white/10">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {selectedMatch.user.image ? <img src={selectedMatch.user.image} className="h-full w-full object-cover" alt="" /> : <Users className="h-5 w-5 m-2.5 text-neutral-500" />}
+              <div className="p-4 border-b border-white/5 bg-black/20 flex items-center justify-between relative">
+                <div className="flex items-center gap-4">
+                  <button onClick={() => setSelectedMatch(null)} className="md:hidden text-neutral-400 hover:text-white">
+                    <ArrowLeft className="h-5 w-5" />
+                  </button>
+                  <div className="h-10 w-10 rounded-full bg-neutral-800 shrink-0 overflow-hidden border border-white/10 flex items-center justify-center font-bold text-white text-lg">
+                    {selectedMatch.user.connectionProfile.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white leading-tight">{selectedMatch.user.name}</h3>
+                    <p className="text-xs text-neutral-400">@{selectedMatch.user.connectionProfile.username}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-white leading-tight">{selectedMatch.user.name}</h3>
-                  <p className="text-xs text-neutral-400">@{selectedMatch.user.connectionProfile.username}</p>
+
+                <div className="relative">
+                  <button onClick={() => setShowChatMenu(!showChatMenu)} className="p-2 text-neutral-400 hover:text-white rounded-full hover:bg-white/10 transition-colors">
+                    <MoreVertical className="h-5 w-5" />
+                  </button>
+                  {showChatMenu && (
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50">
+                      <button onClick={handleBlockUser} className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-400/10 flex items-center gap-2 transition-colors border-b border-zinc-800">
+                        <UserX className="h-4 w-4" /> Unmatch & Block
+                      </button>
+                      <button onClick={handleReportUser} className="w-full text-left px-4 py-3 text-sm text-orange-400 hover:bg-orange-400/10 flex items-center gap-2 transition-colors">
+                        <ShieldAlert className="h-4 w-4" /> Report User
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -690,21 +864,22 @@ export default function ConnectionsPage() {
               <CardContent className="pt-16 pb-8 px-6 text-center space-y-6">
                 <div>
                   <h2 className="text-2xl font-bold text-white">{myProfile.username}</h2>
-                  <div className="flex items-center justify-center gap-2 mt-2">
+                  <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
                     <span className="px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300 text-[10px] font-bold tracking-widest uppercase">
                       {myProfile.gender}
                     </span>
-                    {(() => {
-                      const lf = LOOKING_FOR_OPTIONS.find(o => o.key === myProfile.lookingFor);
-                      const Icon = lf?.icon || Target;
+                    {myProfile.lookingFor?.map((lfKey, i) => {
+                      const lf = LOOKING_FOR_OPTIONS.find(o => o.key === lfKey);
+                      if (!lf) return null;
+                      const Icon = lf.icon;
                       return (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                          style={{ background: `${lf?.color || '#fff'}15`, color: lf?.color, border: `1px solid ${lf?.color || '#fff'}30` }}>
+                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                          style={{ background: `${lf.color}15`, color: lf.color, border: `1px solid ${lf.color}30` }}>
                           <Icon className="h-3 w-3" />
-                          {lf?.label}
+                          {lf.label}
                         </span>
                       );
-                    })()}
+                    })}
                   </div>
                 </div>
 
@@ -713,6 +888,13 @@ export default function ConnectionsPage() {
                     &quot;{myProfile.bio}&quot;
                   </p>
                 )}
+
+                {myProfile.prompts?.map((p, i) => (
+                  <div key={i} className="text-left bg-white/5 p-4 rounded-xl border border-white/10 mt-4">
+                    <p className="text-[10px] text-pastel-blue font-bold uppercase tracking-wider mb-1">{p.question}</p>
+                    <p className="text-sm text-white">{p.answer}</p>
+                  </div>
+                ))}
 
                 <div className="flex flex-wrap justify-center gap-2 pt-2">
                   {myProfile.interests.map((interest, i) => (
