@@ -25,6 +25,7 @@ type AnonymousPost = {
   dislikes: number;
   replyCount: number;
   myReaction: "LIKE" | "DISLIKE" | null;
+  isMine: boolean;
 };
 
 type PostReply = {
@@ -32,6 +33,7 @@ type PostReply = {
   content: string;
   createdAt: string;
   anonymousIdentity: { avatarSeed: string };
+  isMine: boolean;
 };
 
 const CATEGORIES = [
@@ -67,11 +69,13 @@ function PostCard({
   onReact,
   isAdmin,
   onDelete,
+  onDeleteReply,
 }: {
   post: AnonymousPost;
   onReact: (postId: string, type: "LIKE" | "DISLIKE") => void;
   isAdmin: boolean;
   onDelete: (postId: string) => void;
+  onDeleteReply: (replyId: string) => void;
 }) {
   const [showReplies, setShowReplies] = useState(false);
   const [replies, setReplies] = useState<PostReply[]>([]);
@@ -121,6 +125,13 @@ function PostCard({
         setReplies((prev) => [...prev, newReply]);
         setReplyText("");
         setLocalReplyCount((c) => c + 1);
+      } else {
+        if (res.status === 400) {
+          const errData = await res.json();
+          alert(errData.message || "Failed to post reply.");
+        } else {
+          alert("Failed to post reply.");
+        }
       }
     } finally {
       setIsSubmittingReply(false);
@@ -163,7 +174,7 @@ function PostCard({
           >
             {catConf.label}
           </span>
-          {isAdmin && (
+          {(isAdmin || post.isMine) && (
             <button onClick={() => onDelete(post.id)} className="p-1 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors">
               <Trash2 className="h-4 w-4" />
             </button>
@@ -225,7 +236,7 @@ function PostCard({
                 </div>
               ) : replies.length > 0 ? (
                 replies.map((reply) => (
-                  <div key={reply.id} className="flex gap-2.5">
+                  <div key={reply.id} className="flex gap-2.5 group">
                     <div
                       className="h-6 w-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5"
                       style={{
@@ -236,11 +247,20 @@ function PostCard({
                     >
                       {reply.anonymousIdentity.avatarSeed.charAt(0)}
                     </div>
-                    <div className="bg-white/3 rounded-xl px-3 py-2 flex-1 border border-white/5">
+                    <div className="bg-white/3 rounded-xl px-3 py-2 flex-1 border border-white/5 relative">
+                      {(isAdmin || reply.isMine) && (
+                        <button onClick={async () => {
+                          await onDeleteReply(reply.id);
+                          setReplies(prev => prev.filter(r => r.id !== reply.id));
+                          setLocalReplyCount(prev => Math.max(0, prev - 1));
+                        }} className="absolute top-2 right-2 p-1 text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-500/20 rounded-lg transition-all">
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      )}
                       <p className="text-[11px] font-semibold text-zinc-400 mb-1">
                         {reply.anonymousIdentity.avatarSeed}
                       </p>
-                      <p className="text-xs text-zinc-300 leading-relaxed">
+                      <p className="text-xs text-zinc-300 leading-relaxed pr-6">
                         {reply.content}
                       </p>
                     </div>
@@ -342,7 +362,12 @@ export default function AnonymousChatPage() {
         setNewContent("");
         fetchFeed();
       } else {
-        alert("Failed to post.");
+        if (res.status === 400) {
+          const errData = await res.json();
+          alert(errData.message || "Failed to post.");
+        } else {
+          alert("Failed to post.");
+        }
       }
     } catch {
       alert("Network error.");
@@ -411,7 +436,24 @@ export default function AnonymousChatPage() {
       }
     } catch (err) {
       console.error(err);
-      alert("Error deleting post");
+    }
+  };
+
+  const handleDeleteReply = async (replyId: string) => {
+    if (!confirm("Are you sure you want to delete this reply?")) return;
+    try {
+      const res = await fetch(`${API}/social/feed/reply/${replyId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        // Handled locally by PostCard
+      } else {
+        alert("Failed to delete reply");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting reply");
     }
   };
 
@@ -574,7 +616,7 @@ export default function AnonymousChatPage() {
           </>
         ) : posts.length > 0 ? (
           posts.map((post) => (
-            <PostCard key={post.id} post={post} onReact={handleReact} isAdmin={isAdmin} onDelete={handleDelete} />
+            <PostCard key={post.id} post={post} onReact={handleReact} isAdmin={isAdmin} onDelete={handleDelete} onDeleteReply={handleDeleteReply} />
           ))
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">

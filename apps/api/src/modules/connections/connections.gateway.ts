@@ -50,21 +50,29 @@ export class ConnectionsGateway implements OnGatewayConnection, OnGatewayDisconn
     const senderId = client.data.userId;
     if (!senderId) return;
 
-    // Save to DB
-    const message = await this.connectionsService.sendMessage(
-      payload.matchId,
-      { content: payload.content },
-      senderId,
-    );
+    try {
+      // Save to DB
+      const message = await this.connectionsService.sendMessage(
+        payload.matchId,
+        { content: payload.content },
+        senderId,
+      );
 
-    // If receiver is connected, emit the message to them
-    const receiverSocketId = this.connectedUsers.get(payload.receiverId);
-    if (receiverSocketId) {
-      this.server.to(receiverSocketId).emit('newMessage', message);
+      // If receiver is connected, emit the message to them
+      const receiverSocketId = this.connectedUsers.get(payload.receiverId);
+      if (receiverSocketId) {
+        this.server.to(receiverSocketId).emit('newMessage', message);
+      }
+
+      // Send back to sender for confirmation
+      client.emit('newMessage', message);
+    } catch (error: any) {
+      if (error?.status === 400 || error?.message?.includes("inappropriate")) {
+        client.emit('error', { message: 'Inappropriate content detected. Please remove offensive words.' });
+      } else {
+        client.emit('error', { message: 'Failed to send message.' });
+      }
     }
-
-    // Send back to sender for confirmation
-    client.emit('newMessage', message);
   }
 
   @SubscribeMessage('typing')

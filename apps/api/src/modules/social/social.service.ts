@@ -115,6 +115,7 @@ export class SocialService {
         dislikes,
         replyCount: post._count.replies,
         myReaction,
+        isMine: identity ? post.anonymousIdentityId === identity.id : false,
       };
     });
   }
@@ -170,25 +171,49 @@ export class SocialService {
     });
   }
 
-  async getReplies(postId: string) {
-    return this.database.postReply.findMany({
+  async getReplies(postId: string, userId?: string) {
+    const identity = userId ? await this.database.anonymousIdentity.findUnique({ where: { userId } }) : null;
+    const replies = await this.database.postReply.findMany({
       where: { postId },
       orderBy: { createdAt: 'asc' },
       include: {
         anonymousIdentity: { select: { avatarSeed: true } },
       },
     });
+
+    return replies.map(r => ({
+      ...r,
+      isMine: identity ? r.anonymousIdentityId === identity.id : false,
+    }));
   }
 
   async deletePost(postId: string, userId: string) {
-    // Verify user is SUPER_ADMIN
     const user = await this.database.user.findUnique({ where: { id: userId } });
-    if (!user || user.role !== 'SUPER_ADMIN') {
-      throw new Error('Unauthorized. Admin access required.');
+    const identity = await this.database.anonymousIdentity.findUnique({ where: { userId } });
+    const post = await this.database.anonymousPost.findUnique({ where: { id: postId } });
+    if (!post) throw new Error('Post not found');
+
+    if (user?.role !== 'SUPER_ADMIN' && post.anonymousIdentityId !== identity?.id) {
+      throw new Error('Unauthorized. Admin or post owner access required.');
     }
 
     return this.database.anonymousPost.delete({
       where: { id: postId }
+    });
+  }
+
+  async deleteReply(replyId: string, userId: string) {
+    const user = await this.database.user.findUnique({ where: { id: userId } });
+    const identity = await this.database.anonymousIdentity.findUnique({ where: { userId } });
+    const reply = await this.database.postReply.findUnique({ where: { id: replyId } });
+    if (!reply) throw new Error('Reply not found');
+
+    if (user?.role !== 'SUPER_ADMIN' && reply.anonymousIdentityId !== identity?.id) {
+      throw new Error('Unauthorized. Admin or reply owner access required.');
+    }
+
+    return this.database.postReply.delete({
+      where: { id: replyId }
     });
   }
 }

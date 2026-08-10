@@ -19,8 +19,27 @@ const hindiProfanity = [
   "chodu", "chod", "chudai"
 ];
 
+// Create a regex pattern for each word that allows optional spaces between letters
+const hindiRegexPatterns = hindiProfanity.map(word => word.split('').join('\\s*'));
+
 // Regex for Hindi words, ensuring word boundaries and case-insensitivity
-const hindiRegex = new RegExp(`\\b(${hindiProfanity.join('|')})\\b`, 'i');
+const hindiRegex = new RegExp(`\\b(${hindiRegexPatterns.join('|')})\\b`, 'i');
+
+/**
+ * Normalizes text to prevent bypasses using repetitive letters or leetspeak
+ */
+const normalizeHinglish = (text: string): string => {
+  return text
+    .toLowerCase()
+    // Replace common leetspeak
+    .replace(/@/g, 'a')
+    .replace(/0/g, 'o')
+    .replace(/3/g, 'e')
+    .replace(/1/g, 'i')
+    .replace(/\$/g, 's')
+    // Remove consecutive duplicate characters (e.g. luuuund -> lund)
+    .replace(/(.)\1+/g, '$1');
+};
 
 /**
  * Checks if the given text contains any profanity (English or Hindi).
@@ -29,5 +48,11 @@ const hindiRegex = new RegExp(`\\b(${hindiProfanity.join('|')})\\b`, 'i');
  */
 export const isProfane = (text: string): boolean => {
   if (!text) return false;
-  return englishMatcher.hasMatch(text) || hindiRegex.test(text);
+  
+  if (englishMatcher.hasMatch(text)) return true;
+  
+  if (hindiRegex.test(text)) return true;
+  
+  const normalized = normalizeHinglish(text);
+  return hindiRegex.test(normalized);
 };

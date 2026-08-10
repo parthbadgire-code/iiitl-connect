@@ -123,6 +123,10 @@ export default function ConnectionsPage() {
         });
       });
 
+      newSocket.on("error", (err: { message: string }) => {
+        alert(err.message);
+      });
+
       return () => { newSocket.close(); };
     }
   }, [session?.user?.id]);

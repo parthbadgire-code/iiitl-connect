@@ -47,8 +47,8 @@ export class SocialController {
   }
 
   @Get('feed/:postId/replies')
-  async getReplies(@Param('postId') postId: string) {
-    return this.socialService.getReplies(postId);
+  async getReplies(@Param('postId') postId: string, @CurrentUser() user?: any) {
+    return this.socialService.getReplies(postId, user?.id);
   }
 
   @Delete('feed/:postId')
@@ -57,5 +57,13 @@ export class SocialController {
     @CurrentUser() user: any,
   ) {
     return this.socialService.deletePost(postId, user.id);
+  }
+
+  @Delete('feed/reply/:replyId')
+  async deleteReply(
+    @Param('replyId') replyId: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.socialService.deleteReply(replyId, user.id);
   }
 }
