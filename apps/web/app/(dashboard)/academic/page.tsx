@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import { Download, BookOpen, FileText, ClipboardList, Filter, Search, Upload, X, Loader2, Eye, Edit2, Trash2 } from "lucide-react";
 import { uploadFileToR2 } from "@/lib/upload";
 import { useSession } from "@/lib/auth-client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@parthbadgire/ui/components/dropdown-menu";
 
 type StudyResource = {
   id: string;
@@ -21,9 +28,9 @@ type StudyResource = {
 };
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  PYQ: { label: "PYQ", color: "#E9D5FF", icon: FileText },
-  NOTES: { label: "Notes", color: "#C084FC", icon: BookOpen },
-  ASSIGNMENT: { label: "Assignment", color: "#A78BFA", icon: ClipboardList },
+  PYQ: { label: "PYQ", color: "#F59E0B", icon: FileText }, // Amber
+  NOTES: { label: "Notes", color: "#06B6D4", icon: BookOpen }, // Cyan
+  ASSIGNMENT: { label: "Assignment", color: "#D946EF", icon: ClipboardList }, // Fuchsia
 };
 
 const SUBJECTS_BY_SEMESTER: Record<string, string[]> = {
@@ -68,19 +75,22 @@ const SUBJECTS_BY_SEMESTER: Record<string, string[]> = {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-3xl p-5 space-y-4 bg-black/40 backdrop-blur-xl border border-white/5">
+    <div className="rounded-3xl p-6 space-y-4 bg-black/40 backdrop-blur-xl border border-white/5 flex flex-col h-[280px]">
       <div className="flex justify-between items-start">
+        <div className="skeleton h-10 w-10 rounded-2xl" />
+        <div className="skeleton h-6 w-20 rounded-full" />
+      </div>
+      <div className="space-y-3 flex-1 mt-4">
+        <div className="skeleton h-5 w-full rounded-lg" />
         <div className="skeleton h-5 w-3/4 rounded-lg" />
-        <div className="skeleton h-5 w-16 rounded-full" />
       </div>
-      <div className="skeleton h-4 w-1/3 rounded-lg" />
-      <div className="space-y-2">
-        <div className="skeleton h-3 w-full rounded" />
-        <div className="skeleton h-3 w-4/5 rounded" />
+      <div className="flex gap-2 mb-4">
+        <div className="skeleton h-5 w-16 rounded-md" />
+        <div className="skeleton h-5 w-16 rounded-md" />
       </div>
-      <div className="flex justify-between items-center pt-2">
-        <div className="skeleton h-3 w-24 rounded" />
-        <div className="skeleton h-8 w-24 rounded-lg" />
+      <div className="flex justify-between items-center pt-4 border-t border-white/5">
+        <div className="skeleton h-4 w-24 rounded" />
+        <div className="skeleton h-8 w-24 rounded-xl" />
       </div>
     </div>
   );
@@ -97,7 +107,6 @@ function ResourceCard({ resource, index, session, onEdit, onDelete }: { resource
     e.preventDefault();
     if (!resource.url) return;
     try {
-      // Fetch the file to force download via blob (works if CORS GET is enabled)
       const response = await fetch(resource.url);
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
@@ -116,62 +125,80 @@ function ResourceCard({ resource, index, session, onEdit, onDelete }: { resource
 
   return (
     <div
-      className="group relative overflow-hidden rounded-3xl p-6 flex flex-col gap-4 animate-fade-in-up bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 hover:border-white/20 transition-all duration-500"
-      style={{ animationDelay: `${index * 80}ms`, animationFillMode: "both", opacity: 0 }}
+      className="group relative overflow-hidden rounded-3xl p-6 flex flex-col h-[280px] animate-fade-in-up bg-[#0A0A0A]/80 backdrop-blur-2xl border transition-all duration-500 hover:-translate-y-1 shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
+      style={{
+        animationDelay: `${index * 50}ms`,
+        animationFillMode: "both",
+        opacity: 0,
+        borderColor: "rgba(255,255,255,0.08)",
+      }}
     >
-      {/* Card top */}
-      <div className="flex justify-between items-start gap-3">
-        <div className="flex items-start gap-3 min-w-0">
-          {/* Icon box */}
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110"
-            style={{ background: `${typeConf.color}18`, border: `1px solid ${typeConf.color}30` }}>
-            <Icon className="h-4 w-4" style={{ color: typeConf.color }} />
-          </div>
-          <div className="min-w-0">
-            <h3 className="text-sm font-semibold leading-snug line-clamp-2" style={{ color: "#f4f4f8" }}>
-              {resource.title}
-            </h3>
-            <div className="flex items-center flex-wrap gap-1.5 mt-1.5">
-              <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md"
-                style={{ background: "rgba(255,255,255,0.05)", color: "#8b8ba7" }}>
-                {resource.courseCode}
-              </span>
-              <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md"
-                style={{ background: "rgba(255,255,255,0.05)", color: "#8b8ba7" }}>
-                Sem {resource.semester}
-              </span>
-              {resource.type === "PYQ" && resource.examType && resource.year && (
-                <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md"
-                  style={{ background: "rgba(255,255,255,0.05)", color: "#8b8ba7" }}>
-                  {resource.examType === "MIDSEM" ? "Midsem" : "Endsem"} {resource.year}
-                </span>
-              )}
-            </div>
-          </div>
+      {/* Dynamic Hover Gradient Border */}
+      <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{
+          background: `linear-gradient(120deg, transparent, ${typeConf.color}20, transparent)`,
+          padding: '1px',
+          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+          WebkitMaskComposite: 'xor',
+          maskComposite: 'exclude',
+        }}
+      />
+
+      {/* Decorative Background Icon */}
+      <Icon className="absolute -right-6 -top-6 h-32 w-32 opacity-[0.03] transform -rotate-12 group-hover:scale-110 group-hover:rotate-0 transition-transform duration-700 pointer-events-none" style={{ color: typeConf.color }} />
+
+      {/* Card Header */}
+      <div className="flex justify-between items-start gap-3 relative z-10">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110"
+          style={{ background: `linear-gradient(135deg, ${typeConf.color}20, ${typeConf.color}05)`, border: `1px solid ${typeConf.color}30` }}>
+          <Icon className="h-5 w-5 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" style={{ color: typeConf.color }} />
         </div>
-        {/* Type badge */}
-        <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-1 rounded-full border"
-          style={{ background: `${typeConf.color}10`, color: typeConf.color, borderColor: `${typeConf.color}30` }}>
+        
+        {/* Type Badge */}
+        <span className="shrink-0 text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full border shadow-sm"
+          style={{ background: `${typeConf.color}15`, color: typeConf.color, borderColor: `${typeConf.color}40` }}>
           {typeConf.label}
         </span>
       </div>
 
-      {/* Description */}
-      <p className="text-xs line-clamp-2 leading-relaxed" style={{ color: "#8b8ba7" }}>
-        {resource.description || "Community-contributed study material. Download and contribute!"}
-      </p>
+      {/* Title & Description */}
+      <div className="mt-5 flex-1 relative z-10 flex flex-col min-h-0">
+        <h3 className="text-base font-bold leading-snug line-clamp-2 text-white group-hover:text-pastel-lavender transition-colors">
+          {resource.title}
+        </h3>
+        <p className="text-xs line-clamp-2 mt-2" style={{ color: "#8b8ba7" }}>
+          {resource.description || "Community-contributed study material."}
+        </p>
+      </div>
+
+      {/* Metadata Pills */}
+      <div className="flex items-center flex-wrap gap-1.5 mt-auto mb-4 relative z-10">
+        <span className="text-[10px] font-mono font-semibold px-2 py-1 rounded-lg"
+          style={{ background: "rgba(255,255,255,0.06)", color: "#c0c0d1" }}>
+          {resource.courseCode}
+        </span>
+        <span className="text-[10px] font-mono font-semibold px-2 py-1 rounded-lg"
+          style={{ background: "rgba(255,255,255,0.06)", color: "#c0c0d1" }}>
+          Sem {resource.semester}
+        </span>
+        {resource.type === "PYQ" && resource.examType && resource.year && (
+          <span className="text-[10px] font-mono font-semibold px-2 py-1 rounded-lg"
+            style={{ background: "rgba(255,255,255,0.06)", color: "#c0c0d1" }}>
+            {resource.examType === "MIDSEM" ? "Midsem" : "Endsem"} &apos;{resource.year.toString().slice(-2)}
+          </span>
+        )}
+      </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-auto pt-2 border-t" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-        <div className="flex items-center gap-1.5">
-          <div className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold bg-pastel-lavender/10 text-pastel-lavender border border-pastel-lavender/20">
+      <div className="flex items-center justify-between pt-4 border-t relative z-10" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black shadow-sm"
+            style={{ background: `linear-gradient(135deg, ${typeConf.color}30, ${typeConf.color}10)`, color: typeConf.color, border: `1px solid ${typeConf.color}40` }}>
             {resource.uploader?.name?.charAt(0) || "?"}
           </div>
-          <div>
-            <span className="text-[10px]" style={{ color: "#4a4a6a" }}>
-              {resource.uploader?.name || "Anonymous"} · {timeAgo}
-            </span>
-          </div>
+          <span className="text-[10px] font-medium" style={{ color: "#6a6a8a" }}>
+            {timeAgo}
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -180,40 +207,41 @@ function ResourceCard({ resource, index, session, onEdit, onDelete }: { resource
               href={resource.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-white/5 text-pastel-blue hover:bg-pastel-blue/10 border border-white/5 hover:border-pastel-blue/30"
+              className="flex items-center justify-center h-8 w-8 rounded-xl text-neutral-400 hover:text-white transition-all bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20"
+              title="Preview"
             >
-              <Eye className="h-3 w-3" /> Preview
+              <Eye className="h-3.5 w-3.5" />
             </a>
           )}
-          {session?.user && (session.user.role === 'SUPER_ADMIN' || session.user.id === resource.uploaderId) && (
-            <div className="flex items-center gap-2 mr-2">
-              <button
-                onClick={() => onEdit(resource)}
-                className="flex items-center justify-center h-8 w-8 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
-                title="Edit Resource"
-              >
-                <Edit2 className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => {
-                  if (confirm("Are you sure you want to delete this resource?")) {
-                    onDelete(resource.id);
-                  }
-                }}
-                className="flex items-center justify-center h-8 w-8 rounded-xl text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all border border-transparent hover:border-red-400/30"
-                title="Delete Resource"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-          )}
+          
           <button
             onClick={handleDownload}
             disabled={!resource.url}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-300 bg-white/5 text-pastel-lavender hover:bg-pastel-lavender/10 border border-white/5 hover:border-pastel-lavender/30 disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] disabled:opacity-50"
+            style={{ background: typeConf.color, color: "#000" }}
           >
-            <Download className="h-3 w-3" /> Download
+            <Download className="h-3.5 w-3.5" /> 
+            <span className="hidden sm:inline">Get</span>
           </button>
+          
+          {session?.user && (session.user.role === 'SUPER_ADMIN' || session.user.id === resource.uploaderId) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center justify-center h-8 w-8 rounded-xl text-neutral-400 hover:text-white transition-all bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20">
+                  <span className="text-xs font-black">⋮</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-[#0A0A0A] border-white/10 text-white">
+                <DropdownMenuItem onClick={() => onEdit(resource)} className="cursor-pointer gap-2 focus:bg-white/10">
+                  <Edit2 className="h-3.5 w-3.5" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuItem onClick={() => { if (confirm("Delete resource?")) onDelete(resource.id); }} className="cursor-pointer gap-2 text-red-400 focus:bg-red-400/10 focus:text-red-400">
+                  <Trash2 className="h-3.5 w-3.5" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </div>
@@ -227,6 +255,8 @@ export default function AcademicHubPage() {
   const [search, setSearch] = useState("");
   const [activeType, setActiveType] = useState<string | null>(null);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [filterSemester, setFilterSemester] = useState<string | null>(null);
+  const [filterSubject, setFilterSubject] = useState<string | null>(null);
 
   // Upload State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -337,7 +367,9 @@ export default function AcademicHubPage() {
       r.title.toLowerCase().includes(search.toLowerCase()) ||
       r.courseCode.toLowerCase().includes(search.toLowerCase());
     const matchType = !activeType || r.type === activeType;
-    return matchSearch && matchType;
+    const matchSem = !filterSemester || r.semester.toString() === filterSemester;
+    const matchSubj = !filterSubject || r.courseCode === filterSubject;
+    return matchSearch && matchType && matchSem && matchSubj;
   });
 
   const handleUploadSubmit = async (e: React.FormEvent) => {
@@ -470,36 +502,67 @@ export default function AcademicHubPage() {
         </div>
 
         {/* Filter chips */}
-        <div className="flex items-center gap-2">
-          <Filter className="h-3.5 w-3.5" style={{ color: "#8b8ba7" }} />
-          {[
-            { key: null, label: "All" },
-            { key: "PYQ", label: "PYQ" },
-            { key: "NOTES", label: "Notes" },
-            { key: "ASSIGNMENT", label: "Assignments" },
-          ].map(f => {
-            const isActive = f.key === activeType;
-            const conf = f.key ? TYPE_CONFIG[f.key] : null;
-            return (
-              <button
-                key={f.key ?? "all"}
-                onClick={() => setActiveType(f.key)}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
-                style={{
-                  background: isActive
-                    ? (conf ? `${conf.color}20` : "rgba(255,255,255,0.1)")
-                    : "rgba(10,10,10,0.6)",
-                  color: isActive ? (conf?.color || "#f4f4f8") : "#8b8ba7",
-                  border: isActive
-                    ? `1px solid ${conf?.color || "rgba(255,255,255,0.2)"}50`
-                    : "1px solid rgba(255,255,255,0.05)",
-                  boxShadow: isActive && conf ? `0 0 10px ${conf.color}30` : "none",
-                }}
-              >
-                {f.label}
-              </button>
-            );
-          })}
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+          <div className="flex items-center gap-2">
+            <Filter className="h-3.5 w-3.5" style={{ color: "#8b8ba7" }} />
+            {[
+              { key: null, label: "All" },
+              { key: "PYQ", label: "PYQ" },
+              { key: "NOTES", label: "Notes" },
+              { key: "ASSIGNMENT", label: "Assignments" },
+            ].map(f => {
+              const isActive = f.key === activeType;
+              const conf = f.key ? TYPE_CONFIG[f.key] : null;
+              return (
+                <button
+                  key={f.key ?? "all"}
+                  onClick={() => setActiveType(f.key)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
+                  style={{
+                    background: isActive
+                      ? (conf ? `${conf.color}20` : "rgba(255,255,255,0.1)")
+                      : "rgba(10,10,10,0.6)",
+                    color: isActive ? (conf?.color || "#f4f4f8") : "#8b8ba7",
+                    border: isActive
+                      ? `1px solid ${conf?.color || "rgba(255,255,255,0.2)"}50`
+                      : "1px solid rgba(255,255,255,0.05)",
+                    boxShadow: isActive && conf ? `0 0 10px ${conf.color}30` : "none",
+                  }}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="h-4 w-px bg-white/10 hidden md:block" />
+
+          {/* Semester Filter */}
+          <select 
+            value={filterSemester || ""} 
+            onChange={(e) => {
+              setFilterSemester(e.target.value || null);
+              setFilterSubject(null); // Reset subject when sem changes
+            }}
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold outline-none transition-all border cursor-pointer hover:border-white/20"
+            style={{ background: "rgba(10,10,10,0.6)", color: "#f4f4f8", borderColor: "rgba(255,255,255,0.1)" }}
+          >
+            <option value="">All Semesters</option>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map(s => <option key={s} value={s.toString()}>Semester {s}</option>)}
+          </select>
+
+          {/* Subject Filter */}
+          {filterSemester && SUBJECTS_BY_SEMESTER[filterSemester]?.length > 0 && (
+            <select 
+              value={filterSubject || ""} 
+              onChange={(e) => setFilterSubject(e.target.value || null)}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold outline-none transition-all border max-w-[200px] truncate cursor-pointer hover:border-white/20"
+              style={{ background: "rgba(10,10,10,0.6)", color: "#f4f4f8", borderColor: "rgba(255,255,255,0.1)" }}
+            >
+              <option value="">All Subjects</option>
+              {SUBJECTS_BY_SEMESTER[filterSemester].map(sub => <option key={sub} value={sub}>{sub}</option>)}
+            </select>
+          )}
         </div>
       </div>
 
