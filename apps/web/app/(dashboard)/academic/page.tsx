@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, BookOpen, FileText, ClipboardList, Filter, Search, Upload, X, Loader2, Eye } from "lucide-react";
+import { Download, BookOpen, FileText, ClipboardList, Filter, Search, Upload, X, Loader2, Eye, Edit2, Trash2 } from "lucide-react";
 import { uploadFileToR2 } from "@/lib/upload";
+import { useSession } from "@/lib/auth-client";
 
 type StudyResource = {
   id: string;
@@ -14,6 +15,7 @@ type StudyResource = {
   year?: number;
   description?: string;
   url?: string;
+  uploaderId?: string;
   uploader?: { name: string; email: string };
   createdAt?: string;
 };
@@ -84,7 +86,7 @@ function SkeletonCard() {
   );
 }
 
-function ResourceCard({ resource, index }: { resource: StudyResource; index: number }) {
+function ResourceCard({ resource, index, session, onEdit, onDelete }: { resource: StudyResource; index: number; session: { user?: { role?: string; id?: string } } | null; onEdit: (r: StudyResource) => void; onDelete: (id: string) => void }) {
   const typeConf = TYPE_CONFIG[resource.type] || TYPE_CONFIG.NOTES;
   const Icon = typeConf.icon as React.ElementType<{ className?: string; style?: React.CSSProperties }>;
   const timeAgo = resource.createdAt
@@ -183,6 +185,28 @@ function ResourceCard({ resource, index }: { resource: StudyResource; index: num
               <Eye className="h-3 w-3" /> Preview
             </a>
           )}
+          {session?.user && (session.user.role === 'SUPER_ADMIN' || session.user.id === resource.uploaderId) && (
+            <div className="flex items-center gap-2 mr-2">
+              <button
+                onClick={() => onEdit(resource)}
+                className="flex items-center justify-center h-8 w-8 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
+                title="Edit Resource"
+              >
+                <Edit2 className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm("Are you sure you want to delete this resource?")) {
+                    onDelete(resource.id);
+                  }
+                }}
+                className="flex items-center justify-center h-8 w-8 rounded-xl text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all border border-transparent hover:border-red-400/30"
+                title="Delete Resource"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          )}
           <button
             onClick={handleDownload}
             disabled={!resource.url}
@@ -197,6 +221,7 @@ function ResourceCard({ resource, index }: { resource: StudyResource; index: num
 }
 
 export default function AcademicHubPage() {
+  const { data: session } = useSession();
   const [resources, setResources] = useState<StudyResource[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -215,6 +240,83 @@ export default function AcademicHubPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Edit State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editResourceId, setEditResourceId] = useState<string | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/academic/resources/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setResources(prev => prev.filter(r => r.id !== id));
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to delete");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete resource");
+    }
+  };
+
+  const handleEditOpen = (r: StudyResource) => {
+    setEditResourceId(r.id);
+    setTitle(r.title);
+    setCourseCode(r.courseCode);
+    setSemester(r.semester.toString());
+    setDescription(r.description || "");
+    setType(r.type);
+    if (r.type === "PYQ" && r.examType) setExamType(r.examType);
+    if (r.type === "PYQ" && r.year) setYear(r.year.toString());
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editResourceId || !title || !courseCode) return;
+
+    setEditSubmitting(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/academic/resources/${editResourceId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          title,
+          courseCode,
+          semester: parseInt(semester, 10),
+          description,
+          type,
+          examType: type === "PYQ" ? examType : undefined,
+          year: type === "PYQ" ? parseInt(year, 10) : undefined,
+        }),
+      });
+
+      if (res.ok) {
+        setIsEditModalOpen(false);
+        setEditResourceId(null);
+        setTitle("");
+        setDescription("");
+        
+        // refresh list
+        const refreshed = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/academic/resources`, { credentials: "include" });
+        if (refreshed.ok) setResources(await refreshed.json());
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to update resource");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update resource");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchResources() {
@@ -408,7 +510,7 @@ export default function AcademicHubPage() {
         </div>
       ) : filtered.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {filtered.map((r, i) => <ResourceCard key={r.id} resource={r} index={i} />)}
+          {filtered.map((r, i) => <ResourceCard key={r.id} resource={r} index={i} session={session} onDelete={handleDelete} onEdit={handleEditOpen} />)}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-24 space-y-4">
@@ -588,6 +690,149 @@ export default function AcademicHubPage() {
                   </>
                 ) : (
                   "Upload Resource"
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Edit Resource Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#0A0A0A] border border-neutral-800 w-full max-w-md rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(233,213,255,0.15)]">
+            <div className="flex items-center justify-between p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white">Edit Resource</h2>
+              <button onClick={() => { setIsEditModalOpen(false); setEditResourceId(null); }} className="text-neutral-500 hover:text-white transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-5">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Name of Resource</label>
+                <input
+                  type="text"
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pastel-lavender transition-colors"
+                  placeholder="e.g. Complete DSA Notes"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Semester</label>
+                  <select
+                    value={semester}
+                    onChange={(e) => {
+                      const newSem = e.target.value;
+                      setSemester(newSem);
+                      const subjects = SUBJECTS_BY_SEMESTER[newSem];
+                      if (subjects && subjects.length > 0) {
+                        setCourseCode(subjects[0]);
+                      } else {
+                        setCourseCode("");
+                      }
+                    }}
+                    className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors appearance-none"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
+                      <option key={s} value={s}>Semester {s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Subject</label>
+                  {SUBJECTS_BY_SEMESTER[semester] && SUBJECTS_BY_SEMESTER[semester].length > 0 ? (
+                    <select
+                      required
+                      value={courseCode}
+                      onChange={(e) => setCourseCode(e.target.value)}
+                      className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors appearance-none"
+                    >
+                      <option value="" disabled>Select a subject</option>
+                      {SUBJECTS_BY_SEMESTER[semester].map(sub => (
+                        <option key={sub} value={sub}>{sub}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      required
+                      value={courseCode}
+                      onChange={(e) => setCourseCode(e.target.value)}
+                      className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors"
+                      placeholder="e.g. OS, DBMS, CS101"
+                    />
+                  )}
+                </div>
+                <div className="space-y-1 md:col-span-1 col-span-2">
+                  <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Type</label>
+                  <select
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                    className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed] transition-colors appearance-none"
+                  >
+                    <option value="NOTES">Notes</option>
+                    <option value="PYQ">PYQ</option>
+                    <option value="ASSIGNMENT">Assignment</option>
+                  </select>
+                </div>
+              </div>
+
+              {type === "PYQ" && (
+                <div className="grid grid-cols-2 gap-4 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Exam Type</label>
+                    <select
+                      value={examType}
+                      onChange={(e) => setExamType(e.target.value)}
+                      className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 transition-colors appearance-none"
+                    >
+                      <option value="MIDSEM">Midsem</option>
+                      <option value="ENDSEM">Endsem</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Year</label>
+                    <input
+                      type="number"
+                      required
+                      min="2010"
+                      max="2030"
+                      value={year}
+                      onChange={(e) => setYear(e.target.value)}
+                      className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 transition-colors"
+                      placeholder="e.g. 2024"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Description</label>
+                <textarea
+                  required
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pastel-lavender transition-colors min-h-[80px] resize-none"
+                  placeholder="Additional context or topics covered..."
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={editSubmitting}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-black disabled:opacity-50 disabled:cursor-not-allowed transition-all bg-pastel-lavender hover:bg-pastel-lavender/90"
+              >
+                {editSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving Changes...
+                  </>
+                ) : (
+                  "Save Changes"
                 )}
               </button>
             </form>
