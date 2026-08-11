@@ -10,8 +10,9 @@ import {
 } from "@parthbadgire/ui/components/dropdown-menu";
 import { useSession, signOut } from "@/lib/auth-client";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, User, Settings, Search, Loader2 } from "lucide-react";
+import { LogOut, User, Settings, Search, Loader2, Bell, CheckCheck } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { useNotificationStore } from "@/store/useNotificationStore";
 
 import Link from "next/link";
 import { cn } from "@parthbadgire/ui/lib/utils";
@@ -57,6 +58,26 @@ export function Topbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const {
+    notifications,
+    unreadCount,
+    connect,
+    disconnect,
+    fetchNotifications,
+    markAsRead,
+    markAllAsRead,
+  } = useNotificationStore();
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchNotifications();
+      connect(session.user.id);
+    }
+    return () => {
+      disconnect();
+    };
+  }, [session?.user?.id, fetchNotifications, connect, disconnect]);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -204,6 +225,68 @@ export function Topbar() {
             </div>
           )}
         </div>
+
+        {/* Notifications Dropdown */}
+        {session?.user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="relative p-2 rounded-full bg-white/5 border border-white/5 outline-none transition-all hover:bg-white/10 hover:border-white/10 shadow-lg hover:shadow-xl group">
+                <Bell className="h-4 w-4 text-neutral-400 group-hover:text-white transition-colors" />
+                {unreadCount > 0 && (
+                  <div className="absolute top-0 right-0 h-4 w-4 rounded-full bg-pastel-lavender flex items-center justify-center text-[9px] font-bold text-black border-2 border-[#0A0A0A]">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </div>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80 bg-[#0A0A0A]/95 backdrop-blur-3xl border border-neutral-800 text-white shadow-[0_0_40px_rgba(233,213,255,0.05)] p-0">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800/50">
+                <span className="font-bold">Notifications</span>
+                {unreadCount > 0 && (
+                  <button onClick={() => markAllAsRead()} className="text-[10px] flex items-center gap-1 text-neutral-400 hover:text-white transition-colors">
+                    <CheckCheck className="h-3 w-3" /> Mark all read
+                  </button>
+                )}
+              </div>
+              <div className="max-h-[350px] overflow-y-auto">
+                {notifications.length === 0 ? (
+                  <div className="px-4 py-8 text-center text-xs text-neutral-500">
+                    You have no notifications.
+                  </div>
+                ) : (
+                  notifications.map((notif) => (
+                    <div
+                      key={notif.id}
+                      onClick={() => {
+                        if (!notif.isRead) markAsRead(notif.id);
+                        if (notif.link) router.push(notif.link);
+                      }}
+                      className={cn(
+                        "px-4 py-3 border-b border-neutral-800/30 cursor-pointer transition-colors hover:bg-white/5 flex gap-3 relative",
+                        !notif.isRead ? "bg-pastel-lavender/5" : ""
+                      )}
+                    >
+                      {!notif.isRead && (
+                        <div className="absolute left-2 top-4 w-1.5 h-1.5 rounded-full bg-pastel-lavender shadow-[0_0_8px_rgba(233,213,255,0.8)]" />
+                      )}
+                      <div className="flex-1 overflow-hidden">
+                        <div className="text-xs font-semibold text-white mb-0.5 flex items-center justify-between">
+                          <span>{notif.title}</span>
+                          <span className="text-[9px] text-neutral-500 font-normal">
+                            {new Date(notif.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-neutral-400 line-clamp-2">
+                          {notif.message}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
 
         {/* User dropdown */}
         {session?.user ? (

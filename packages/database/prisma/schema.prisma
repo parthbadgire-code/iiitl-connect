@@ -26,25 +26,26 @@ model User {
   receivedMessages     ListingMessage[]      @relation("MessageReceiver")
   sentMessages         ListingMessage[]      @relation("MessageSender")
 
-  maintenanceTickets   MaintenanceTicket[]
-  marketplaceListings  MarketplaceListing[]
-  mutualConnections1   MutualConnection[]    @relation("MutualUser1")
-  mutualConnections2   MutualConnection[]    @relation("MutualUser2")
-  noteRevisions        NoteRevision[]
-  publicProfile        PublicProfile?
-  studentProfile       StudentProfile?
-  roomExchanges        RoomExchangeRequest[]
-  sessions             Session[]
-  receivedSwipes       Swipe[]               @relation("SwipeReceiver")
-  sentSwipes           Swipe[]               @relation("SwipeSender")
-  studyResources       StudyResource[]
+  maintenanceTickets    MaintenanceTicket[]
+  marketplaceListings   MarketplaceListing[]
+  mutualConnections1    MutualConnection[]    @relation("MutualUser1")
+  mutualConnections2    MutualConnection[]    @relation("MutualUser2")
+  noteRevisions         NoteRevision[]
+  publicProfile         PublicProfile?
+  studentProfile        StudentProfile?
+  roomExchanges         RoomExchangeRequest[]
+  sessions              Session[]
+  receivedSwipes        Swipe[]               @relation("SwipeReceiver")
+  sentSwipes            Swipe[]               @relation("SwipeSender")
+  studyResources        StudyResource[]
   uploadedClubResources ClubResource[]
-  connectionMessages   ConnectionMessage[]
-  blocksGiven          ConnectionBlock[]     @relation("BlocksGiven")
-  blocksReceived       ConnectionBlock[]     @relation("BlocksReceived")
-  reportsGiven         ConnectionReport[]    @relation("ReportsGiven")
-  reportsReceived      ConnectionReport[]    @relation("ReportsReceived")
-  uploadedEventPhotos  EventGalleryPhoto[]
+  connectionMessages    ConnectionMessage[]
+  blocksGiven           ConnectionBlock[]     @relation("BlocksGiven")
+  blocksReceived        ConnectionBlock[]     @relation("BlocksReceived")
+  reportsGiven          ConnectionReport[]    @relation("ReportsGiven")
+  reportsReceived       ConnectionReport[]    @relation("ReportsReceived")
+  uploadedEventPhotos   EventGalleryPhoto[]
+  Notification          Notification[]
 }
 
 model Session {
@@ -188,13 +189,13 @@ model PostReply {
 }
 
 model Club {
-  id          String        @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
-  slug        String        @unique
+  slug        String         @unique
   description String?
   logo        String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   events      CampusEvent[]
   members     ClubMember[]
   resources   ClubResource[]
@@ -294,6 +295,29 @@ model ListingMessage {
   sender     User               @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
 }
 
+enum NotificationType {
+  INFO
+  MATCH
+  MESSAGE
+  EVENT
+  MARKETPLACE
+  ACADEMIC
+  CLUB
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
 model MaintenanceTicket {
   id          String       @id @default(cuid())
@@ -319,18 +343,18 @@ model RoomExchangeRequest {
 }
 
 model ConnectionProfile {
-  id         String     @id @default(cuid())
-  userId     String     @unique
-  username   String     @unique
+  id         String       @id @default(cuid())
+  userId     String       @unique
+  username   String       @unique
   gender     Gender
   year       String?
   bio        String?
   interests  String[]
   lookingFor LookingFor[]
   prompts    Json?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Swipe {
@@ -346,35 +370,35 @@ model Swipe {
 }
 
 model MutualConnection {
-  id        String   @id @default(cuid())
+  id        String              @id @default(cuid())
   user1Id   String
   user2Id   String
-  createdAt DateTime @default(now())
-  user1     User     @relation("MutualUser1", fields: [user1Id], references: [id], onDelete: Cascade)
-  user2     User     @relation("MutualUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+  createdAt DateTime            @default(now())
+  user1     User                @relation("MutualUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2     User                @relation("MutualUser2", fields: [user2Id], references: [id], onDelete: Cascade)
   messages  ConnectionMessage[]
 
   @@unique([user1Id, user2Id])
 }
 
 model ConnectionMessage {
-  id         String           @id @default(cuid())
-  matchId    String
-  senderId   String
-  content    String
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-  match      MutualConnection @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  sender     User             @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  id        String           @id @default(cuid())
+  matchId   String
+  senderId  String
+  content   String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  match     MutualConnection @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  sender    User             @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
 
 model ConnectionBlock {
-  id         String   @id @default(cuid())
-  blockerId  String
-  blockedId  String
-  createdAt  DateTime @default(now())
-  blocker    User     @relation("BlocksGiven", fields: [blockerId], references: [id], onDelete: Cascade)
-  blocked    User     @relation("BlocksReceived", fields: [blockedId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+  blocker   User     @relation("BlocksGiven", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("BlocksReceived", fields: [blockedId], references: [id], onDelete: Cascade)
 
   @@unique([blockerId, blockedId])
 }
@@ -390,7 +414,7 @@ model ConnectionReport {
 }
 
 model CampusEvent {
-  id             String      @id @default(cuid())
+  id             String              @id @default(cuid())
   title          String
   date           DateTime
   venue          String
@@ -475,7 +499,6 @@ enum ListingStatus {
   AVAILABLE
   SOLD
 }
-
 
 enum TicketStatus {
   OPEN

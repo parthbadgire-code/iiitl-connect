@@ -4,9 +4,10 @@ import { ConnectionsController } from './connections.controller';
 import { DatabaseModule } from '../database/database.module';
 import { AuthModule } from '../auth/auth.module';
 import { ConnectionsGateway } from './connections.gateway';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [DatabaseModule, AuthModule, NotificationsModule],
   controllers: [ConnectionsController],
   providers: [ConnectionsService, ConnectionsGateway],
 })

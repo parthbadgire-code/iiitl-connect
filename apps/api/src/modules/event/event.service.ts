@@ -2,10 +2,14 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { CreateEventDto } from './dto/event.dto';
 import { ClubRole } from '@prisma/client';
+import { NotificationsService, NotificationType } from '../notifications/notifications.service';
 
 @Injectable()
 export class EventService {
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly notifications: NotificationsService
+  ) {}
 
   async createEvent(data: CreateEventDto, userId: string) {
     const user = await this.database.user.findUnique({ where: { id: userId } });
@@ -27,7 +31,7 @@ export class EventService {
       }
     }
 
-    return this.database.campusEvent.create({
+    const event = await this.database.campusEvent.create({
       data: {
         title: data.title,
         date: new Date(data.date),
@@ -39,6 +43,16 @@ export class EventService {
         }
       }
     });
+
+    // Notify all users about the new event
+    this.notifications.createGlobalNotification({
+      title: 'New Campus Event!',
+      message: `${data.title} has been scheduled for ${new Date(data.date).toLocaleDateString()}.`,
+      type: NotificationType.EVENT,
+      link: `/events`,
+    }).catch(console.error);
+
+    return event;
   }
 
   async getAllEvents() {

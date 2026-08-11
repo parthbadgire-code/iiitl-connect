@@ -2,10 +2,14 @@ import { Injectable, ConflictException, BadRequestException } from '@nestjs/comm
 import { DatabaseService } from '../database/database.service';
 import { CreateProfileDto, SwipeDto, SendMessageDto } from './dto/connections.dto';
 import { isProfane } from '../../common/utils/profanity.util';
+import { NotificationsService, NotificationType } from '../notifications/notifications.service';
 
 @Injectable()
 export class ConnectionsService {
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly notifications: NotificationsService
+  ) {}
 
   async getProfile(userId: string) {
     return this.database.connectionProfile.findUnique({
@@ -192,6 +196,22 @@ export class ConnectionsService {
           }
         });
         
+        // Notify both users of the match
+        await this.notifications.createNotification({
+          userId: user1Id,
+          title: 'New Match!',
+          message: 'You have a new mutual connection. Start chatting!',
+          type: NotificationType.MATCH,
+          link: '/connections',
+        });
+        await this.notifications.createNotification({
+          userId: user2Id,
+          title: 'New Match!',
+          message: 'You have a new mutual connection. Start chatting!',
+          type: NotificationType.MATCH,
+          link: '/connections',
+        });
+
         return { matched: true };
       }
     }
@@ -267,13 +287,27 @@ export class ConnectionsService {
       throw new BadRequestException("Message contains inappropriate content.");
     }
 
-    return this.database.connectionMessage.create({
+    const message = await this.database.connectionMessage.create({
       data: {
         matchId,
         senderId: userId,
         content: data.content,
       }
     });
+
+    const receiverId = match.user1Id === userId ? match.user2Id : match.user1Id;
+    
+    // Notify receiver
+    const sender = await this.database.user.findUnique({ where: { id: userId }});
+    await this.notifications.createNotification({
+      userId: receiverId,
+      title: 'New Message',
+      message: `${sender?.name || 'Someone'} sent you a message.`,
+      type: NotificationType.MESSAGE,
+      link: '/connections',
+    });
+
+    return message;
   }
 
   async blockUser(userIdToBlock: string, currentUserId: string) {

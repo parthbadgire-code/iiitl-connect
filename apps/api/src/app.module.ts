@@ -11,10 +11,11 @@ import { ClubModule } from './modules/club/club.module';
 import { EventModule } from './modules/event/event.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 
 @Module({
-  imports: [DatabaseModule, AuthModule, AcademicModule, SocialModule, ConnectionsModule, ProfileModule, ClubModule, EventModule, StorageModule, MarketplaceModule],
+  imports: [DatabaseModule, AuthModule, AcademicModule, SocialModule, ConnectionsModule, ProfileModule, ClubModule, EventModule, StorageModule, MarketplaceModule, NotificationsModule],
   controllers: [AppController],
   providers: [AppService],
 })

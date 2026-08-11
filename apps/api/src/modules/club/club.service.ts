@@ -2,10 +2,14 @@ import { Injectable, ForbiddenException, NotFoundException, ConflictException } 
 import { DatabaseService } from '../database/database.service';
 import { CreateClubDto, AddMemberDto, CreateClubResourceDto } from './dto/club.dto';
 import { ClubRole } from '@prisma/client';
+import { NotificationsService, NotificationType } from '../notifications/notifications.service';
 
 @Injectable()
 export class ClubService {
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly notifications: NotificationsService
+  ) {}
 
   async createClub(data: CreateClubDto, userId: string) {
     // Ensure slug is unique
@@ -187,7 +191,7 @@ export class ClubService {
       throw new ForbiddenException("You must be a LEAD, CORE, or COORDINATOR of this club to add resources.");
     }
 
-    return this.database.clubResource.create({
+    const resource = await this.database.clubResource.create({
       data: {
         title: data.title,
         description: data.description,
@@ -197,5 +201,16 @@ export class ClubService {
         uploaderId: userId,
       }
     });
+
+    const club = await this.database.club.findUnique({ where: { id: clubId } });
+
+    this.notifications.createGlobalNotification({
+      title: `New Resource in ${club?.name || 'a Club'}`,
+      message: `A new ${data.type} resource "${data.title}" was just added!`,
+      type: NotificationType.CLUB,
+      link: club?.slug.startsWith('axios-') ? `/axios/${club.slug}` : `/clubs/${club?.id}`,
+    }).catch(console.error);
+
+    return resource;
   }
 }

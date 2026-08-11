@@ -1,12 +1,16 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
+import { NotificationsService, NotificationType } from '../notifications/notifications.service';
 
 @Injectable()
 export class AcademicService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly notifications: NotificationsService
+  ) {}
 
   async createResource(dto: any, userId: string) {
-    return this.databaseService.studyResource.create({
+    const resource = await this.databaseService.studyResource.create({
       data: {
         title: dto.title,
         courseCode: dto.courseCode,
@@ -18,7 +22,19 @@ export class AcademicService {
         url: dto.fileUrl,
         uploaderId: userId,
       },
+      include: {
+        uploader: { select: { name: true } }
+      }
     });
+
+    this.notifications.createGlobalNotification({
+      title: 'New Academic Resource!',
+      message: `${resource.uploader.name} just uploaded a new ${dto.type} for ${dto.courseCode}.`,
+      type: NotificationType.ACADEMIC,
+      link: '/academic',
+    }).catch(console.error);
+
+    return resource;
   }
 
   async getAllResources(courseCode?: string, type?: any) {

@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { CreateListingDto } from './dto/marketplace.dto';
+import { NotificationsService, NotificationType } from '../notifications/notifications.service';
 
 @Injectable()
 export class MarketplaceService {
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly notifications: NotificationsService
+  ) {}
 
   async getAllListings() {
     return this.database.marketplaceListing.findMany({
@@ -18,7 +22,7 @@ export class MarketplaceService {
   }
 
   async createListing(sellerId: string, data: CreateListingDto) {
-    return this.database.marketplaceListing.create({
+    const listing = await this.database.marketplaceListing.create({
       data: {
         sellerId,
         title: data.title,
@@ -32,6 +36,15 @@ export class MarketplaceService {
         },
       },
     });
+
+    this.notifications.createGlobalNotification({
+      title: 'New Marketplace Item!',
+      message: `${listing.seller.name} just listed "${data.title}" for ₹${data.price}.`,
+      type: NotificationType.MARKETPLACE,
+      link: '/marketplace',
+    }).catch(console.error);
+
+    return listing;
   }
 
   async getListingById(id: string) {
