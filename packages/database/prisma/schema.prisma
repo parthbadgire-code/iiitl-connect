@@ -44,6 +44,7 @@ model User {
   blocksReceived       ConnectionBlock[]     @relation("BlocksReceived")
   reportsGiven         ConnectionReport[]    @relation("ReportsGiven")
   reportsReceived      ConnectionReport[]    @relation("ReportsReceived")
+  uploadedEventPhotos  EventGalleryPhoto[]
 }
 
 model Session {
@@ -394,12 +395,22 @@ model CampusEvent {
   date           DateTime
   venue          String
   imageUrl       String?
-  clubId         String
-  isRSVPRequired Boolean     @default(false)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  club           Club        @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  isRSVPRequired Boolean             @default(false)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  clubs          Club[]
   rsvps          EventRSVP[]
+  gallery        EventGalleryPhoto[]
+}
+
+model EventGalleryPhoto {
+  id         String      @id @default(cuid())
+  eventId    String
+  url        String
+  uploaderId String
+  createdAt  DateTime    @default(now())
+  event      CampusEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  uploader   User        @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
 }
 
 model EventRSVP {

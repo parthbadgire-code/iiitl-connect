@@ -1,4 +1,4 @@
-import { IsString, IsBoolean, IsNotEmpty, IsDateString, IsOptional } from 'class-validator';
+import { IsString, IsBoolean, IsNotEmpty, IsDateString, IsOptional, IsArray, ArrayMinSize } from 'class-validator';
 
 export class CreateEventDto {
   @IsString()
@@ -24,4 +24,15 @@ export class CreateEventDto {
   @IsBoolean()
   @IsOptional()
   isRSVPRequired?: boolean;
+
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMinSize(1)
+  clubIds: string[];
+}
+
+export class UploadPhotoDto {
+  @IsString()
+  @IsNotEmpty()
+  url: string;
 }

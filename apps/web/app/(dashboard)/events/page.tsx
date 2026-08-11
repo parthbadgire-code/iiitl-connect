@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Calendar, MapPin, Clock, Users, Loader2, Plus } from "lucide-react";
+import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@parthbadgire/ui/components/button";
 import {
@@ -17,10 +18,10 @@ interface Event {
   title: string;
   description: string;
   date: string;
-  location: string;
-  club: {
+  venue: string;
+  clubs: {
     name: string;
-  };
+  }[];
 }
 
 export default function EventsPage() {
@@ -35,7 +36,7 @@ export default function EventsPage() {
   const [eventTitle, setEventTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventVenue, setEventVenue] = useState("");
-  const [eventClubId, setEventClubId] = useState("");
+  const [eventClubIds, setEventClubIds] = useState<string[]>([]);
   const [isAddingEvent, setIsAddingEvent] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -69,10 +70,10 @@ export default function EventsPage() {
 
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!eventClubId) return alert("Please select a club");
+    if (eventClubIds.length === 0) return alert("Please select at least one club");
     setIsAddingEvent(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/events/${eventClubId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -80,6 +81,7 @@ export default function EventsPage() {
           title: eventTitle,
           date: eventDate,
           venue: eventVenue,
+          clubIds: eventClubIds,
         }),
       });
       if (res.ok) {
@@ -87,7 +89,7 @@ export default function EventsPage() {
         setEventTitle("");
         setEventDate("");
         setEventVenue("");
-        setEventClubId("");
+        setEventClubIds([]);
         fetchEvents();
       } else {
         alert("Failed to create event");
@@ -162,20 +164,25 @@ export default function EventsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-neutral-400 uppercase">Select Club</label>
-                  <select
-                    required
-                    value={eventClubId}
-                    onChange={e => setEventClubId(e.target.value)}
-                    className="w-full p-2.5 bg-black border border-white/10 rounded-lg text-sm focus:border-pastel-blue outline-none text-white appearance-none"
-                  >
-                    <option value="" disabled>Select a club...</option>
+                  <label className="text-xs font-semibold text-neutral-400 uppercase">Select Clubs</label>
+                  <div className="max-h-40 overflow-y-auto space-y-2 p-3 bg-black border border-white/10 rounded-lg">
                     {clubs.map(club => (
-                      <option key={club.id} value={club.id}>{club.name}</option>
+                      <label key={club.id} className="flex items-center gap-2 text-sm text-white cursor-pointer hover:text-pastel-blue transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={eventClubIds.includes(club.id)}
+                          onChange={e => {
+                            if (e.target.checked) setEventClubIds([...eventClubIds, club.id]);
+                            else setEventClubIds(eventClubIds.filter(id => id !== club.id));
+                          }}
+                          className="rounded border-white/10 bg-black/50 text-pastel-blue focus:ring-pastel-blue focus:ring-offset-black"
+                        />
+                        {club.name}
+                      </label>
                     ))}
-                  </select>
+                  </div>
                 </div>
-                <Button type="submit" disabled={isAddingEvent || !eventClubId} className="w-full bg-pastel-blue hover:bg-pastel-blue/90 text-black mt-4 font-bold">
+                <Button type="submit" disabled={isAddingEvent || eventClubIds.length === 0} className="w-full bg-pastel-blue hover:bg-pastel-blue/90 text-black mt-4 font-bold">
                   {isAddingEvent ? "Creating..." : "Create Event"}
                 </Button>
               </form>
@@ -197,13 +204,13 @@ export default function EventsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {events.map((event) => (
-            <div key={event.id} className="group p-6 rounded-3xl bg-black/40 backdrop-blur-xl border border-white/5 hover:border-pastel-blue/30 transition-all duration-500 relative overflow-hidden shadow-2xl">
+            <Link href={`/events/${event.id}`} key={event.id} className="group p-6 rounded-3xl bg-black/40 backdrop-blur-xl border border-white/5 hover:border-pastel-blue/30 transition-all duration-500 relative overflow-hidden shadow-2xl block cursor-pointer">
               <div className="absolute top-0 right-0 p-8 w-32 h-32 bg-pastel-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-pastel-blue/20 transition-colors" />
               
               <div className="relative z-10 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-4">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-pastel-blue/10 text-pastel-blue border border-pastel-blue/20">
-                    <Users className="h-3 w-3" /> {event.club.name}
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-pastel-blue/10 text-pastel-blue border border-pastel-blue/20 max-w-[200px] truncate">
+                    <Users className="h-3 w-3 shrink-0" /> <span className="truncate">{event.clubs?.map(c => c.name).join(', ')}</span>
                   </span>
                 </div>
                 
@@ -217,11 +224,11 @@ export default function EventsPage() {
                   </div>
                   <div className="flex items-center gap-3 text-sm text-neutral-300">
                     <MapPin className="h-4 w-4 text-pastel-peach" />
-                    {event.location}
+                    {event.venue}
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

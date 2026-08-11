@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { EventService } from './event.service';
-import { CreateEventDto } from './dto/event.dto';
+import { CreateEventDto, UploadPhotoDto } from './dto/event.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 
@@ -14,12 +14,25 @@ export class EventController {
     return this.eventService.getAllEvents();
   }
 
-  @Post(':clubId')
+  @Post()
   async createEvent(
-    @Param('clubId') clubId: string,
     @Body() data: CreateEventDto,
     @CurrentUser() user: any,
   ) {
-    return this.eventService.createEvent(data, clubId, user.id);
+    return this.eventService.createEvent(data, user.id);
+  }
+
+  @Get(':id')
+  async getEventById(@Param('id') id: string) {
+    return this.eventService.getEventById(id);
+  }
+
+  @Post(':id/photos')
+  async uploadPhoto(
+    @Param('id') eventId: string,
+    @Body() data: UploadPhotoDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.eventService.uploadPhoto(eventId, data.url, user.id);
   }
 }
