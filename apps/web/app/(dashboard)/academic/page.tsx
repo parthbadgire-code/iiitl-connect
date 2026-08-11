@@ -4,13 +4,7 @@ import { useEffect, useState } from "react";
 import { Download, BookOpen, FileText, ClipboardList, Filter, Search, Upload, X, Loader2, Eye, Edit2, Trash2 } from "lucide-react";
 import { uploadFileToR2 } from "@/lib/upload";
 import { useSession } from "@/lib/auth-client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@parthbadgire/ui/components/dropdown-menu";
+
 
 type StudyResource = {
   id: string;
@@ -28,9 +22,9 @@ type StudyResource = {
 };
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  PYQ: { label: "PYQ", color: "#F59E0B", icon: FileText }, // Amber
-  NOTES: { label: "Notes", color: "#06B6D4", icon: BookOpen }, // Cyan
-  ASSIGNMENT: { label: "Assignment", color: "#D946EF", icon: ClipboardList }, // Fuchsia
+  PYQ: { label: "PYQ", color: "#FFDAB9", icon: FileText },
+  NOTES: { label: "Notes", color: "#E9D5FF", icon: BookOpen },
+  ASSIGNMENT: { label: "Assignment", color: "#A7F3D0", icon: ClipboardList },
 };
 
 const SUBJECTS_BY_SEMESTER: Record<string, string[]> = {
@@ -190,17 +184,19 @@ function ResourceCard({ resource, index, session, onEdit, onDelete }: { resource
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t relative z-10" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+      <div className="flex flex-col gap-3 pt-4 border-t relative z-10" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+        {/* Name and Date */}
         <div className="flex items-center gap-2">
           <div className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black shadow-sm"
             style={{ background: `linear-gradient(135deg, ${typeConf.color}30, ${typeConf.color}10)`, color: typeConf.color, border: `1px solid ${typeConf.color}40` }}>
             {resource.uploader?.name?.charAt(0) || "?"}
           </div>
-          <span className="text-[10px] font-medium" style={{ color: "#6a6a8a" }}>
-            {timeAgo}
+          <span className="text-[11px] font-medium" style={{ color: "#e2e2e8" }}>
+            {resource.uploader?.name || "Anonymous"} <span className="mx-1.5 opacity-50">•</span> <span style={{ color: "#6a6a8a" }}>{timeAgo}</span>
           </span>
         </div>
 
+        {/* Action Icons */}
         <div className="flex items-center gap-2">
           {resource.url && (
             <a
@@ -217,30 +213,35 @@ function ResourceCard({ resource, index, session, onEdit, onDelete }: { resource
           <button
             onClick={handleDownload}
             disabled={!resource.url}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] disabled:opacity-50"
-            style={{ background: typeConf.color, color: "#000" }}
+            className="flex items-center justify-center h-8 w-8 rounded-xl text-black transition-all shadow-sm hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] disabled:opacity-50"
+            style={{ background: typeConf.color }}
+            title="Download"
           >
             <Download className="h-3.5 w-3.5" /> 
-            <span className="hidden sm:inline">Get</span>
           </button>
           
           {session?.user && (session.user.role === 'SUPER_ADMIN' || session.user.id === resource.uploaderId) && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center justify-center h-8 w-8 rounded-xl text-neutral-400 hover:text-white transition-all bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20">
-                  <span className="text-xs font-black">⋮</span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-[#0A0A0A] border-white/10 text-white">
-                <DropdownMenuItem onClick={() => onEdit(resource)} className="cursor-pointer gap-2 focus:bg-white/10">
-                  <Edit2 className="h-3.5 w-3.5" /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-white/10" />
-                <DropdownMenuItem onClick={() => { if (confirm("Delete resource?")) onDelete(resource.id); }} className="cursor-pointer gap-2 text-red-400 focus:bg-red-400/10 focus:text-red-400">
-                  <Trash2 className="h-3.5 w-3.5" /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              <div className="w-px h-4 bg-white/10 mx-1" />
+              <button
+                onClick={() => onEdit(resource)}
+                className="flex items-center justify-center h-8 w-8 rounded-xl text-neutral-400 hover:text-white transition-all bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20"
+                title="Edit"
+              >
+                <Edit2 className="h-3.5 w-3.5" />
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm("Are you sure you want to delete this resource?")) {
+                    onDelete(resource.id);
+                  }
+                }}
+                className="flex items-center justify-center h-8 w-8 rounded-xl text-red-400/70 hover:text-red-400 transition-all bg-red-400/5 hover:bg-red-400/10 border border-transparent hover:border-red-400/30"
+                title="Delete"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </>
           )}
         </div>
       </div>
