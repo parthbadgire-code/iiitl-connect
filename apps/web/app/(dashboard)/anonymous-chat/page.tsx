@@ -1,17 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Ghost, Sparkles, Filter, Send, ThumbsUp, ThumbsDown, MessageSquare, ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react";
+import { Ghost, Filter, Send, ThumbsUp, ThumbsDown, MessageSquare, ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@parthbadgire/ui/components/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@parthbadgire/ui/components/dialog";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -319,7 +311,6 @@ export default function AnonymousChatPage() {
   const [activeMonth, setActiveMonth] = useState<string>(currentMonth);
   const [activeYear, setActiveYear] = useState<string>(currentYear);
 
-  const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [newContent, setNewContent] = useState("");
   const [newCategory, setNewCategory] = useState("CONFESSIONS");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -358,7 +349,6 @@ export default function AnonymousChatPage() {
         body: JSON.stringify({ content: newContent, category: newCategory }),
       });
       if (res.ok) {
-        setIsComposeOpen(false);
         setNewContent("");
         fetchFeed();
       } else {
@@ -473,71 +463,45 @@ export default function AnonymousChatPage() {
           </h1>
           <p className="text-neutral-400 text-sm">Read what&apos;s on everyone&apos;s mind anonymously.</p>
         </div>
-
-        {/* Compose Button */}
-        <Dialog open={isComposeOpen} onOpenChange={setIsComposeOpen}>
-          <DialogTrigger asChild>
-            <button className="group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 bg-pastel-mint text-black hover:bg-pastel-mint/90 hover:scale-105">
-              <Sparkles className="h-4 w-4" />
-              New Post
-            </button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-lg bg-[#0A0A0A] border border-neutral-800 rounded-3xl text-white shadow-[0_0_50px_rgba(167,243,208,0.15)]">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold">Create Anonymous Post</DialogTitle>
-              <DialogDescription className="text-neutral-400">
-                You will be assigned a random moniker (e.g. &quot;Silent Ninja&quot;). No one will know it&apos;s you.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <textarea
-                value={newContent}
-                onChange={(e) => setNewContent(e.target.value)}
-                placeholder="What's happening on campus?"
-                className="w-full h-32 p-4 bg-black border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-pastel-mint transition-colors resize-none"
-              />
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-zinc-400 uppercase">Category</label>
-                <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map((c) => (
-                    <button
-                      key={c.key}
-                      onClick={() => setNewCategory(c.key)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-                      style={{
-                        background: newCategory === c.key ? `${c.color}20` : "transparent",
-                        color: newCategory === c.key ? c.color : "#8b8ba7",
-                        border:
-                          newCategory === c.key
-                            ? `1px solid ${c.color}50`
-                            : "1px solid rgba(255,255,255,0.1)",
-                      }}
-                    >
-                      {c.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setIsComposeOpen(false)}
-                className="text-sm font-semibold px-4 py-2 text-neutral-400 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting || !newContent.trim()}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-black disabled:opacity-50 disabled:cursor-not-allowed transition-all bg-pastel-mint hover:bg-pastel-mint/90"
-              >
-                {isSubmitting ? "Posting..." : "Post Anonymously"}
-                {!isSubmitting && <Send className="w-4 h-4" />}
-              </button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
+
+      {/* Inline Compose Box */}
+      <Card className="bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 rounded-3xl animate-fade-in-up shadow-2xl">
+        <div className="p-4 space-y-4">
+          <textarea
+            value={newContent}
+            onChange={(e) => setNewContent(e.target.value)}
+            placeholder="What's happening on campus? (Anonymous)"
+            className="w-full h-24 p-4 bg-black/60 border border-white/10 rounded-2xl text-sm focus:outline-none focus:border-pastel-mint transition-colors resize-none text-white placeholder:text-zinc-500"
+          />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c.key}
+                  onClick={() => setNewCategory(c.key)}
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold transition-colors whitespace-nowrap"
+                  style={{
+                    background: newCategory === c.key ? `${c.color}20` : "rgba(255,255,255,0.05)",
+                    color: newCategory === c.key ? c.color : "#8b8ba7",
+                    border: newCategory === c.key ? `1px solid ${c.color}50` : "1px solid rgba(255,255,255,0.1)",
+                  }}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting || !newContent.trim()}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-black disabled:opacity-50 transition-all bg-pastel-mint hover:bg-pastel-mint/90 shrink-0"
+            >
+              {isSubmitting ? "Posting..." : "Post Anonymously"}
+              {!isSubmitting && <Send className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+      </Card>
 
       {/* Filter Chips */}
       <div className="flex flex-col md:flex-row gap-4 animate-fade-in-up delay-100 items-start md:items-center justify-between bg-[#0A0A0A]/50 p-4 rounded-3xl border border-white/5">

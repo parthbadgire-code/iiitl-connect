@@ -4,7 +4,15 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Card } from "@parthbadgire/ui/components/card";
-import { Users, Calendar, BookOpen, Link as LinkIcon, Upload, Star, Crown, X } from "lucide-react";
+import { Users, Calendar, BookOpen, Link as LinkIcon, Upload, Star, Crown, X, Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@parthbadgire/ui/components/dialog";
+import { Button } from "@parthbadgire/ui/components/button";
 
 type ClubDetails = {
   id: string;
@@ -123,6 +131,13 @@ export default function AxiosWingPage() {
   const [resourceType, setResourceType] = useState("DOCUMENT");
   const [isUploading, setIsUploading] = useState(false);
 
+  // Schedule Class State
+  const [isClassModalOpen, setIsClassModalOpen] = useState(false);
+  const [classTitle, setClassTitle] = useState("");
+  const [classDate, setClassDate] = useState("");
+  const [classVenue, setClassVenue] = useState("");
+  const [isScheduling, setIsScheduling] = useState(false);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (slug) fetchWingDetails();
@@ -180,6 +195,40 @@ export default function AxiosWingPage() {
       alert("Error uploading resource.");
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleScheduleClass = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!club) return;
+    setIsScheduling(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          title: classTitle,
+          date: classDate,
+          venue: classVenue,
+          clubIds: [club.id],
+        }),
+      });
+      if (res.ok) {
+        setIsClassModalOpen(false);
+        setClassTitle("");
+        setClassDate("");
+        setClassVenue("");
+        fetchWingDetails();
+      } else {
+        const err = await res.json();
+        alert(err.message || "Failed to schedule class");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error scheduling class.");
+    } finally {
+      setIsScheduling(false);
     }
   };
 
@@ -341,20 +390,73 @@ export default function AxiosWingPage() {
         )}
 
         {activeTab === "EVENTS" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {club.events?.length === 0 ? (
-              <div className="text-neutral-500 py-10 text-center border border-dashed border-white/10 rounded-3xl col-span-2">No events scheduled.</div>
-            ) : (
-              club.events?.map((event) => (
-                <Card key={event.id} className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 shadow-2xl rounded-3xl p-6">
-                  <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
-                  <div className="space-y-1 text-sm text-neutral-400 mb-4">
-                    <p>Date: {new Date(event.date).toLocaleDateString()}</p>
-                    <p>Venue: {event.venue}</p>
-                  </div>
-                </Card>
-              ))
-            )}
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold text-white">Events & Classes</h2>
+              <Dialog open={isClassModalOpen} onOpenChange={setIsClassModalOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-pastel-lavender hover:bg-pastel-lavender/90 text-black gap-2 font-bold px-4 rounded-full">
+                    <Plus className="h-4 w-4" /> Schedule Class
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md bg-black/60 backdrop-blur-xl border-white/10 text-white shadow-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Schedule a Class / Event</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleScheduleClass} className="space-y-4 pt-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-neutral-400 uppercase">Title</label>
+                      <input
+                        required
+                        value={classTitle}
+                        onChange={e => setClassTitle(e.target.value)}
+                        placeholder="e.g. Intro to React"
+                        className="w-full p-2.5 bg-black/50 border border-white/10 rounded-xl text-sm focus:border-pastel-lavender outline-none text-white"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-neutral-400 uppercase">Date & Time</label>
+                      <input
+                        required
+                        type="datetime-local"
+                        value={classDate}
+                        onChange={e => setClassDate(e.target.value)}
+                        className="w-full p-2.5 bg-black/50 border border-white/10 rounded-xl text-sm focus:border-pastel-lavender outline-none text-white"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-neutral-400 uppercase">Venue</label>
+                      <input
+                        required
+                        value={classVenue}
+                        onChange={e => setClassVenue(e.target.value)}
+                        placeholder="e.g. LT-1"
+                        className="w-full p-2.5 bg-black/50 border border-white/10 rounded-xl text-sm focus:border-pastel-lavender outline-none text-white"
+                      />
+                    </div>
+                    <Button type="submit" disabled={isScheduling} className="w-full bg-pastel-lavender hover:bg-pastel-lavender/90 text-black mt-4 font-bold rounded-xl">
+                      {isScheduling ? "Scheduling..." : "Schedule Class"}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {club.events?.length === 0 ? (
+                <div className="text-neutral-500 py-10 text-center border border-dashed border-white/10 rounded-3xl col-span-2">No events scheduled.</div>
+              ) : (
+                club.events?.map((event) => (
+                  <Card key={event.id} className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 shadow-2xl rounded-3xl p-6">
+                    <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
+                    <div className="space-y-1 text-sm text-neutral-400 mb-4">
+                      <p>Date: {new Date(event.date).toLocaleDateString()}</p>
+                      <p>Venue: {event.venue}</p>
+                    </div>
+                  </Card>
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>

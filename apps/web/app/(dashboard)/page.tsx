@@ -21,7 +21,7 @@ const MODULES = [
   },
   {
     title: "Anonymous Chat",
-    description: "Read and share anonymous secrets from around the campus.",
+    description: "Share secrets anonymously.",
     icon: Sparkles,
     href: "/anonymous-chat",
     id: "anonymous-chat",

@@ -128,7 +128,7 @@ export default function EventsPage() {
                 <Plus className="h-4 w-4" /> Host Event
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-[#0A0A0A] border-white/5 text-white">
+            <DialogContent className="sm:max-w-md bg-black/60 backdrop-blur-xl border-white/10 text-white shadow-2xl">
               <DialogHeader>
                 <DialogTitle>Host New Event</DialogTitle>
               </DialogHeader>
@@ -140,7 +140,7 @@ export default function EventsPage() {
                     value={eventTitle}
                     onChange={e => setEventTitle(e.target.value)}
                     placeholder="e.g. Hacktoberfest Sync"
-                    className="w-full p-2.5 bg-black border border-white/10 rounded-lg text-sm focus:border-pastel-blue outline-none text-white"
+                    className="w-full p-2.5 bg-black/50 border border-white/10 rounded-xl text-sm focus:border-pastel-blue outline-none text-white"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -150,7 +150,7 @@ export default function EventsPage() {
                     type="datetime-local"
                     value={eventDate}
                     onChange={e => setEventDate(e.target.value)}
-                    className="w-full p-2.5 bg-black border border-white/10 rounded-lg text-sm focus:border-pastel-blue outline-none text-white"
+                    className="w-full p-2.5 bg-black/50 border border-white/10 rounded-xl text-sm focus:border-pastel-blue outline-none text-white"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -160,12 +160,12 @@ export default function EventsPage() {
                     value={eventVenue}
                     onChange={e => setEventVenue(e.target.value)}
                     placeholder="e.g. LT-1"
-                    className="w-full p-2.5 bg-black border border-white/10 rounded-lg text-sm focus:border-pastel-blue outline-none text-white"
+                    className="w-full p-2.5 bg-black/50 border border-white/10 rounded-xl text-sm focus:border-pastel-blue outline-none text-white"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-neutral-400 uppercase">Select Clubs</label>
-                  <div className="max-h-40 overflow-y-auto space-y-2 p-3 bg-black border border-white/10 rounded-lg">
+                  <div className="max-h-40 overflow-y-auto space-y-2 p-3 bg-black/50 border border-white/10 rounded-xl">
                     {clubs.map(club => (
                       <label key={club.id} className="flex items-center gap-2 text-sm text-white cursor-pointer hover:text-pastel-blue transition-colors">
                         <input
@@ -182,7 +182,7 @@ export default function EventsPage() {
                     ))}
                   </div>
                 </div>
-                <Button type="submit" disabled={isAddingEvent || eventClubIds.length === 0} className="w-full bg-pastel-blue hover:bg-pastel-blue/90 text-black mt-4 font-bold">
+                <Button type="submit" disabled={isAddingEvent || eventClubIds.length === 0} className="w-full bg-pastel-blue hover:bg-pastel-blue/90 text-black mt-4 font-bold rounded-xl">
                   {isAddingEvent ? "Creating..." : "Create Event"}
                 </Button>
               </form>

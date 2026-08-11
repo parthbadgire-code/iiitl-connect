@@ -14,6 +14,7 @@ interface Listing {
   seller: {
     name: string;
     image: string | null;
+    email: string;
   };
   createdAt: string;
 }
@@ -159,11 +160,19 @@ export default function MarketplacePage() {
                 </div>
                 <p className="text-sm text-neutral-400 line-clamp-2">{item.description}</p>
                 
-                <div className="pt-4 mt-4 border-t border-white/5 flex items-center gap-3">
-                  <div className="h-6 w-6 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden">
-                    {item.seller.image ? <img src={item.seller.image} alt="seller" className="w-full h-full object-cover" /> : item.seller.name[0]}
+                <div className="pt-4 mt-4 border-t border-white/5 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden shadow-lg border border-white/10">
+                      {item.seller.image ? <img src={item.seller.image} alt="seller" className="w-full h-full object-cover" /> : item.seller.name[0]}
+                    </div>
+                    <span className="text-xs font-semibold text-neutral-300">{item.seller.name}</span>
                   </div>
-                  <span className="text-xs text-neutral-500">{item.seller.name}</span>
+                  <a 
+                    href={`mailto:${item.seller.email}?subject=Interested in ${item.title} on IIITL Connect&body=Hi ${item.seller.name}, I am interested in buying your item '${item.title}' listed for ₹${item.price}.`}
+                    className="px-4 py-1.5 rounded-full bg-pastel-mint text-black font-bold text-xs hover:bg-pastel-mint/90 hover:scale-105 transition-all"
+                  >
+                    Contact
+                  </a>
                 </div>
               </div>
             </div>
