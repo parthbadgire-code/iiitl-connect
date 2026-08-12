@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useUIStore } from "@/store/useUIStore";
 import { MinimalParticles } from "@/components/ui/MinimalParticles";
 import { soundManager } from "@/lib/sound";
-import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Shield, ArrowRight, Compass } from "lucide-react";
+import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Shield, ArrowRight, Compass, Briefcase } from "lucide-react";
 
 const MODULES = [
   {
@@ -79,6 +79,16 @@ const MODULES = [
     color: "#BAE6FD",
     span: "md:col-span-1 md:row-span-1",
     bg: "bg-pastel-blue/5"
+  },
+  {
+    title: "Placements",
+    description: "Prep, Reviews & Opportunities",
+    icon: Briefcase,
+    href: "/placements",
+    id: "placements",
+    color: "#E9D5FF",
+    span: "md:col-span-1 md:row-span-1",
+    bg: "bg-pastel-lavender/5"
   }
 ];
 
@@ -97,13 +107,6 @@ export default function DashboardHome() {
       
       {/* Hero Section */}
       <div className={`space-y-4 text-center transition-all duration-700 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border bg-white/5 border-white/10 text-white backdrop-blur-md mx-auto">
-          <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pastel-mint opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-pastel-mint"></span>
-          </span>
-          System Online
-        </div>
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter text-white">
           Welcome to <span className="bg-gradient-to-r from-pastel-lavender to-pastel-blue bg-clip-text text-transparent">IIITL Connect</span>
         </h1>

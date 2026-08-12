@@ -12,10 +12,10 @@ import { EventModule } from './modules/event/event.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
-
+import { PlacementsModule } from './modules/placements/placements.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, AcademicModule, SocialModule, ConnectionsModule, ProfileModule, ClubModule, EventModule, StorageModule, MarketplaceModule, NotificationsModule],
+  imports: [DatabaseModule, AuthModule, AcademicModule, SocialModule, ConnectionsModule, ProfileModule, ClubModule, EventModule, StorageModule, MarketplaceModule, NotificationsModule, PlacementsModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -47,6 +47,12 @@ model User {
   uploadedEventPhotos   EventGalleryPhoto[]
   Notification          Notification[]
   pushSubscriptions     PushSubscription[]
+
+  // Placement features
+  offCampusOpportunities OffCampusOpportunity[] @relation("OpportunityPoster")
+  oaQuestions            OAQuestion[]           @relation("QuestionPoster")
+  resumeReviewRequests   ResumeReviewRequest[]  @relation("ResumeRequester")
+  resumeReviewsGiven     ResumeReviewRequest[]  @relation("ResumeReviewer")
 }
 
 model Session {
@@ -248,6 +254,7 @@ model Company {
   updatedAt   DateTime              @updatedAt
   experiences InterviewExperience[]
   salaries    SalaryInsight[]
+  oaQuestions OAQuestion[]
 }
 
 model InterviewExperience {
@@ -260,6 +267,7 @@ model InterviewExperience {
   difficultyRating    Int
   oaQuestions         String[]
   interviewRounds     Int?
+  content             String?            @db.Text
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   anonymousIdentity   AnonymousIdentity? @relation(fields: [anonymousIdentityId], references: [id], onDelete: Cascade)
@@ -549,4 +557,60 @@ enum Gender {
   FEMALE
   NON_BINARY
   OTHER
+}
+
+model OffCampusOpportunity {
+  id          String   @id @default(cuid())
+  title       String
+  company     String
+  role        String
+  link        String
+  deadline    DateTime?
+  postedById  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  postedBy    User     @relation("OpportunityPoster", fields: [postedById], references: [id], onDelete: Cascade)
+}
+
+model OAQuestion {
+  id          String   @id @default(cuid())
+  title       String
+  companyId   String
+  difficulty  QuestionDifficulty
+  topics      String[]
+  description String   @db.Text
+  link        String?
+  postedById  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  postedBy    User     @relation("QuestionPoster", fields: [postedById], references: [id], onDelete: Cascade)
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model ResumeReviewRequest {
+  id          String   @id @default(cuid())
+  requesterId String
+  reviewerId  String?
+  resumeUrl   String
+  status      ReviewStatus @default(PENDING)
+  rating      Int?
+  feedback    String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  requester   User     @relation("ResumeRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  reviewer    User?    @relation("ResumeReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+}
+
+enum ReviewStatus {
+  PENDING
+  REVIEWED
 }

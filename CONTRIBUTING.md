@@ -1,6 +1,6 @@
 # Contributing to IIITL Connect
 
-First off, thank you for considering contributing to IIITL Connect! This platform is strictly maintained by the IIITL Web Wing and relies on the contributions of open-source developers from our campus.
+First off, thank you for considering contributing to IIITL Connect! This platform relies on the contributions of open-source developers from our campus.
 
 ## Turborepo Architecture
 

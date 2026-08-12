@@ -35,6 +35,7 @@ const NAVIGATION = [
   { name: "Clubs", href: "/clubs", accent: "#E9D5FF" },
   { name: "Connections", href: "/connections", accent: "#BAE6FD" },
   { name: "Axios", href: "/axios", accent: "#E9D5FF" },
+  { name: "Placements", href: "/placements", accent: "#FDE047" },
   { name: "About Us", href: "/about", accent: "#FBCFE8" },
 ];
 
@@ -130,7 +131,7 @@ export function Topbar() {
 
   return (
     <header
-      className="relative flex h-[72px] items-center justify-between px-8 md:px-12 border-b sticky top-0 z-50"
+      className="relative flex h-[72px] items-center justify-between px-4 md:px-8 border-b sticky top-0 z-50"
       style={{
         background: "rgba(5,5,5,0.8)",
         backdropFilter: "blur(40px)",
@@ -197,7 +198,7 @@ export function Topbar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "relative px-4 py-2 rounded-full text-xs xl:text-sm font-bold transition-all duration-300 whitespace-nowrap",
+                  "relative px-2.5 xl:px-4 py-2 rounded-full text-[10px] xl:text-xs 2xl:text-sm font-bold transition-all duration-300 whitespace-nowrap",
                   isActive
                     ? "text-white bg-white/5"
                     : "text-neutral-400 hover:text-white hover:bg-white/5",
@@ -227,7 +228,7 @@ export function Topbar() {
         {/* Search */}
         <div ref={searchRef} className="relative hidden md:block">
           <div className="relative flex items-center">
-            <Search className="absolute left-3 h-4 w-4 text-neutral-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
             <input
               type="text"
               placeholder="Search people..."
@@ -236,7 +237,7 @@ export function Topbar() {
               onFocus={() => {
                 if (searchQuery.trim()) setShowSearchDropdown(true);
               }}
-              className="w-48 lg:w-64 pl-9 pr-4 py-1.5 bg-black/40 border border-neutral-800 rounded-full text-xs text-white focus:outline-none focus:border-pastel-lavender/50 transition-all placeholder:text-neutral-600"
+              className="w-36 lg:w-48 xl:w-64 pl-10 pr-4 h-[42px] bg-black/40 border border-neutral-800 rounded-full text-sm text-white focus:outline-none focus:border-pastel-lavender/50 transition-all placeholder:text-neutral-600"
             />
           </div>
 

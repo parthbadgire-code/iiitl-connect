@@ -24,7 +24,7 @@ export default function LoginPage() {
     try {
       const { error } = await signIn.social({
         provider: "google",
-        callbackURL: `${window.location.origin}/academic`,
+        callbackURL: `${window.location.origin}/`,
       });
       if (error) {
         alert("Sign in error: " + (error.message || error.statusText));
@@ -67,26 +67,27 @@ export default function LoginPage() {
 
       {/* CENTERED LOGIN CARD */}
       <div 
-        className={`relative z-10 w-full max-w-md rounded-2xl bg-[#111111]/80 p-8 sm:p-12 backdrop-blur-2xl border border-white/5 shadow-2xl transition-all duration-1000 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+        className={`relative z-10 w-full max-w-md rounded-[2rem] bg-[#0A0A0A]/90 p-8 sm:p-12 backdrop-blur-3xl border border-white/10 shadow-[0_0_50px_rgba(233,213,255,0.05)] transition-all duration-1000 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       >
-        <div className="flex flex-col items-center text-center space-y-8">
+        <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+        <div className="relative flex flex-col items-center text-center space-y-8">
           
           {/* Logo & Tagline */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-white">
-              iiitl<span className="opacity-90">.connect</span>
+              iiitl<span className="bg-gradient-to-r from-pastel-lavender to-pastel-blue bg-clip-text text-transparent">.connect</span>
             </h1>
-            <p className="text-sm text-neutral-400 font-medium">
+            <p className="text-sm text-neutral-400 font-medium tracking-wide">
               The digital hub for your academic life.
             </p>
           </div>
 
           {/* Sign In Button */}
-          <div className="w-full pt-4">
+          <div className="w-full pt-2">
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 rounded-lg bg-black/60 px-4 py-3.5 text-xs sm:text-sm font-bold tracking-widest text-white border border-white/10 hover:bg-black/80 hover:border-white/20 transition-all duration-300 disabled:opacity-50"
+              className="group w-full flex items-center justify-center gap-3 rounded-xl bg-white/5 px-4 py-4 text-xs sm:text-sm font-bold tracking-widest text-white border border-white/10 hover:bg-white/10 hover:border-pastel-lavender/50 hover:shadow-[0_0_30px_rgba(233,213,255,0.2)] transition-all duration-500 disabled:opacity-50"
             >
               {loading ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
@@ -103,12 +104,15 @@ export default function LoginPage() {
           </div>
 
           {/* Guidelines */}
-          <div className="space-y-2 pt-2">
-            <p className="text-xs text-neutral-500 font-medium">
-              Only @iiitl.ac.in emails allowed.
-            </p>
-            <p className="text-xs text-neutral-500 font-medium">
-              Please sign in with your college email ID only.
+          <div className="space-y-2 pt-4 w-full bg-black/40 rounded-xl p-4 border border-white/5">
+            <div className="flex items-center gap-2 justify-center text-pastel-mint mb-1">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span className="text-xs font-bold uppercase tracking-wider">Secure Access</span>
+            </div>
+            <p className="text-xs text-neutral-400 font-medium">
+              Only <strong className="text-white">@iiitl.ac.in</strong> emails are allowed.
             </p>
           </div>
 

@@ -60,6 +60,7 @@ const config: Config = {
           mint: "#A7F3D0",
           blue: "#BAE6FD",
           peach: "#FFDAB9",
+          yellow: "#FDE047",
         },
         surface: {
           base: "#050505",

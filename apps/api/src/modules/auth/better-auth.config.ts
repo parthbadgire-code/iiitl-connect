@@ -104,7 +104,6 @@ export const createBetterAuth = (prisma: DatabaseService) => {
       google: {
         clientId: process.env.GOOGLE_CLIENT_ID || '',
         clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-        authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?hd=iiitl.ac.in',
       },
     },
     trustedOrigins: [
