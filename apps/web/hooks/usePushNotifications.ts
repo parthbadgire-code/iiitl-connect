@@ -48,7 +48,7 @@ export function usePushNotifications() {
     try {
       const registration = await navigator.serviceWorker.ready;
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      
+
       if (!vapidPublicKey) {
         throw new Error('VAPID public key not found');
       }

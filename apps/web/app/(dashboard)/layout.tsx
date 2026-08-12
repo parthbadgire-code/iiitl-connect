@@ -4,7 +4,6 @@ import { Topbar } from "@/components/layout/topbar";
 import { useSession } from "@/lib/auth-client";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { CustomCursor } from "@/components/ui/CustomCursor";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { PremiumLoader } from "@/components/ui/PremiumLoader";
 import { CommandPalette } from "@/components/ui/CommandPalette";
@@ -59,9 +58,6 @@ export default function DashboardLayout({
       </main>
       
       {/* Global Interactions */}
-      <div className="hidden lg:block">
-        <CustomCursor />
-      </div>
     </div>
   );
 }
