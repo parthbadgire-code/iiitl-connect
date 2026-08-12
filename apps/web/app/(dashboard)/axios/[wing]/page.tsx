@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 import { Card } from "@parthbadgire/ui/components/card";
 import { Users, Calendar, BookOpen, Link as LinkIcon, Upload, Star, Crown, X, Plus } from "lucide-react";
 import {
@@ -119,7 +120,13 @@ const ROLE_CONFIG = {
 export default function AxiosWingPage() {
   const params = useParams();
   const slug = params?.wing as string;
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === "SUPER_ADMIN";
   const [club, setClub] = useState<ClubDetails | null>(null);
+  
+  const isStaticMember = AXIOS_MEMBERS[slug]?.some(m => m.name.toLowerCase() === session?.user?.name?.toLowerCase()) || false;
+  const isDbMember = club?.members?.some((m: any) => m.userId === session?.user?.id) || false;
+  const hasAccess = isAdmin || isStaticMember || isDbMember;
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"PEOPLE" | "EVENTS" | "RESOURCES">("PEOPLE");
 
@@ -351,12 +358,14 @@ export default function AxiosWingPage() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold text-white">Materials & Assignments</h2>
-              <button 
-                onClick={() => setShowResourceModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-pastel-lavender text-black font-bold text-sm rounded-full hover:scale-105 transition-transform"
-              >
-                <Upload className="h-4 w-4" /> Upload Resource
-              </button>
+              {hasAccess && (
+                <button 
+                  onClick={() => setShowResourceModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-pastel-lavender text-black font-bold text-sm rounded-full hover:scale-105 transition-transform shadow-[0_0_15px_rgba(233,213,255,0.3)]"
+                >
+                  <Upload className="h-4 w-4" /> Upload Resource
+                </button>
+              )}
             </div>
             {club.resources?.length === 0 ? (
               <div className="text-neutral-500 py-10 text-center border border-dashed border-white/10 rounded-3xl">No resources uploaded yet.</div>
@@ -393,12 +402,13 @@ export default function AxiosWingPage() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold text-white">Events & Classes</h2>
-              <Dialog open={isClassModalOpen} onOpenChange={setIsClassModalOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-pastel-lavender hover:bg-pastel-lavender/90 text-black gap-2 font-bold px-4 rounded-full">
-                    <Plus className="h-4 w-4" /> Schedule Class
-                  </Button>
-                </DialogTrigger>
+              {hasAccess && (
+                <Dialog open={isClassModalOpen} onOpenChange={setIsClassModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-pastel-lavender hover:bg-pastel-lavender/90 text-black gap-2 font-bold px-4 rounded-full shadow-[0_0_15px_rgba(233,213,255,0.3)]">
+                      <Plus className="h-4 w-4" /> Schedule Class
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent className="sm:max-w-md bg-black/60 backdrop-blur-xl border-white/10 text-white shadow-2xl">
                   <DialogHeader>
                     <DialogTitle>Schedule a Class / Event</DialogTitle>
@@ -434,12 +444,13 @@ export default function AxiosWingPage() {
                         className="w-full p-2.5 bg-black/50 border border-white/10 rounded-xl text-sm focus:border-pastel-lavender outline-none text-white"
                       />
                     </div>
-                    <Button type="submit" disabled={isScheduling} className="w-full bg-pastel-lavender hover:bg-pastel-lavender/90 text-black mt-4 font-bold rounded-xl">
-                      {isScheduling ? "Scheduling..." : "Schedule Class"}
+                    <Button type="submit" disabled={isScheduling} className="w-full mt-2 bg-white hover:bg-neutral-200 text-black font-bold py-3 rounded-xl transition-all">
+                      {isScheduling ? "Scheduling..." : "Confirm Schedule"}
                     </Button>
                   </form>
                 </DialogContent>
               </Dialog>
+              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

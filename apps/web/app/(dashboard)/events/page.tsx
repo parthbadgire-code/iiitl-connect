@@ -124,50 +124,54 @@ export default function EventsPage() {
         {isAdmin && (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-pastel-blue hover:bg-pastel-blue/90 text-black gap-2 font-bold px-6">
+              <button className="flex items-center gap-2 bg-gradient-to-r from-pastel-blue to-pastel-mint text-black hover:opacity-90 font-bold px-6 py-2.5 rounded-xl shadow-[0_0_20px_rgba(167,243,208,0.3)] transition-all">
                 <Plus className="h-4 w-4" /> Host Event
-              </Button>
+              </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-black/60 backdrop-blur-xl border-white/10 text-white shadow-2xl">
-              <DialogHeader>
-                <DialogTitle>Host New Event</DialogTitle>
+            <DialogContent className="sm:max-w-md bg-[#0A0A0A] border border-white/10 text-white shadow-2xl rounded-3xl p-6 overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-pastel-blue/10 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-pastel-mint/10 rounded-full blur-3xl" />
+              
+              <DialogHeader className="relative z-10">
+                <DialogTitle className="text-2xl font-black">Host New Event</DialogTitle>
+                <p className="text-sm text-neutral-400 mt-1">Broadcast an event to the campus community.</p>
               </DialogHeader>
-              <form onSubmit={handleCreateEvent} className="space-y-4 pt-4">
+              <form onSubmit={handleCreateEvent} className="space-y-4 pt-4 relative z-10">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-neutral-400 uppercase">Event Title</label>
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Event Title</label>
                   <input
                     required
                     value={eventTitle}
                     onChange={e => setEventTitle(e.target.value)}
                     placeholder="e.g. Hacktoberfest Sync"
-                    className="w-full p-2.5 bg-black/50 border border-white/10 rounded-xl text-sm focus:border-pastel-blue outline-none text-white"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:border-pastel-blue focus:bg-white/10 outline-none text-white transition-all placeholder:text-white/20"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-neutral-400 uppercase">Date & Time</label>
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Date & Time</label>
                   <input
                     required
                     type="datetime-local"
                     value={eventDate}
                     onChange={e => setEventDate(e.target.value)}
-                    className="w-full p-2.5 bg-black/50 border border-white/10 rounded-xl text-sm focus:border-pastel-blue outline-none text-white"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:border-pastel-blue focus:bg-white/10 outline-none text-white transition-all [color-scheme:dark]"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-neutral-400 uppercase">Venue</label>
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Venue</label>
                   <input
                     required
                     value={eventVenue}
                     onChange={e => setEventVenue(e.target.value)}
                     placeholder="e.g. LT-1"
-                    className="w-full p-2.5 bg-black/50 border border-white/10 rounded-xl text-sm focus:border-pastel-blue outline-none text-white"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:border-pastel-blue focus:bg-white/10 outline-none text-white transition-all placeholder:text-white/20"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-neutral-400 uppercase">Select Clubs</label>
-                  <div className="max-h-40 overflow-y-auto space-y-2 p-3 bg-black/50 border border-white/10 rounded-xl">
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Select Clubs</label>
+                  <div className="max-h-40 overflow-y-auto space-y-1.5 p-2 bg-white/5 border border-white/10 rounded-xl custom-scrollbar">
                     {clubs.map(club => (
-                      <label key={club.id} className="flex items-center gap-2 text-sm text-white cursor-pointer hover:text-pastel-blue transition-colors">
+                      <label key={club.id} className="flex items-center gap-3 text-sm text-neutral-200 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors">
                         <input
                           type="checkbox"
                           checked={eventClubIds.includes(club.id)}
@@ -175,15 +179,15 @@ export default function EventsPage() {
                             if (e.target.checked) setEventClubIds([...eventClubIds, club.id]);
                             else setEventClubIds(eventClubIds.filter(id => id !== club.id));
                           }}
-                          className="rounded border-white/10 bg-black/50 text-pastel-blue focus:ring-pastel-blue focus:ring-offset-black"
+                          className="h-4 w-4 rounded border-white/20 bg-black/50 text-pastel-blue focus:ring-pastel-blue focus:ring-offset-black accent-pastel-blue"
                         />
                         {club.name}
                       </label>
                     ))}
                   </div>
                 </div>
-                <Button type="submit" disabled={isAddingEvent || eventClubIds.length === 0} className="w-full bg-pastel-blue hover:bg-pastel-blue/90 text-black mt-4 font-bold rounded-xl">
-                  {isAddingEvent ? "Creating..." : "Create Event"}
+                <Button type="submit" disabled={isAddingEvent || eventClubIds.length === 0} className="w-full mt-2 bg-white text-black hover:bg-neutral-200 font-bold py-3 rounded-xl transition-all">
+                  {isAddingEvent ? "Creating Event..." : "Host Event"}
                 </Button>
               </form>
             </DialogContent>

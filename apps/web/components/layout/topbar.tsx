@@ -18,6 +18,7 @@ import Link from "next/link";
 import { cn } from "@parthbadgire/ui/lib/utils";
 
 const NAVIGATION = [
+  { name: "Home", href: "/", accent: "#FDE047" },
   { name: "Academics", href: "/academic", accent: "#E9D5FF" },
   { name: "Chat", href: "/anonymous-chat", accent: "#A7F3D0" },
   { name: "Events", href: "/events", accent: "#BAE6FD" },
@@ -142,16 +143,16 @@ export function Topbar() {
         
       {/* Center: Horizontal Navigation Links */}
       <div className="hidden lg:flex justify-center flex-1 mx-2">
-        <nav className="flex items-center justify-center bg-[#0A0A0A]/50 p-1 rounded-full border border-neutral-800/80 backdrop-blur-md">
+        <nav className="flex items-center justify-center bg-[#0A0A0A]/60 p-1.5 rounded-full border border-neutral-700/50 backdrop-blur-xl shadow-lg">
           {NAVIGATION.map((item) => {
-            const isActive = pathname.startsWith(item.href);
+            const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "relative px-3 py-1.5 rounded-full text-[11px] xl:text-xs font-semibold transition-all duration-300 whitespace-nowrap",
-                  isActive ? "text-white" : "text-neutral-500 hover:text-white"
+                  "relative px-4 py-2 rounded-full text-xs xl:text-sm font-bold transition-all duration-300 whitespace-nowrap",
+                  isActive ? "text-white bg-white/5" : "text-neutral-400 hover:text-white hover:bg-white/5"
                 )}
                 style={{
                   textShadow: isActive ? `0 0 15px ${item.accent}` : "none",
@@ -159,7 +160,7 @@ export function Topbar() {
               >
                 {isActive && (
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pastel-lavender/10 to-pastel-blue/10 animate-pulse border"
-                    style={{ borderColor: `${item.accent}40`, boxShadow: `inset 0 0 10px ${item.accent}20` }} />
+                    style={{ borderColor: `${item.accent}50`, boxShadow: `inset 0 0 12px ${item.accent}30` }} />
                 )}
                 <span className="relative z-10">{item.name}</span>
               </Link>
