@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto, UploadPhotoDto } from './dto/event.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -34,5 +34,13 @@ export class EventController {
     @CurrentUser() user: any,
   ) {
     return this.eventService.uploadPhoto(eventId, data.url, user.id);
+  }
+  @Patch(':id')
+  async updateEvent(
+    @Param('id') eventId: string,
+    @Body() data: { externalLink: string },
+    @CurrentUser() user: any,
+  ) {
+    return this.eventService.updateEventLink(eventId, data.externalLink, user.id);
   }
 }

@@ -131,4 +131,18 @@ export class EventService {
       }
     });
   }
+
+  async updateEventLink(eventId: string, externalLink: string, userId: string) {
+    const user = await this.database.user.findUnique({ where: { id: userId } });
+    const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+
+    if (!isSuperAdmin) {
+      throw new ForbiddenException("Only SUPER_ADMIN can update the event link.");
+    }
+
+    return this.database.campusEvent.update({
+      where: { id: eventId },
+      data: { externalLink }
+    });
+  }
 }

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { MapPin, Clock, Users, ArrowLeft, Image as ImageIcon, Loader2, Upload, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useSession } from "@/lib/auth-client";
 import { Button } from "@parthbadgire/ui/components/button";
 import { PremiumLoader } from "@/components/ui/PremiumLoader";
 import { uploadFileToR2 } from "@/lib/upload";
@@ -47,8 +48,14 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<CampusEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [isAddingLink, setIsAddingLink] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isAddLinkModalOpen, setIsAddLinkModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [newExternalLink, setNewExternalLink] = useState("");
+
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.email === "lit2025021@iiitl.ac.in";
 
   useEffect(() => {
     if (eventId) fetchEventDetails();
@@ -101,6 +108,35 @@ export default function EventDetailPage() {
     }
   };
 
+  const handleAddLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newExternalLink) return;
+
+    setIsAddingLink(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/events/${eventId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ externalLink: newExternalLink }),
+      });
+
+      if (res.ok) {
+        setIsAddLinkModalOpen(false);
+        setNewExternalLink("");
+        fetchEventDetails();
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to add link. You might not have permission.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error adding link");
+    } finally {
+      setIsAddingLink(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
@@ -150,7 +186,7 @@ export default function EventDetailPage() {
               </div>
             </div>
             
-            {event.externalLink && (
+            {event.externalLink ? (
               <div className="md:ml-auto">
                 <a 
                   href={event.externalLink} 
@@ -161,6 +197,41 @@ export default function EventDetailPage() {
                   <ExternalLink className="h-4 w-4" />
                   Register Now
                 </a>
+              </div>
+            ) : isAdmin && (
+              <div className="md:ml-auto">
+                <Dialog open={isAddLinkModalOpen} onOpenChange={setIsAddLinkModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="flex items-center gap-2 bg-white/10 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-white/20 transition-colors border border-white/10">
+                      <ExternalLink className="h-4 w-4" />
+                      Add Link
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md bg-[#0A0A0A] border-white/5 text-white">
+                    <DialogHeader>
+                      <DialogTitle>Add External Link</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleAddLink} className="space-y-4 pt-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Registration / External Link</label>
+                        <input
+                          required
+                          value={newExternalLink}
+                          onChange={e => setNewExternalLink(e.target.value)}
+                          placeholder="e.g. https://unstop.com/..."
+                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:border-pastel-blue focus:bg-white/10 outline-none text-white transition-all placeholder:text-white/20"
+                        />
+                      </div>
+                      <Button type="submit" disabled={isAddingLink || !newExternalLink} className="w-full bg-pastel-blue hover:bg-pastel-blue/90 text-black mt-4 font-bold">
+                        {isAddingLink ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...
+                          </>
+                        ) : "Save Link"}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
               </div>
             )}
           </div>
