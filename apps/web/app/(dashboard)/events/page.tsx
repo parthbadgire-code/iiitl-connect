@@ -5,6 +5,8 @@ import { Calendar, MapPin, Clock, Users, Loader2, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@parthbadgire/ui/components/button";
+import { motion } from "framer-motion";
+import { SpotlightCard } from "@/components/ui/SpotlightCard";
 import {
   Dialog,
   DialogContent,
@@ -206,35 +208,50 @@ export default function EventsPage() {
           <p className="text-neutral-400">No upcoming events found.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          variants={{
+            hidden: { opacity: 0 },
+            show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+          }}
+          initial="hidden"
+          animate="show"
+        >
           {events.map((event) => (
-            <Link href={`/events/${event.id}`} key={event.id} className="group p-6 rounded-3xl bg-black/40 backdrop-blur-xl border border-white/5 hover:border-pastel-blue/30 transition-all duration-500 relative overflow-hidden shadow-2xl block cursor-pointer">
-              <div className="absolute top-0 right-0 p-8 w-32 h-32 bg-pastel-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-pastel-blue/20 transition-colors" />
-              
-              <div className="relative z-10 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-pastel-blue/10 text-pastel-blue border border-pastel-blue/20 max-w-[200px] truncate">
-                    <Users className="h-3 w-3 shrink-0" /> <span className="truncate">{event.clubs?.map(c => c.name).join(', ')}</span>
-                  </span>
-                </div>
-                
-                <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">{event.title}</h3>
-                <p className="text-sm text-neutral-400 mb-6 flex-1">{event.description}</p>
-                
-                <div className="space-y-3 pt-4 border-t border-white/5">
-                  <div className="flex items-center gap-3 text-sm text-neutral-300">
-                    <Clock className="h-4 w-4 text-pastel-mint" />
-                    {formatDate(event.date)}
+            <motion.div key={event.id} variants={{
+              hidden: { opacity: 0, y: 20 },
+              show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+            }}>
+              <SpotlightCard className="h-full p-0">
+                <Link href={`/events/${event.id}`} className="group p-6 h-full transition-all duration-500 relative block cursor-pointer">
+                  <div className="absolute top-0 right-0 p-8 w-32 h-32 bg-pastel-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-pastel-blue/20 transition-colors" />
+                  
+                  <div className="relative z-10 flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-4">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-pastel-blue/10 text-pastel-blue border border-pastel-blue/20 max-w-[200px] truncate">
+                        <Users className="h-3 w-3 shrink-0" /> <span className="truncate">{event.clubs?.map(c => c.name).join(', ')}</span>
+                      </span>
+                    </div>
+                    
+                    <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">{event.title}</h3>
+                    <p className="text-sm text-neutral-400 mb-6 flex-1">{event.description}</p>
+                    
+                    <div className="space-y-3 pt-4 border-t border-white/5">
+                      <div className="flex items-center gap-3 text-sm text-neutral-300">
+                        <Clock className="h-4 w-4 text-pastel-mint" />
+                        {formatDate(event.date)}
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-neutral-300">
+                        <MapPin className="h-4 w-4 text-pastel-peach" />
+                        {event.venue}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-neutral-300">
-                    <MapPin className="h-4 w-4 text-pastel-peach" />
-                    {event.venue}
-                  </div>
-                </div>
-              </div>
-            </Link>
+                </Link>
+              </SpotlightCard>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );

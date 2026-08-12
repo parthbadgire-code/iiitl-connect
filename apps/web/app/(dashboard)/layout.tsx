@@ -5,6 +5,8 @@ import { useSession } from "@/lib/auth-client";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { CustomCursor } from "@/components/ui/CustomCursor";
+import { PageTransition } from "@/components/layout/PageTransition";
 
 export default function DashboardLayout({
   children,
@@ -47,8 +49,15 @@ export default function DashboardLayout({
 
       {/* Scrollable Page Content */}
       <main className="relative flex-1 overflow-y-auto">
-        {children}
+        <PageTransition>
+          {children}
+        </PageTransition>
       </main>
+      
+      {/* Global Interactions */}
+      <div className="hidden lg:block">
+        <CustomCursor />
+      </div>
     </div>
   );
 }

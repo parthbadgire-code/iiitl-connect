@@ -6,6 +6,8 @@ import { useParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Card } from "@parthbadgire/ui/components/card";
 import { Users, Calendar, BookOpen, Link as LinkIcon, Upload, Star, Crown, X, Plus } from "lucide-react";
+import { motion } from "framer-motion";
+import { SpotlightCard } from "@/components/ui/SpotlightCard";
 import {
   Dialog,
   DialogContent,
@@ -296,25 +298,32 @@ export default function AxiosWingPage() {
                 <h2 className="text-xs font-black uppercase tracking-widest text-neutral-400 mb-4 flex items-center gap-2">
                   <Crown className="h-3.5 w-3.5 text-pastel-lavender" /> Coordinators
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <motion.div 
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                  variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
+                  initial="hidden"
+                  animate="show"
+                >
                   {coordinators.map((member, i) => {
                     const config = ROLE_CONFIG[member.role];
                     return (
-                      <Card key={i} className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 border-pastel-lavender/10 shadow-2xl rounded-3xl p-5 flex items-center gap-4 hover:border-pastel-lavender/30 transition-colors">
-                        <div className={`h-12 w-12 rounded-full bg-gradient-to-br ${config.avatarClass} flex items-center justify-center font-black text-white text-lg shrink-0 shadow-lg`}>
-                          {member.name.charAt(0)}
-                        </div>
-                        <div>
-                          <h3 className="text-white font-bold leading-tight">{member.name}</h3>
-                          <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border mt-1 font-bold uppercase tracking-wider ${config.badgeClass}`}>
-                            <Crown className="h-2.5 w-2.5" />
-                            {config.label}
-                          </span>
-                        </div>
-                      </Card>
+                      <motion.div key={i} variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }}>
+                        <SpotlightCard className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 border-pastel-lavender/10 shadow-2xl rounded-3xl p-5 flex items-center gap-4 hover:border-pastel-lavender/30 transition-colors">
+                          <div className={`h-12 w-12 rounded-full bg-gradient-to-br ${config.avatarClass} flex items-center justify-center font-black text-white text-lg shrink-0 shadow-lg`}>
+                            {member.name.charAt(0)}
+                          </div>
+                          <div>
+                            <h3 className="text-white font-bold leading-tight">{member.name}</h3>
+                            <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border mt-1 font-bold uppercase tracking-wider ${config.badgeClass}`}>
+                              <Crown className="h-2.5 w-2.5" />
+                              {config.label}
+                            </span>
+                          </div>
+                        </SpotlightCard>
+                      </motion.div>
                     );
                   })}
-                </div>
+                </motion.div>
               </div>
             )}
 
@@ -324,25 +333,32 @@ export default function AxiosWingPage() {
                 <h2 className="text-xs font-black uppercase tracking-widest text-neutral-400 mb-4 flex items-center gap-2">
                   <Star className="h-3.5 w-3.5 text-pastel-blue" /> Senior Members
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <motion.div 
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                  variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
+                  initial="hidden"
+                  animate="show"
+                >
                   {seniorMembers.map((member, i) => {
                     const config = ROLE_CONFIG[member.role];
                     return (
-                      <Card key={i} className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 shadow-2xl rounded-3xl p-5 flex items-center gap-4 hover:border-pastel-blue/20 transition-colors">
-                        <div className={`h-12 w-12 rounded-full bg-gradient-to-br ${config.avatarClass} flex items-center justify-center font-black text-white text-lg shrink-0 shadow-lg`}>
-                          {member.name.charAt(0)}
-                        </div>
-                        <div>
-                          <h3 className="text-white font-bold leading-tight">{member.name}</h3>
-                          <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border mt-1 font-bold uppercase tracking-wider ${config.badgeClass}`}>
-                            <Star className="h-2.5 w-2.5" />
-                            {config.label}
-                          </span>
-                        </div>
-                      </Card>
+                      <motion.div key={i} variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }}>
+                        <SpotlightCard className="bg-[#0A0A0A]/50 backdrop-blur-xl border-white/5 shadow-2xl rounded-3xl p-5 flex items-center gap-4 hover:border-pastel-blue/20 transition-colors">
+                          <div className={`h-12 w-12 rounded-full bg-gradient-to-br ${config.avatarClass} flex items-center justify-center font-black text-white text-lg shrink-0 shadow-lg`}>
+                            {member.name.charAt(0)}
+                          </div>
+                          <div>
+                            <h3 className="text-white font-bold leading-tight">{member.name}</h3>
+                            <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border mt-1 font-bold uppercase tracking-wider ${config.badgeClass}`}>
+                              <Star className="h-2.5 w-2.5" />
+                              {config.label}
+                            </span>
+                          </div>
+                        </SpotlightCard>
+                      </motion.div>
                     );
                   })}
-                </div>
+                </motion.div>
               </div>
             )}
 
