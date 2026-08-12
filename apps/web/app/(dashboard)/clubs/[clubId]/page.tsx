@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { ShieldAlert, Plus, Calendar as CalendarIcon, MapPin, Clock, ArrowLeft, Users, ShieldCheck, User } from "lucide-react";
+import Image from "next/image";
+import { ShieldAlert, Plus, Calendar as CalendarIcon, MapPin, Clock, ArrowLeft, Users, ShieldCheck, User, Building2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@parthbadgire/ui/components/card";
 import { Button } from "@parthbadgire/ui/components/button";
 import Link from "next/link";
@@ -165,13 +166,19 @@ export default function ClubDetailsPage() {
       <div className="relative rounded-2xl bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl">
         <div className="h-40 bg-gradient-to-r from-amber-900/40 via-red-900/20 to-zinc-950 border-b border-zinc-800" />
         <div className="px-8 pb-8 pt-6 relative flex flex-col md:flex-row gap-6 items-start md:items-center">
-          <div className="absolute -top-16 left-8 h-28 w-28 rounded-2xl bg-zinc-900 border-4 border-zinc-950 flex items-center justify-center overflow-hidden shadow-xl">
-            {club.logo ? (
-              <img src={club.logo} alt={club.name} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-4xl font-black text-zinc-700">{club.name.charAt(0)}</span>
-            )}
-          </div>
+                  <div className="h-28 w-28 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center overflow-hidden shrink-0 shadow-[0_0_40px_rgba(255,255,255,0.1)] relative p-3">
+                    <Image
+                      src={`/clubs/${club.slug}.png`}
+                      alt={club.name}
+                      fill
+                      className="object-contain p-3 drop-shadow-lg"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                      }}
+                    />
+                    <Building2 className="h-12 w-12 text-neutral-400 hidden" />
+                  </div>
           <div className="mt-12 md:mt-0 md:ml-32 flex-1">
             <div className="flex items-center gap-3 mb-1">
               <h1 className="text-3xl font-black text-zinc-100">{club.name}</h1>
@@ -208,8 +215,8 @@ export default function ClubDetailsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                 {club.members.map((member, idx) => (
                   <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/50 hover:bg-zinc-900 transition-colors">
-                    <div className="h-10 w-10 rounded-full bg-zinc-800 overflow-hidden shrink-0">
-                      {member.user.image ? <img src={member.user.image} alt={member.user.name} /> : <div className="h-full w-full flex items-center justify-center text-zinc-500 font-bold">{member.user.name[0]}</div>}
+                    <div className="h-10 w-10 rounded-full bg-white/10 overflow-hidden shrink-0">
+                      {member.user.image ? <Image src={member.user.image} alt={member.user.name} width={40} height={40} /> : <div className="h-full w-full flex items-center justify-center text-zinc-500 font-bold">{member.user.name[0]}</div>}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-zinc-100 truncate">{member.user.name}</p>
