@@ -26,11 +26,11 @@ type CampusEvent = {
   date: string;
   venue: string;
   isRSVPRequired: boolean;
-  club: {
+  clubs: {
     name: string;
     slug: string;
     logo: string;
-  };
+  }[];
   _count: { rsvps: number };
 };
 
@@ -50,8 +50,14 @@ export default function ClubsPage() {
   const fetchData = async () => {
     try {
       const [clubsRes, eventsRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs`, { credentials: "include" }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/events`, { credentials: "include" })
+        fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/clubs`,
+          { credentials: "include" },
+        ),
+        fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/events`,
+          { credentials: "include" },
+        ),
       ]);
 
       if (clubsRes.ok) setClubs(await clubsRes.json());
@@ -73,10 +79,16 @@ export default function ClubsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 relative">
-      <motion.div style={{ y, opacity }} className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 relative z-10">
+      <motion.div
+        style={{ y, opacity }}
+        className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 relative z-10"
+      >
         <div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white drop-shadow-lg">
-            Campus <span className="bg-gradient-to-r from-pastel-lavender to-pastel-blue bg-clip-text text-transparent">Clubs</span>
+            Campus{" "}
+            <span className="bg-gradient-to-r from-pastel-lavender to-pastel-blue bg-clip-text text-transparent">
+              Clubs
+            </span>
           </h1>
           <p className="text-neutral-400 mt-2 font-medium">
             Discover, join, and interact with student organizations at IIITL.
@@ -85,11 +97,11 @@ export default function ClubsPage() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
         {/* Left: Clubs Grid */}
         <div className="lg:col-span-2 space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-            <Building2 className="h-5 w-5 text-pastel-lavender" /> Active Organizations
+            <Building2 className="h-5 w-5 text-pastel-lavender" /> Active
+            Organizations
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {clubs.map((club) => (
@@ -104,8 +116,10 @@ export default function ClubsPage() {
                           fill
                           className="object-contain p-2 transition-transform duration-500 group-hover:scale-110 drop-shadow-md"
                           onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            e.currentTarget.style.display = "none";
+                            e.currentTarget.nextElementSibling?.classList.remove(
+                              "hidden",
+                            );
                           }}
                         />
                         <Building2 className="h-8 w-8 text-neutral-400 hidden" />
@@ -121,8 +135,14 @@ export default function ClubsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-xs font-semibold text-neutral-400 mt-auto pt-4 border-t border-white/5">
-                      <span className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> {club._count.members} Members</span>
-                      <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> {club._count.events} Events</span>
+                      <span className="flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5" /> {club._count.members}{" "}
+                        Members
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5" />{" "}
+                        {club._count.events} Events
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
@@ -139,7 +159,8 @@ export default function ClubsPage() {
         {/* Right: Events Timeline */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-            <Calendar className="h-5 w-5 text-pastel-lavender" /> Upcoming Events
+            <Calendar className="h-5 w-5 text-pastel-lavender" /> Upcoming
+            Events
           </h2>
           <Card className="bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 rounded-3xl sticky top-8 overflow-hidden shadow-2xl">
             <CardContent className="p-0">
@@ -147,18 +168,27 @@ export default function ClubsPage() {
                 {events.map((event) => {
                   const dateObj = new Date(event.date);
                   return (
-                    <div key={event.id} className="p-4 hover:bg-white/5 transition-colors flex gap-4">
+                    <div
+                      key={event.id}
+                      className="p-4 hover:bg-white/5 transition-colors flex gap-4"
+                    >
                       <div className="flex flex-col items-center justify-center h-12 w-12 rounded-lg bg-pastel-lavender/10 border border-pastel-lavender/20 shrink-0 text-center">
                         <span className="text-[10px] font-bold text-pastel-lavender uppercase leading-none mb-1">
-                          {dateObj.toLocaleString('default', { month: 'short' })}
+                          {dateObj.toLocaleString("default", {
+                            month: "short",
+                          })}
                         </span>
                         <span className="text-lg font-black text-pastel-lavender leading-none">
                           {dateObj.getDate()}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-sm text-white truncate">{event.title}</h4>
-                        <p className="text-xs text-pastel-lavender font-medium truncate mb-1">Hosted by {event.club.name}</p>
+                        <h4 className="font-bold text-sm text-white truncate">
+                          {event.title}
+                        </h4>
+                        <p className="text-xs text-pastel-lavender font-medium truncate mb-1">
+                          Hosted by {event.clubs?.[0]?.name || "Unknown"}
+                        </p>
                         <div className="flex items-center gap-1 text-[10px] text-neutral-500">
                           <MapPin className="h-3 w-3" /> {event.venue}
                         </div>
@@ -175,7 +205,6 @@ export default function ClubsPage() {
             </CardContent>
           </Card>
         </div>
-
       </div>
     </div>
   );
