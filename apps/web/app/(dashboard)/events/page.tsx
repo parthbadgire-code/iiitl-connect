@@ -218,56 +218,128 @@ export default function EventsPage() {
         <div className="flex justify-center py-20">
           <PremiumLoader />
         </div>
-      ) : events.length === 0 ? (
-        <div className="text-center py-20 bg-black/40 backdrop-blur-xl border border-white/5 rounded-3xl">
-          <Calendar className="h-10 w-10 text-neutral-500 mx-auto mb-4" />
-          <p className="text-neutral-400">No upcoming events found.</p>
-        </div>
       ) : (
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          variants={{
-            hidden: { opacity: 0 },
-            show: { opacity: 1, transition: { staggerChildren: 0.1 } }
-          }}
-          initial="hidden"
-          animate="show"
-        >
-          {events.map((event) => (
-            <motion.div key={event.id} variants={{
-              hidden: { opacity: 0, y: 20 },
-              show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-            }}>
-              <SpotlightCard className="h-full p-0">
-                <Link href={`/events/${event.id}`} className="group p-6 h-full transition-all duration-500 relative block cursor-pointer">
-                  <div className="absolute top-0 right-0 p-8 w-32 h-32 bg-pastel-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-pastel-blue/20 transition-colors" />
-                  
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="flex items-start justify-between mb-4">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-pastel-blue/10 text-pastel-blue border border-pastel-blue/20 max-w-[200px] truncate">
-                        <Users className="h-3 w-3 shrink-0" /> <span className="truncate">{event.clubs?.map(c => c.name).join(', ')}</span>
-                      </span>
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">{event.title}</h3>
-                    <p className="text-sm text-neutral-400 mb-6 flex-1">{event.description}</p>
-                    
-                    <div className="space-y-3 pt-4 border-t border-white/5">
-                      <div className="flex items-center gap-3 text-sm text-neutral-300">
-                        <Clock className="h-4 w-4 text-pastel-mint" />
-                        {formatDate(event.date)}
-                      </div>
-                      <div className="flex items-center gap-3 text-sm text-neutral-300">
-                        <MapPin className="h-4 w-4 text-pastel-peach" />
-                        {event.venue}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </SpotlightCard>
-            </motion.div>
-          ))}
-        </motion.div>
+        <div className="space-y-16">
+          {/* Upcoming Events */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-8 w-1.5 bg-pastel-blue rounded-full shadow-[0_0_10px_rgba(186,230,253,0.5)]" />
+              <h2 className="text-2xl font-bold text-white tracking-tight">Upcoming Events</h2>
+            </div>
+            
+            {events.filter(e => new Date(e.date) >= new Date()).length === 0 ? (
+              <div className="text-center py-20 bg-black/40 backdrop-blur-xl border border-white/5 rounded-3xl">
+                <Calendar className="h-10 w-10 text-neutral-500 mx-auto mb-4" />
+                <p className="text-neutral-400">No upcoming events found.</p>
+              </div>
+            ) : (
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+                }}
+                initial="hidden"
+                animate="show"
+              >
+                {events.filter(e => new Date(e.date) >= new Date()).map((event) => (
+                  <motion.div key={event.id} variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+                  }}>
+                    <SpotlightCard className="h-full p-0">
+                      <Link href={`/events/${event.id}`} className="group p-6 h-full transition-all duration-500 relative block cursor-pointer">
+                        <div className="absolute top-0 right-0 p-8 w-32 h-32 bg-pastel-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-pastel-blue/20 transition-colors" />
+                        
+                        <div className="relative z-10 flex flex-col h-full">
+                          <div className="flex items-start justify-between mb-4">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-pastel-blue/10 text-pastel-blue border border-pastel-blue/20 max-w-[200px] truncate">
+                              <Users className="h-3 w-3 shrink-0" /> <span className="truncate">{event.clubs?.map(c => c.name).join(', ')}</span>
+                            </span>
+                          </div>
+                          
+                          <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">{event.title}</h3>
+                          <p className="text-sm text-neutral-400 mb-6 flex-1">{event.description}</p>
+                          
+                          <div className="space-y-3 pt-4 border-t border-white/5">
+                            <div className="flex items-center gap-3 text-sm text-neutral-300">
+                              <Clock className="h-4 w-4 text-pastel-mint" />
+                              {formatDate(event.date)}
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-neutral-300">
+                              <MapPin className="h-4 w-4 text-pastel-peach" />
+                              {event.venue}
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    </SpotlightCard>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </div>
+
+          {/* Past Events */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-8 w-1.5 bg-neutral-600 rounded-full" />
+              <h2 className="text-2xl font-bold text-neutral-300 tracking-tight">Past Events</h2>
+            </div>
+            
+            {events.filter(e => new Date(e.date) < new Date()).length === 0 ? (
+              <div className="text-center py-20 bg-black/40 backdrop-blur-xl border border-white/5 rounded-3xl">
+                <Calendar className="h-10 w-10 text-neutral-700 mx-auto mb-4" />
+                <p className="text-neutral-500">No past events found.</p>
+              </div>
+            ) : (
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+                }}
+                initial="hidden"
+                animate="show"
+              >
+                {events.filter(e => new Date(e.date) < new Date()).map((event) => (
+                  <motion.div key={event.id} variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+                  }} className="opacity-70 hover:opacity-100 transition-opacity">
+                    <SpotlightCard className="h-full p-0">
+                      <Link href={`/events/${event.id}`} className="group p-6 h-full transition-all duration-500 relative block cursor-pointer grayscale hover:grayscale-0">
+                        <div className="absolute top-0 right-0 p-8 w-32 h-32 bg-neutral-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-neutral-500/20 transition-colors" />
+                        
+                        <div className="relative z-10 flex flex-col h-full">
+                          <div className="flex items-start justify-between mb-4">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-500/10 text-neutral-400 border border-neutral-500/20 max-w-[200px] truncate">
+                              <Users className="h-3 w-3 shrink-0" /> <span className="truncate">{event.clubs?.map(c => c.name).join(', ')}</span>
+                            </span>
+                          </div>
+                          
+                          <h3 className="text-2xl font-bold text-neutral-300 mb-2 tracking-tight">{event.title}</h3>
+                          <p className="text-sm text-neutral-500 mb-6 flex-1">{event.description}</p>
+                          
+                          <div className="space-y-3 pt-4 border-t border-white/5">
+                            <div className="flex items-center gap-3 text-sm text-neutral-400">
+                              <Clock className="h-4 w-4 text-neutral-500" />
+                              {formatDate(event.date)}
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-neutral-400">
+                              <MapPin className="h-4 w-4 text-neutral-500" />
+                              {event.venue}
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    </SpotlightCard>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

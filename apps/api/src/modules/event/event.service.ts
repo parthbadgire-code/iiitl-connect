@@ -58,11 +58,6 @@ export class EventService {
 
   async getAllEvents() {
     return this.database.campusEvent.findMany({
-      where: {
-        date: {
-          gte: new Date(), // upcoming events only
-        }
-      },
       include: {
         clubs: {
           select: {
