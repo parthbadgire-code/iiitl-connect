@@ -42,6 +42,7 @@ export default function EventsPage() {
   const [eventTitle, setEventTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventVenue, setEventVenue] = useState("");
+  const [eventExternalLink, setEventExternalLink] = useState("");
   const [eventClubIds, setEventClubIds] = useState<string[]>([]);
   const [isAddingEvent, setIsAddingEvent] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -79,22 +80,26 @@ export default function EventsPage() {
     if (eventClubIds.length === 0) return alert("Please select at least one club");
     setIsAddingEvent(true);
     try {
+      const payload = {
+        title: eventTitle,
+        date: new Date(eventDate).toISOString(),
+        venue: eventVenue,
+        clubIds: eventClubIds,
+        ...(eventExternalLink && { externalLink: eventExternalLink })
+      };
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          title: eventTitle,
-          date: eventDate,
-          venue: eventVenue,
-          clubIds: eventClubIds,
-        }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         setIsDialogOpen(false);
         setEventTitle("");
         setEventDate("");
         setEventVenue("");
+        setEventExternalLink("");
         setEventClubIds([]);
         fetchEvents();
       } else {
@@ -168,6 +173,15 @@ export default function EventsPage() {
                     value={eventVenue}
                     onChange={e => setEventVenue(e.target.value)}
                     placeholder="e.g. LT-1"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:border-pastel-blue focus:bg-white/10 outline-none text-white transition-all placeholder:text-white/20"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Registration / External Link (Optional)</label>
+                  <input
+                    value={eventExternalLink}
+                    onChange={e => setEventExternalLink(e.target.value)}
+                    placeholder="e.g. https://unstop.com/..."
                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:border-pastel-blue focus:bg-white/10 outline-none text-white transition-all placeholder:text-white/20"
                   />
                 </div>

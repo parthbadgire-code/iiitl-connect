@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { MapPin, Clock, Users, ArrowLeft, Image as ImageIcon, Loader2, Upload } from "lucide-react";
+import { MapPin, Clock, Users, ArrowLeft, Image as ImageIcon, Loader2, Upload, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { Button } from "@parthbadgire/ui/components/button";
 import { PremiumLoader } from "@/components/ui/PremiumLoader";
 import { uploadFileToR2 } from "@/lib/upload";
@@ -32,6 +33,7 @@ interface CampusEvent {
   venue: string;
   description: string;
   imageUrl?: string;
+  externalLink?: string;
   clubs: { id: string; name: string; logo: string | null; slug: string }[];
   gallery: EventGalleryPhoto[];
   _count: { rsvps: number };
@@ -132,19 +134,35 @@ export default function EventDetailPage() {
           
           <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">{event.title}</h1>
           
-          <div className="flex flex-col md:flex-row gap-6 text-neutral-300">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-pastel-mint/10 text-pastel-mint">
-                <Clock className="h-5 w-5" />
+          <div className="flex flex-col md:flex-row md:items-center gap-6 mt-6">
+            <div className="flex flex-col md:flex-row gap-6 text-neutral-300">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-pastel-mint/10 text-pastel-mint">
+                  <Clock className="h-5 w-5" />
+                </div>
+                <span className="font-medium">{formatDate(event.date)}</span>
               </div>
-              <span className="font-medium">{formatDate(event.date)}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-pastel-peach/10 text-pastel-peach">
-                <MapPin className="h-5 w-5" />
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-pastel-peach/10 text-pastel-peach">
+                  <MapPin className="h-5 w-5" />
+                </div>
+                <span className="font-medium">{event.venue}</span>
               </div>
-              <span className="font-medium">{event.venue}</span>
             </div>
+            
+            {event.externalLink && (
+              <div className="md:ml-auto">
+                <a 
+                  href={event.externalLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 bg-pastel-blue text-black px-6 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-[0_0_20px_rgba(167,243,208,0.2)]"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Register Now
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -202,28 +220,45 @@ export default function EventDetailPage() {
         </div>
 
         {event.gallery && event.gallery.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {event.gallery.map((photo) => (
-              <div key={photo.id} className="group relative aspect-square rounded-2xl overflow-hidden bg-neutral-900 border border-white/5">
-                <img 
-                  src={photo.url} 
-                  alt="Event photo" 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-neutral-800 overflow-hidden border border-white/10 shrink-0">
-                      {photo.uploader.image ? (
-                        <img src={photo.uploader.image} alt="uploader" className="w-full h-full object-cover" />
-                      ) : (
-                        <Users className="h-3 w-3 m-1.5 text-neutral-400" />
-                      )}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[250px]">
+            {event.gallery.map((photo, i) => {
+              const isLarge = i % 5 === 0;
+              const isWide = i % 5 === 1;
+              const isTall = i % 5 === 2;
+              
+              let spanClass = "";
+              if (isLarge) spanClass = "md:col-span-2 md:row-span-2";
+              else if (isWide) spanClass = "md:col-span-2";
+              else if (isTall) spanClass = "md:row-span-2";
+
+              return (
+                <motion.div 
+                  key={photo.id} 
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className={`group relative rounded-2xl overflow-hidden bg-neutral-900 border border-white/5 ${spanClass}`}
+                >
+                  <img 
+                    src={photo.url} 
+                    alt="Event photo" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-full bg-neutral-800 overflow-hidden border border-white/10 shrink-0">
+                        {photo.uploader.image ? (
+                          <img src={photo.uploader.image} alt="uploader" className="w-full h-full object-cover" />
+                        ) : (
+                          <Users className="h-3 w-3 m-1.5 text-neutral-400" />
+                        )}
+                      </div>
+                      <span className="text-xs text-white/90 truncate">{photo.uploader.name}</span>
                     </div>
-                    <span className="text-xs text-white/90 truncate">{photo.uploader.name}</span>
                   </div>
-                </div>
-              </div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         ) : (
           <div className="py-20 flex flex-col items-center justify-center text-center border border-dashed border-white/10 rounded-3xl">

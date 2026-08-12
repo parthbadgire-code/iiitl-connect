@@ -37,6 +37,7 @@ export class EventService {
         date: new Date(data.date),
         venue: data.venue,
         imageUrl: data.imageUrl,
+        externalLink: data.externalLink,
         isRSVPRequired: data.isRSVPRequired || false,
         clubs: {
           connect: data.clubIds.map(id => ({ id }))

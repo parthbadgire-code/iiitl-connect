@@ -21,6 +21,10 @@ export class CreateEventDto {
   @IsOptional()
   imageUrl?: string;
 
+  @IsString()
+  @IsOptional()
+  externalLink?: string;
+
   @IsBoolean()
   @IsOptional()
   isRSVPRequired?: boolean;

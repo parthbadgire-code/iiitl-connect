@@ -431,6 +431,7 @@ model CampusEvent {
   date           DateTime
   venue          String
   imageUrl       String?
+  externalLink   String?
   isRSVPRequired Boolean             @default(false)
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
