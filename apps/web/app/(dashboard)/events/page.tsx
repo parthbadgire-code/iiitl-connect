@@ -177,7 +177,7 @@ export default function EventsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Registration / External Link (Optional)</label>
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Image Drive Link (Optional)</label>
                   <input
                     value={eventExternalLink}
                     onChange={e => setEventExternalLink(e.target.value)}
@@ -258,15 +258,15 @@ export default function EventsPage() {
                             </span>
                           </div>
                           
-                          <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">{event.title}</h3>
-                          <p className="text-sm text-neutral-400 mb-6 flex-1">{event.description}</p>
+                          <h3 className="text-2xl font-bold text-white mb-2 tracking-tight group-hover:text-pastel-blue transition-colors duration-300">{event.title}</h3>
+                          <p className="text-sm text-neutral-400 mb-6 flex-1 group-hover:text-neutral-300 transition-colors duration-300">{event.description}</p>
                           
                           <div className="space-y-3 pt-4 border-t border-white/5">
-                            <div className="flex items-center gap-3 text-sm text-neutral-300">
+                            <div className="flex items-center gap-3 text-sm text-neutral-300 group-hover:text-white transition-colors duration-300">
                               <Clock className="h-4 w-4 text-pastel-mint" />
                               {formatDate(event.date)}
                             </div>
-                            <div className="flex items-center gap-3 text-sm text-neutral-300">
+                            <div className="flex items-center gap-3 text-sm text-neutral-300 group-hover:text-white transition-colors duration-300">
                               <MapPin className="h-4 w-4 text-pastel-peach" />
                               {event.venue}
                             </div>
@@ -318,16 +318,16 @@ export default function EventsPage() {
                             </span>
                           </div>
                           
-                          <h3 className="text-2xl font-bold text-neutral-300 mb-2 tracking-tight">{event.title}</h3>
-                          <p className="text-sm text-neutral-500 mb-6 flex-1">{event.description}</p>
+                          <h3 className="text-2xl font-bold text-neutral-300 mb-2 tracking-tight group-hover:text-white transition-colors duration-300">{event.title}</h3>
+                          <p className="text-sm text-neutral-500 mb-6 flex-1 group-hover:text-neutral-400 transition-colors duration-300">{event.description}</p>
                           
                           <div className="space-y-3 pt-4 border-t border-white/5">
-                            <div className="flex items-center gap-3 text-sm text-neutral-400">
-                              <Clock className="h-4 w-4 text-neutral-500" />
+                            <div className="flex items-center gap-3 text-sm text-neutral-400 group-hover:text-neutral-200 transition-colors duration-300">
+                              <Clock className="h-4 w-4 text-neutral-500 group-hover:text-neutral-400 transition-colors duration-300" />
                               {formatDate(event.date)}
                             </div>
-                            <div className="flex items-center gap-3 text-sm text-neutral-400">
-                              <MapPin className="h-4 w-4 text-neutral-500" />
+                            <div className="flex items-center gap-3 text-sm text-neutral-400 group-hover:text-neutral-200 transition-colors duration-300">
+                              <MapPin className="h-4 w-4 text-neutral-500 group-hover:text-neutral-400 transition-colors duration-300" />
                               {event.venue}
                             </div>
                           </div>

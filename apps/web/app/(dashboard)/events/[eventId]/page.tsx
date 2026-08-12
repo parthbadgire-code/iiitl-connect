@@ -192,10 +192,10 @@ export default function EventDetailPage() {
                   href={event.externalLink} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 bg-pastel-blue text-black px-6 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-[0_0_20px_rgba(167,243,208,0.2)]"
+                  className="flex items-center gap-2 bg-gradient-to-r from-pastel-blue to-pastel-mint text-black px-7 py-3 rounded-2xl font-extrabold hover:opacity-90 transition-all shadow-[0_0_20px_rgba(186,230,253,0.3)] hover:shadow-[0_0_35px_rgba(186,230,253,0.6)] hover:-translate-y-1"
                 >
-                  <ExternalLink className="h-4 w-4" />
-                  Register Now
+                  <ExternalLink className="h-5 w-5" />
+                  Image Drive Link
                 </a>
               </div>
             ) : isAdmin && (
@@ -213,7 +213,7 @@ export default function EventDetailPage() {
                     </DialogHeader>
                     <form onSubmit={handleAddLink} className="space-y-4 pt-4">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Registration / External Link</label>
+                        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Image Drive Link</label>
                         <input
                           required
                           value={newExternalLink}
@@ -259,7 +259,7 @@ export default function EventDetailPage() {
                 <DialogTitle>Upload Photo to Gallery</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleUploadPhoto} className="space-y-4 pt-4">
-                <div className="relative border-2 border-dashed border-neutral-800 rounded-xl p-8 flex flex-col items-center justify-center text-neutral-500 hover:border-pastel-blue hover:bg-pastel-blue/5 transition-colors cursor-pointer overflow-hidden group">
+                <div className="relative border-2 border-dashed border-neutral-800 rounded-2xl p-10 flex flex-col items-center justify-center text-neutral-500 hover:border-pastel-blue hover:bg-pastel-blue/5 hover:shadow-[0_0_30px_rgba(186,230,253,0.15)] transition-all cursor-pointer overflow-hidden group">
                   <input
                     type="file"
                     required
@@ -268,17 +268,17 @@ export default function EventDetailPage() {
                     className="absolute inset-0 opacity-0 cursor-pointer z-10"
                   />
                   {selectedFile ? (
-                    <div className="text-sm font-medium text-pastel-blue truncate max-w-full px-4 group-hover:scale-105 transition-transform">
+                    <div className="text-sm font-medium text-pastel-blue truncate max-w-full px-4 group-hover:scale-105 transition-transform duration-300">
                       {selectedFile.name}
                     </div>
                   ) : (
                     <>
-                      <ImageIcon className="h-10 w-10 mb-3 group-hover:scale-110 transition-transform" />
-                      <span className="text-sm font-medium">Click to upload an image</span>
+                      <ImageIcon className="h-12 w-12 mb-4 group-hover:scale-110 group-hover:text-pastel-blue transition-all duration-300" />
+                      <span className="text-sm font-semibold group-hover:text-pastel-blue/80 transition-colors">Click to upload an image</span>
                     </>
                   )}
                 </div>
-                <Button type="submit" disabled={isUploading || !selectedFile} className="w-full bg-pastel-blue hover:bg-pastel-blue/90 text-black mt-4 font-bold">
+                <Button type="submit" disabled={isUploading || !selectedFile} className="w-full bg-gradient-to-r from-pastel-blue to-pastel-mint hover:opacity-90 text-black mt-4 font-bold py-6 rounded-xl transition-all shadow-lg hover:shadow-pastel-blue/20">
                   {isUploading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin mr-2" /> Uploading...
