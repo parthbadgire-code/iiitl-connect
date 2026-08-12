@@ -1,9 +1,26 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Ghost, Filter, Send, ThumbsUp, ThumbsDown, MessageSquare, ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react";
+import {
+  Ghost,
+  Filter,
+  Send,
+  ThumbsUp,
+  ThumbsDown,
+  MessageSquare,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  Trash2,
+} from "lucide-react";
 import { useSession } from "@/lib/auth-client";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@parthbadgire/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@parthbadgire/ui/components/card";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -29,7 +46,7 @@ type PostReply = {
 };
 
 const CATEGORIES = [
-  { key: "CONFESSIONS", label: "Anonymous Chat", color: "#ec4899" },
+  { key: "CONFESSIONS", label: "Confessions", color: "#ec4899" },
   { key: "ACADEMICS", label: "Academics", color: "#7c3aed" },
   { key: "HOSTEL", label: "Hostel", color: "#f59e0b" },
   { key: "MEMES", label: "Memes", color: "#06b6d4" },
@@ -77,7 +94,8 @@ function PostCard({
   const [localReplyCount, setLocalReplyCount] = useState(post.replyCount);
   const replyInputRef = useRef<HTMLTextAreaElement>(null);
 
-  const catConf = CATEGORIES.find((c) => c.key === post.category) || CATEGORIES[0];
+  const catConf =
+    CATEGORIES.find((c) => c.key === post.category) || CATEGORIES[0];
   const timeStr = new Date(post.createdAt).toLocaleDateString("en-IN", {
     month: "short",
     day: "numeric",
@@ -131,9 +149,7 @@ function PostCard({
   };
 
   return (
-    <Card
-      className="bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 rounded-3xl animate-fade-in-up hover:border-white/10 transition-all duration-500"
-    >
+    <Card className="bg-[#0A0A0A]/50 backdrop-blur-xl border border-white/5 rounded-3xl animate-fade-in-up hover:border-white/10 transition-all duration-500">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start gap-2">
           <div className="flex items-center gap-3">
@@ -167,7 +183,10 @@ function PostCard({
             {catConf.label}
           </span>
           {(isAdmin || post.isMine) && (
-            <button onClick={() => onDelete(post.id)} className="p-1 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors">
+            <button
+              onClick={() => onDelete(post.id)}
+              className="p-1 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors"
+            >
               <Trash2 className="h-4 w-4" />
             </button>
           )}
@@ -190,7 +209,9 @@ function PostCard({
                 : "text-zinc-500 hover:text-green-400 hover:bg-green-500/10 border border-transparent"
             }`}
           >
-            <ThumbsUp className={`w-3.5 h-3.5 transition-transform group-hover:scale-110 ${post.myReaction === "LIKE" ? "animate-heartbeat-fast" : ""}`} />
+            <ThumbsUp
+              className={`w-3.5 h-3.5 transition-transform group-hover:scale-110 ${post.myReaction === "LIKE" ? "animate-heartbeat-fast" : ""}`}
+            />
             <span>{post.likes}</span>
           </button>
 
@@ -203,7 +224,9 @@ function PostCard({
                 : "text-zinc-500 hover:text-red-400 hover:bg-red-500/10 border border-transparent"
             }`}
           >
-            <ThumbsDown className={`w-3.5 h-3.5 transition-transform group-hover:scale-110 ${post.myReaction === "DISLIKE" ? "animate-heartbeat-fast" : ""}`} />
+            <ThumbsDown
+              className={`w-3.5 h-3.5 transition-transform group-hover:scale-110 ${post.myReaction === "DISLIKE" ? "animate-heartbeat-fast" : ""}`}
+            />
             <span>{post.dislikes}</span>
           </button>
 
@@ -213,8 +236,14 @@ function PostCard({
             className="flex items-center gap-1.5 ml-auto px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent transition-all"
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            <span>{localReplyCount} {localReplyCount === 1 ? "reply" : "replies"}</span>
-            {showReplies ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            <span>
+              {localReplyCount} {localReplyCount === 1 ? "reply" : "replies"}
+            </span>
+            {showReplies ? (
+              <ChevronUp className="w-3 h-3" />
+            ) : (
+              <ChevronDown className="w-3 h-3" />
+            )}
           </button>
         </div>
 
@@ -228,7 +257,10 @@ function PostCard({
                 </div>
               ) : replies.length > 0 ? (
                 replies.map((reply) => (
-                  <div key={reply.id} className="flex gap-2.5 group animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div
+                    key={reply.id}
+                    className="flex gap-2.5 group animate-in fade-in slide-in-from-bottom-2 duration-300"
+                  >
                     <div
                       className="h-6 w-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5"
                       style={{
@@ -241,11 +273,16 @@ function PostCard({
                     </div>
                     <div className="bg-white/3 rounded-xl px-3 py-2 flex-1 border border-white/5 relative">
                       {(isAdmin || reply.isMine) && (
-                        <button onClick={async () => {
-                          await onDeleteReply(reply.id);
-                          setReplies(prev => prev.filter(r => r.id !== reply.id));
-                          setLocalReplyCount(prev => Math.max(0, prev - 1));
-                        }} className="absolute top-2 right-2 p-1 text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-500/20 rounded-lg transition-all">
+                        <button
+                          onClick={async () => {
+                            await onDeleteReply(reply.id);
+                            setReplies((prev) =>
+                              prev.filter((r) => r.id !== reply.id),
+                            );
+                            setLocalReplyCount((prev) => Math.max(0, prev - 1));
+                          }}
+                          className="absolute top-2 right-2 p-1 text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-500/20 rounded-lg transition-all"
+                        >
                           <Trash2 className="h-3 w-3" />
                         </button>
                       )}
@@ -259,7 +296,9 @@ function PostCard({
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-zinc-600 py-2 pl-1">No replies yet. Be the first!</p>
+                <p className="text-xs text-zinc-600 py-2 pl-1">
+                  No replies yet. Be the first!
+                </p>
               )}
             </div>
 
@@ -305,8 +344,8 @@ export default function AnonymousChatPage() {
   const [posts, setPosts] = useState<AnonymousPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  
-  const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
+
+  const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, "0");
   const currentYear = new Date().getFullYear().toString();
   const [activeMonth, setActiveMonth] = useState<string>(currentMonth);
   const [activeYear, setActiveYear] = useState<string>(currentYear);
@@ -322,7 +361,7 @@ export default function AnonymousChatPage() {
       if (activeCategory) params.append("category", activeCategory);
       if (activeMonth) params.append("month", activeMonth);
       if (activeYear) params.append("year", activeYear);
-      
+
       const url = `${API}/social/feed?${params.toString()}`;
       const res = await fetch(url, { credentials: "include" });
       if (res.ok) setPosts(await res.json());
@@ -384,18 +423,18 @@ export default function AnonymousChatPage() {
                 ? p.likes - 1
                 : p.likes + 1 - (wasDisliked ? 0 : 0)
               : wasLiked
-              ? p.likes - 1
-              : p.likes,
+                ? p.likes - 1
+                : p.likes,
           dislikes:
             type === "DISLIKE"
               ? toggling
                 ? p.dislikes - 1
                 : p.dislikes + 1
               : wasDisliked
-              ? p.dislikes - 1
-              : p.dislikes,
+                ? p.dislikes - 1
+                : p.dislikes,
         };
-      })
+      }),
     );
 
     try {
@@ -459,9 +498,14 @@ export default function AnonymousChatPage() {
             </span>
           </div>
           <h1 className="text-3xl font-black text-white">
-            Campus <span className="bg-gradient-to-r from-pastel-mint to-teal-400 bg-clip-text text-transparent">Anonymous Chat</span>
+            Campus{" "}
+            <span className="bg-gradient-to-r from-pastel-mint to-teal-400 bg-clip-text text-transparent">
+              Anonymous Chat
+            </span>
           </h1>
-          <p className="text-neutral-400 text-sm">Read what&apos;s on everyone&apos;s mind anonymously.</p>
+          <p className="text-neutral-400 text-sm">
+            Read what&apos;s on everyone&apos;s mind anonymously.
+          </p>
         </div>
       </div>
 
@@ -482,9 +526,15 @@ export default function AnonymousChatPage() {
                   onClick={() => setNewCategory(c.key)}
                   className="px-3 py-1.5 rounded-xl text-xs font-bold transition-colors whitespace-nowrap"
                   style={{
-                    background: newCategory === c.key ? `${c.color}20` : "rgba(255,255,255,0.05)",
+                    background:
+                      newCategory === c.key
+                        ? `${c.color}20`
+                        : "rgba(255,255,255,0.05)",
                     color: newCategory === c.key ? c.color : "#8b8ba7",
-                    border: newCategory === c.key ? `1px solid ${c.color}50` : "1px solid rgba(255,255,255,0.1)",
+                    border:
+                      newCategory === c.key
+                        ? `1px solid ${c.color}50`
+                        : "1px solid rgba(255,255,255,0.1)",
                   }}
                 >
                   {c.label}
@@ -507,42 +557,48 @@ export default function AnonymousChatPage() {
       <div className="flex flex-col md:flex-row gap-4 animate-fade-in-up delay-100 items-start md:items-center justify-between bg-[#0A0A0A]/50 p-4 rounded-3xl border border-white/5">
         <div className="flex flex-wrap items-center gap-2">
           <Filter className="h-4 w-4 mr-1 text-neutral-500" />
-        <button
-          onClick={() => setActiveCategory(null)}
-          className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
-          style={{
-            background: activeCategory === null ? "rgba(255,255,255,0.1)" : "rgba(10,10,10,0.6)",
-            color: activeCategory === null ? "#f4f4f8" : "#8b8ba7",
-            border:
-              activeCategory === null
-                ? "1px solid rgba(255,255,255,0.2)"
-                : "1px solid rgba(255,255,255,0.05)",
-          }}
-        >
-          All
-        </button>
-        {CATEGORIES.map((c) => (
           <button
-            key={c.key}
-            onClick={() => setActiveCategory(c.key)}
+            onClick={() => setActiveCategory(null)}
             className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
             style={{
-              background: activeCategory === c.key ? `${c.color}20` : "rgba(10,10,10,0.6)",
-              color: activeCategory === c.key ? c.color : "#8b8ba7",
+              background:
+                activeCategory === null
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(10,10,10,0.6)",
+              color: activeCategory === null ? "#f4f4f8" : "#8b8ba7",
               border:
-                activeCategory === c.key
-                  ? `1px solid ${c.color}50`
+                activeCategory === null
+                  ? "1px solid rgba(255,255,255,0.2)"
                   : "1px solid rgba(255,255,255,0.05)",
             }}
           >
-            {c.label}
+            All
           </button>
-        ))}
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.key}
+              onClick={() => setActiveCategory(c.key)}
+              className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
+              style={{
+                background:
+                  activeCategory === c.key
+                    ? `${c.color}20`
+                    : "rgba(10,10,10,0.6)",
+                color: activeCategory === c.key ? c.color : "#8b8ba7",
+                border:
+                  activeCategory === c.key
+                    ? `1px solid ${c.color}50`
+                    : "1px solid rgba(255,255,255,0.05)",
+              }}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
         <div className="flex items-center gap-2">
-          <select 
-            value={activeMonth} 
-            onChange={e => setActiveMonth(e.target.value)}
+          <select
+            value={activeMonth}
+            onChange={(e) => setActiveMonth(e.target.value)}
             className="bg-black border border-white/10 text-white text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-pastel-mint"
           >
             <option value="01">Jan</option>
@@ -558,9 +614,9 @@ export default function AnonymousChatPage() {
             <option value="11">Nov</option>
             <option value="12">Dec</option>
           </select>
-          <select 
-            value={activeYear} 
-            onChange={e => setActiveYear(e.target.value)}
+          <select
+            value={activeYear}
+            onChange={(e) => setActiveYear(e.target.value)}
             className="bg-black border border-white/10 text-white text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-pastel-mint"
           >
             <option value="2024">2024</option>
@@ -580,15 +636,26 @@ export default function AnonymousChatPage() {
           </>
         ) : posts.length > 0 ? (
           posts.map((post) => (
-            <PostCard key={post.id} post={post} onReact={handleReact} isAdmin={isAdmin} onDelete={handleDelete} onDeleteReply={handleDeleteReply} />
+            <PostCard
+              key={post.id}
+              post={post}
+              onReact={handleReact}
+              isAdmin={isAdmin}
+              onDelete={handleDelete}
+              onDeleteReply={handleDeleteReply}
+            />
           ))
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="h-16 w-16 rounded-2xl flex items-center justify-center mb-4 animate-float bg-pastel-mint/10 border border-pastel-mint/20">
               <Ghost className="h-8 w-8 text-pastel-mint" />
             </div>
-            <p className="text-white font-medium">No posts in this category yet</p>
-            <p className="text-sm text-neutral-500 mt-1">Be the first to share something!</p>
+            <p className="text-white font-medium">
+              No posts in this category yet
+            </p>
+            <p className="text-sm text-neutral-500 mt-1">
+              Be the first to share something!
+            </p>
           </div>
         )}
       </div>

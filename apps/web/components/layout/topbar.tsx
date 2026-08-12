@@ -10,7 +10,15 @@ import {
 } from "@parthbadgire/ui/components/dropdown-menu";
 import { useSession, signOut } from "@/lib/auth-client";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, User, Settings, Search, Loader2, Bell, CheckCheck } from "lucide-react";
+import {
+  LogOut,
+  User,
+  Settings,
+  Search,
+  Loader2,
+  Bell,
+  CheckCheck,
+} from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useNotificationStore } from "@/store/useNotificationStore";
 
@@ -35,24 +43,34 @@ export function Topbar() {
   const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Array<{
-    id: string;
-    name: string;
-    image: string | null;
-    role: string;
-    studentProfile: { batch: string } | null;
-  }>>([]);
+  const [searchResults, setSearchResults] = useState<
+    Array<{
+      id: string;
+      name: string;
+      image: string | null;
+      role: string;
+      studentProfile: { batch: string } | null;
+    }>
+  >([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const initial = session?.user?.name
-    ? session.user.name.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase()
+    ? session.user.name
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase()
     : "ST";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowSearchDropdown(false);
       }
     };
@@ -91,7 +109,10 @@ export function Topbar() {
       setIsSearching(true);
       setShowSearchDropdown(true);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/profile/search?q=${encodeURIComponent(searchQuery)}`, { credentials: "include" });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/profile/search?q=${encodeURIComponent(searchQuery)}`,
+          { credentials: "include" },
+        );
         if (res.ok) {
           setSearchResults(await res.json());
         }
@@ -116,15 +137,28 @@ export function Topbar() {
       }}
     >
       {/* Bottom gradient line */}
-      <div className="absolute bottom-0 left-0 right-0 h-px"
-        style={{ background: "linear-gradient(90deg, transparent, rgba(233,213,255,0.2), rgba(186,230,253,0.15), transparent)" }} />
+      <div
+        className="absolute bottom-0 left-0 right-0 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(233,213,255,0.2), rgba(186,230,253,0.15), transparent)",
+        }}
+      />
 
       {/* Left: Logo */}
       <div className="flex-1 flex items-center justify-start">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="relative flex h-8 w-8 items-center justify-center group-hover:scale-110 transition-transform">
-            <svg viewBox="0 0 40 40" className="h-8 w-8 animate-[spin_4s_linear_infinite]">
-              <polygon points="20,2 37,11 37,29 20,38 3,29 3,11" fill="none" stroke="url(#navHex)" strokeWidth="1.5" />
+            <svg
+              viewBox="0 0 40 40"
+              className="h-8 w-8 animate-[spin_4s_linear_infinite]"
+            >
+              <polygon
+                points="20,2 37,11 37,29 20,38 3,29 3,11"
+                fill="none"
+                stroke="url(#navHex)"
+                strokeWidth="1.5"
+              />
               <defs>
                 <linearGradient id="navHex" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#E9D5FF" />
@@ -133,45 +167,61 @@ export function Topbar() {
               </defs>
             </svg>
             <div className="absolute inset-0 rounded-full bg-pastel-lavender/20 blur-md scale-150 animate-pulse" />
-            <span className="absolute text-[9px] font-black text-white" style={{ textShadow: "0 0 10px rgba(233,213,255,0.8)" }}>II</span>
+            <span
+              className="absolute text-[9px] font-black text-white"
+              style={{ textShadow: "0 0 10px rgba(233,213,255,0.8)" }}
+            >
+              II
+            </span>
           </div>
           <div className="hidden sm:block">
-            <div className="text-2xl font-black tracking-tighter text-white">iiitl<span className="opacity-90">.connect</span></div>
+            <div className="text-2xl font-black tracking-tighter text-white">
+              iiitl<span className="opacity-90">.connect</span>
+            </div>
           </div>
         </Link>
       </div>
-        
+
       {/* Center: Horizontal Navigation Links */}
       <div className="hidden lg:flex justify-center flex-1 mx-2">
         <nav className="flex items-center justify-center bg-[#0A0A0A]/60 p-1.5 rounded-full border border-neutral-700/50 backdrop-blur-xl shadow-lg">
           {NAVIGATION.map((item) => {
-            const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            const isActive =
+              item.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={cn(
                   "relative px-4 py-2 rounded-full text-xs xl:text-sm font-bold transition-all duration-300 whitespace-nowrap",
-                  isActive ? "text-white bg-white/5" : "text-neutral-400 hover:text-white hover:bg-white/5"
+                  isActive
+                    ? "text-white bg-white/5"
+                    : "text-neutral-400 hover:text-white hover:bg-white/5",
                 )}
                 style={{
                   textShadow: isActive ? `0 0 15px ${item.accent}` : "none",
                 }}
               >
                 {isActive && (
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pastel-lavender/10 to-pastel-blue/10 animate-pulse border"
-                    style={{ borderColor: `${item.accent}50`, boxShadow: `inset 0 0 12px ${item.accent}30` }} />
+                  <div
+                    className="absolute inset-0 rounded-full bg-gradient-to-r from-pastel-lavender/10 to-pastel-blue/10 animate-pulse border"
+                    style={{
+                      borderColor: `${item.accent}50`,
+                      boxShadow: `inset 0 0 12px ${item.accent}30`,
+                    }}
+                  />
                 )}
                 <span className="relative z-10">{item.name}</span>
               </Link>
             );
           })}
-          </nav>
+        </nav>
       </div>
 
       {/* Right: Actions */}
       <div className="flex-1 flex items-center justify-end gap-3 md:gap-4">
-        
         {/* Search */}
         <div ref={searchRef} className="relative hidden md:block">
           <div className="relative flex items-center">
@@ -181,14 +231,19 @@ export function Topbar() {
               placeholder="Search people..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => { if (searchQuery.trim()) setShowSearchDropdown(true); }}
+              onFocus={() => {
+                if (searchQuery.trim()) setShowSearchDropdown(true);
+              }}
               className="w-48 lg:w-64 pl-9 pr-4 py-1.5 bg-black/40 border border-neutral-800 rounded-full text-xs text-white focus:outline-none focus:border-pastel-lavender/50 transition-all placeholder:text-neutral-600"
             />
           </div>
-          
+
           {/* Search Dropdown */}
           {showSearchDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-[#0A0A0A]/95 backdrop-blur-xl border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl py-2 z-50 animate-fade-in-up" style={{ minWidth: "100%" }}>
+            <div
+              className="absolute top-full left-0 right-0 mt-2 bg-[#0A0A0A]/95 backdrop-blur-xl border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl py-2 z-50 animate-fade-in-up"
+              style={{ minWidth: "100%" }}
+            >
               {isSearching ? (
                 <div className="flex items-center justify-center py-4 text-neutral-500">
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -207,12 +262,25 @@ export function Topbar() {
                     >
                       <div className="h-8 w-8 rounded-full overflow-hidden bg-neutral-900 border border-neutral-800 shrink-0 flex items-center justify-center text-xs font-bold text-white">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        {user.image ? <img src={user.image} alt="" className="h-full w-full object-cover" /> : user.name.charAt(0)}
+                        {user.image ? (
+                          <img
+                            src={user.image}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          user.name.charAt(0)
+                        )}
                       </div>
                       <div className="overflow-hidden">
-                        <div className="text-sm font-semibold text-white truncate">{user.name}</div>
+                        <div className="text-sm font-semibold text-white truncate">
+                          {user.name}
+                        </div>
                         <div className="text-[10px] text-neutral-500 truncate">
-                          {user.role} {user.studentProfile?.batch ? `· Class of ${user.studentProfile.batch}` : ""}
+                          {user.role}{" "}
+                          {user.studentProfile?.batch
+                            ? `· Class of ${user.studentProfile.batch}`
+                            : ""}
                         </div>
                       </div>
                     </button>
@@ -235,16 +303,22 @@ export function Topbar() {
                 <Bell className="h-4 w-4 text-neutral-400 group-hover:text-white transition-colors" />
                 {unreadCount > 0 && (
                   <div className="absolute top-0 right-0 h-4 w-4 rounded-full bg-pastel-lavender flex items-center justify-center text-[9px] font-bold text-black border-2 border-[#0A0A0A]">
-                    {unreadCount > 9 ? '9+' : unreadCount}
+                    {unreadCount > 9 ? "9+" : unreadCount}
                   </div>
                 )}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 bg-[#0A0A0A]/95 backdrop-blur-3xl border border-neutral-800 text-white shadow-[0_0_40px_rgba(233,213,255,0.05)] p-0">
+            <DropdownMenuContent
+              align="end"
+              className="w-80 bg-[#0A0A0A]/95 backdrop-blur-3xl border border-neutral-800 text-white shadow-[0_0_40px_rgba(233,213,255,0.05)] p-0"
+            >
               <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800/50">
                 <span className="font-bold">Notifications</span>
                 {unreadCount > 0 && (
-                  <button onClick={() => markAllAsRead()} className="text-[10px] flex items-center gap-1 text-neutral-400 hover:text-white transition-colors">
+                  <button
+                    onClick={() => markAllAsRead()}
+                    className="text-[10px] flex items-center gap-1 text-neutral-400 hover:text-white transition-colors"
+                  >
                     <CheckCheck className="h-3 w-3" /> Mark all read
                   </button>
                 )}
@@ -264,7 +338,7 @@ export function Topbar() {
                       }}
                       className={cn(
                         "px-4 py-3 border-b border-neutral-800/30 cursor-pointer transition-colors hover:bg-white/5 flex gap-3 relative",
-                        !notif.isRead ? "bg-pastel-lavender/5" : ""
+                        !notif.isRead ? "bg-pastel-lavender/5" : "",
                       )}
                     >
                       {!notif.isRead && (
@@ -293,7 +367,10 @@ export function Topbar() {
         {session?.user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="group flex items-center gap-2.5 rounded-full bg-white/5 border border-white/5 pr-4 pl-1.5 py-1.5 outline-none transition-all hover:bg-white/10 hover:border-white/10 shadow-lg hover:shadow-xl" id="user-menu-trigger">
+              <button
+                className="group flex items-center gap-2.5 rounded-full bg-white/5 border border-white/5 pr-4 pl-1.5 py-1.5 outline-none transition-all hover:bg-white/10 hover:border-white/10 shadow-lg hover:shadow-xl"
+                id="user-menu-trigger"
+              >
                 {/* Premium User Avatar */}
                 <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-pastel-lavender/90 to-pastel-blue/90 overflow-hidden shadow-inner transition-transform group-hover:scale-105">
                   <div className="relative z-10 text-xs font-black text-black">
@@ -307,34 +384,72 @@ export function Topbar() {
                 </div>
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-[#0A0A0A]/90 backdrop-blur-3xl border border-neutral-800 text-white shadow-[0_0_40px_rgba(233,213,255,0.05)]">
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-bold leading-none text-white">{session.user.name}</p>
-                  <p className="text-xs leading-none text-neutral-500">{session.user.email}</p>
+            <DropdownMenuContent
+              align="end"
+              className="w-64 p-2 bg-[#0A0A0A]/80 backdrop-blur-3xl border border-white/10 rounded-2xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.8)]"
+            >
+              <DropdownMenuLabel className="font-normal p-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-pastel-lavender/30 to-pastel-peach/30 p-[1px] shrink-0">
+                    <div className="h-full w-full rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                      <span className="text-sm font-black bg-gradient-to-br from-pastel-lavender to-pastel-peach text-transparent bg-clip-text">
+                        {session.user.name?.charAt(0)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col space-y-0.5 overflow-hidden">
+                    <p className="text-sm font-bold text-white truncate">
+                      {session.user.name}
+                    </p>
+                    <p className="text-xs text-neutral-400 truncate">
+                      {session.user.email}
+                    </p>
+                  </div>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-neutral-800/50" />
-              <DropdownMenuItem onClick={() => router.push("/profile")} className="flex items-center gap-2 cursor-pointer focus:bg-white/5 focus:text-white transition-colors">
-                <User className="h-3.5 w-3.5 text-pastel-lavender" /> Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/settings")} className="flex items-center gap-2 cursor-pointer focus:bg-white/5 focus:text-white transition-colors">
-                <Settings className="h-3.5 w-3.5 text-pastel-blue" /> Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-neutral-800/50" />
-              <DropdownMenuItem
-                onClick={async () => {
-                  await signOut();
-                  router.push("/login");
-                }}
-                className="flex items-center gap-2 cursor-pointer text-red-400 focus:text-red-300 focus:bg-red-400/10 transition-colors"
-              >
-                <LogOut className="h-3.5 w-3.5" /> Sign out
-              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-white/5 my-1" />
+              <div className="px-1 py-1 space-y-1">
+                <DropdownMenuItem
+                  onClick={() => router.push("/profile")}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer focus:bg-white/10 focus:text-white transition-all"
+                >
+                  <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-pastel-lavender/10 border border-pastel-lavender/20">
+                    <User className="h-3.5 w-3.5 text-pastel-lavender" />
+                  </div>
+                  <span className="font-medium text-sm">Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => router.push("/settings")}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer focus:bg-white/10 focus:text-white transition-all"
+                >
+                  <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-pastel-blue/10 border border-pastel-blue/20">
+                    <Settings className="h-3.5 w-3.5 text-pastel-blue" />
+                  </div>
+                  <span className="font-medium text-sm">Settings</span>
+                </DropdownMenuItem>
+              </div>
+              <DropdownMenuSeparator className="bg-white/5 my-1" />
+              <div className="px-1 pb-1">
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await signOut();
+                    router.push("/login");
+                  }}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-red-400 focus:text-red-300 focus:bg-red-500/15 transition-all mt-1"
+                >
+                  <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-red-500/10 border border-red-500/20">
+                    <LogOut className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="font-medium text-sm">Sign out</span>
+                </DropdownMenuItem>
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <div className="h-8 w-8 rounded-full animate-pulse" style={{ background: "rgba(255,255,255,0.06)" }} />
+          <div
+            className="h-8 w-8 rounded-full animate-pulse"
+            style={{ background: "rgba(255,255,255,0.06)" }}
+          />
         )}
       </div>
     </header>
