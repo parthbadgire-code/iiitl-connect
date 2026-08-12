@@ -471,7 +471,7 @@ export default function AxiosWingPage() {
               {hasAccess && (
                 <button
                   onClick={() => setShowResourceModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-pastel-lavender text-black font-bold text-sm rounded-full hover:scale-105 transition-transform shadow-[0_0_15px_rgba(233,213,255,0.3)]"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-pastel-lavender to-pastel-blue text-black font-extrabold text-sm rounded-full hover:opacity-90 transition-all shadow-[0_0_20px_rgba(233,213,255,0.3)] hover:shadow-[0_0_30px_rgba(233,213,255,0.5)] hover:-translate-y-0.5 border-0"
                 >
                   <Upload className="h-4 w-4" /> Upload Resource
                 </button>
@@ -544,9 +544,9 @@ export default function AxiosWingPage() {
                   onOpenChange={setIsClassModalOpen}
                 >
                   <DialogTrigger asChild>
-                    <Button className="bg-pastel-lavender hover:bg-pastel-lavender/90 text-black gap-2 font-bold px-4 rounded-full shadow-[0_0_15px_rgba(233,213,255,0.3)]">
+                    <button className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-pastel-lavender to-pastel-peach text-black font-extrabold text-sm rounded-full hover:opacity-90 transition-all shadow-[0_0_20px_rgba(233,213,255,0.3)] hover:shadow-[0_0_30px_rgba(233,213,255,0.5)] hover:-translate-y-0.5 border-0">
                       <Plus className="h-4 w-4" /> Schedule Class
-                    </Button>
+                    </button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md bg-black/60 backdrop-blur-xl border-white/10 text-white shadow-2xl">
                     <DialogHeader>
