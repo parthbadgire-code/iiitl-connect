@@ -46,6 +46,7 @@ model User {
   reportsReceived       ConnectionReport[]    @relation("ReportsReceived")
   uploadedEventPhotos   EventGalleryPhoto[]
   Notification          Notification[]
+  pushSubscriptions     PushSubscription[]
 }
 
 model Session {
@@ -57,6 +58,17 @@ model Session {
   createdAt DateTime
   token     String   @unique
   updatedAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 

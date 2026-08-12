@@ -14,6 +14,7 @@
     "@parthbadgire/ui": "workspace:^",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
+    "@serwist/next": "^9.5.12",
     "better-auth": "^1.6.26",
     "cmdk": "^1.1.1",
     "framer-motion": "^11.2.10",
@@ -22,6 +23,7 @@
     "next": "15.0.0-rc.1",
     "react": "19.0.0-rc-cd22717c-20241013",
     "react-dom": "19.0.0-rc-cd22717c-20241013",
+    "serwist": "^9.5.12",
     "socket.io-client": "^4.8.3",
     "three": "^0.185.1",
     "zustand": "^5.0.14"

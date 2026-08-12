@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, UseGuards } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { CurrentUser } from '../../common/decorators/user.decorator';
@@ -21,5 +21,15 @@ export class NotificationsController {
   @Patch(':id/read')
   async markAsRead(@Param('id') id: string, @CurrentUser() user: any) {
     return this.notificationsService.markAsRead(id, user.id);
+  }
+
+  @Post('subscribe')
+  async subscribePush(@Body() subscription: any, @CurrentUser() user: any) {
+    return this.notificationsService.savePushSubscription(user.id, subscription);
+  }
+
+  @Post('unsubscribe')
+  async unsubscribePush(@Body() body: { endpoint: string }, @CurrentUser() user: any) {
+    return this.notificationsService.removePushSubscription(user.id, body.endpoint);
   }
 }

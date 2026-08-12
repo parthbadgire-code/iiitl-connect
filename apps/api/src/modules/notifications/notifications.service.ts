@@ -1,6 +1,7 @@
-import { Injectable, forwardRef, Inject } from '@nestjs/common';
+import { Injectable, forwardRef, Inject, OnModuleInit } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { NotificationsGateway } from './notifications.gateway';
+import * as webpush from 'web-push';
 
 export enum NotificationType {
   INFO = 'INFO',
@@ -14,12 +15,70 @@ export enum NotificationType {
 }
 
 @Injectable()
-export class NotificationsService {
+export class NotificationsService implements OnModuleInit {
   constructor(
     private readonly database: DatabaseService,
     @Inject(forwardRef(() => NotificationsGateway))
     private readonly gateway: NotificationsGateway,
   ) {}
+
+  onModuleInit() {
+    if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+      webpush.setVapidDetails(
+        process.env.VAPID_SUBJECT || 'mailto:admin@example.com',
+        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+        process.env.VAPID_PRIVATE_KEY
+      );
+    }
+  }
+
+  async savePushSubscription(userId: string, subscription: any) {
+    if (!subscription || !subscription.endpoint) return;
+    return this.database.pushSubscription.upsert({
+      where: { endpoint: subscription.endpoint },
+      update: {
+        userId,
+        p256dh: subscription.keys?.p256dh || '',
+        auth: subscription.keys?.auth || '',
+      },
+      create: {
+        userId,
+        endpoint: subscription.endpoint,
+        p256dh: subscription.keys?.p256dh || '',
+        auth: subscription.keys?.auth || '',
+      },
+    });
+  }
+
+  async removePushSubscription(userId: string, endpoint: string) {
+    return this.database.pushSubscription.deleteMany({
+      where: { userId, endpoint },
+    });
+  }
+
+  private async triggerWebPush(userId: string, payload: any) {
+    const subscriptions = await this.database.pushSubscription.findMany({
+      where: { userId },
+    });
+    
+    for (const sub of subscriptions) {
+      const pushSubscription = {
+        endpoint: sub.endpoint,
+        keys: { p256dh: sub.p256dh, auth: sub.auth },
+      };
+      
+      try {
+        await webpush.sendNotification(pushSubscription, JSON.stringify(payload));
+      } catch (err: any) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          // Subscription expired or no longer valid
+          await this.database.pushSubscription.delete({ where: { id: sub.id } });
+        } else {
+          console.error('Error sending web push:', err);
+        }
+      }
+    }
+  }
 
   async getUserNotifications(userId: string) {
     return this.database.notification.findMany({
@@ -62,6 +121,15 @@ export class NotificationsService {
 
     // Emit via WebSocket
     this.gateway.emitToUser(data.userId, 'newNotification', notification);
+    
+    // Web Push
+    this.triggerWebPush(data.userId, {
+      title: data.title,
+      body: data.message,
+      url: data.link || '/',
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/icon-192x192.png',
+    }).catch(console.error);
 
     return notification;
   }
@@ -95,5 +163,28 @@ export class NotificationsService {
       isRead: false,
       createdAt: new Date(),
     });
+
+    // Web Push to all stored subscriptions
+    const allSubscriptions = await this.database.pushSubscription.findMany();
+    const payload = JSON.stringify({
+      title: data.title,
+      body: data.message,
+      url: data.link || '/',
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/icon-192x192.png',
+    });
+    
+    for (const sub of allSubscriptions) {
+      try {
+        await webpush.sendNotification({
+          endpoint: sub.endpoint,
+          keys: { p256dh: sub.p256dh, auth: sub.auth },
+        }, payload);
+      } catch (err: any) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await this.database.pushSubscription.delete({ where: { id: sub.id } });
+        }
+      }
+    }
   }
 }

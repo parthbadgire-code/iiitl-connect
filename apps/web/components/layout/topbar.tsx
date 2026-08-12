@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useNotificationStore } from "@/store/useNotificationStore";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 import Link from "next/link";
 import { cn } from "@parthbadgire/ui/lib/utils";
@@ -41,6 +42,7 @@ export function Topbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const router = useRouter();
+  const { isSupported, isSubscribed, loading: pushLoading, subscribe } = usePushNotifications();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
@@ -313,7 +315,21 @@ export function Topbar() {
               className="w-80 bg-[#0A0A0A]/95 backdrop-blur-3xl border border-neutral-800 text-white shadow-[0_0_40px_rgba(233,213,255,0.05)] p-0"
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800/50">
-                <span className="font-bold">Notifications</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold">Notifications</span>
+                  {isSupported && !isSubscribed && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        subscribe();
+                      }}
+                      disabled={pushLoading}
+                      className="text-[9px] font-bold bg-pastel-lavender/20 text-pastel-lavender px-2 py-0.5 rounded-full hover:bg-pastel-lavender/30 transition-colors"
+                    >
+                      {pushLoading ? "Enabling..." : "Enable Push"}
+                    </button>
+                  )}
+                </div>
                 {unreadCount > 0 && (
                   <button
                     onClick={() => markAllAsRead()}
