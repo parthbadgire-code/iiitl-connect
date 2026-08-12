@@ -11,6 +11,8 @@ interface Listing {
   description: string;
   price: number;
   images: string[];
+  sellerId: string;
+  status: string;
   seller: {
     name: string;
     image: string | null;
@@ -20,7 +22,7 @@ interface Listing {
 }
 
 export default function MarketplacePage() {
-  const { } = useSession();
+  const { data: session } = useSession();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,10 +47,28 @@ export default function MarketplacePage() {
         const data = await res.json();
         setListings(data);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Failed to fetch listings:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMarkAsSold = async (id: string) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/marketplace/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "SOLD" }),
+        credentials: "include"
+      });
+      if (res.ok) {
+        setListings(listings.map(l => l.id === id ? { ...l, status: "SOLD" } : l));
+      }
+    } catch (error) {
+      console.error("Failed to update status", error);
     }
   };
 
@@ -144,6 +164,13 @@ export default function MarketplacePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {listings.map((item) => (
             <div key={item.id} className="group rounded-3xl overflow-hidden bg-black/40 backdrop-blur-xl border border-white/5 hover:border-pastel-peach/30 transition-all duration-500 shadow-2xl">
+              {item.status === "SOLD" && (
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-20 flex items-center justify-center pointer-events-none">
+                  <div className="px-4 py-2 border-2 border-red-500 text-red-500 font-black text-xl rotate-[-15deg] rounded-lg tracking-widest bg-red-500/10 backdrop-blur-md shadow-2xl">
+                    SOLD
+                  </div>
+                </div>
+              )}
               {item.images && item.images.length > 0 ? (
                 <div className="w-full h-48 bg-neutral-900 relative overflow-hidden">
                   <img src={item.images[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -161,18 +188,40 @@ export default function MarketplacePage() {
                 <p className="text-sm text-neutral-400 line-clamp-2">{item.description}</p>
                 
                 <div className="pt-4 mt-4 border-t border-white/5 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 relative z-30">
                     <div className="h-8 w-8 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden shadow-lg border border-white/10">
                       {item.seller.image ? <img src={item.seller.image} alt="seller" className="w-full h-full object-cover" /> : item.seller.name[0]}
                     </div>
                     <span className="text-xs font-semibold text-neutral-300">{item.seller.name}</span>
                   </div>
-                  <a 
-                    href={`mailto:${item.seller.email}?subject=Interested in ${item.title} on IIITL Connect&body=Hi ${item.seller.name}, I am interested in buying your item '${item.title}' listed for ₹${item.price}.`}
-                    className="px-4 py-1.5 rounded-full bg-pastel-mint text-black font-bold text-xs hover:bg-pastel-mint/90 hover:scale-105 transition-all"
-                  >
-                    Contact
-                  </a>
+                  <div className="relative z-30">
+                    {item.sellerId === session?.user?.id ? (
+                      item.status === "SOLD" ? (
+                        <span className="px-4 py-1.5 rounded-full bg-neutral-800 text-neutral-400 font-bold text-xs">
+                          Sold
+                        </span>
+                      ) : (
+                        <button 
+                          onClick={(e) => { e.preventDefault(); handleMarkAsSold(item.id); }}
+                          className="px-4 py-1.5 rounded-full bg-red-500/20 text-red-400 font-bold text-xs hover:bg-red-500/30 hover:scale-105 transition-all border border-red-500/30"
+                        >
+                          Mark as Sold
+                        </button>
+                      )
+                    ) : item.status === "SOLD" ? (
+                      <span className="px-4 py-1.5 rounded-full bg-neutral-800 text-neutral-400 font-bold text-xs">
+                        Sold Out
+                      </span>
+                    ) : (
+                      <a 
+                        href={`mailto:${item.seller.email}?subject=Interested in ${item.title} on IIITL Connect&body=Hi ${item.seller.name}, I am interested in buying your item '${item.title}' listed for ₹${item.price}.`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="px-4 py-1.5 rounded-full bg-pastel-mint text-black font-bold text-xs hover:bg-pastel-mint/90 hover:scale-105 transition-all"
+                      >
+                        Contact
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

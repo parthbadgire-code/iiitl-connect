@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { TorusKnot, MeshTransmissionMaterial, Environment } from "@react-three/drei";
+import { Icosahedron, MeshTransmissionMaterial, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { useUIStore } from "@/store/useUIStore";
 
@@ -49,21 +49,21 @@ function AbstractShape() {
   });
 
   return (
-    <TorusKnot ref={meshRef} args={[2.5, 0.8, 200, 32]} position={[0, 0, -2]}>
+    <Icosahedron ref={meshRef} args={[2.5, 1]} position={[0, 0, -2]}>
       <MeshTransmissionMaterial
         backside
-        backsideThickness={2}
-        thickness={1.5}
-        roughness={0.2}
+        backsideThickness={1.5}
+        thickness={1.2}
+        roughness={0.1}
         transmission={1}
-        ior={1.5}
-        chromaticAberration={0.06}
-        anisotropy={0.3}
+        ior={1.3}
+        chromaticAberration={0.03}
+        anisotropy={0.1}
         color="#ffffff"
-        attenuationColor="#E9D5FF"
-        attenuationDistance={5}
+        attenuationColor="#A7F3D0"
+        attenuationDistance={3}
       />
-    </TorusKnot>
+    </Icosahedron>
   );
 }
 

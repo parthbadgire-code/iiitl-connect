@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Patch } from '@nestjs/common';
 import { MarketplaceService } from './marketplace.service';
 import { CreateListingDto } from './dto/marketplace.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -25,5 +25,14 @@ export class MarketplaceController {
   @Get(':id')
   async getListingById(@Param('id') id: string) {
     return this.marketplaceService.getListingById(id);
+  }
+
+  @Patch(':id/status')
+  async updateStatus(
+    @Param('id') id: string,
+    @CurrentUser() user: any,
+    @Body() data: { status: 'AVAILABLE' | 'SOLD' }
+  ) {
+    return this.marketplaceService.updateStatus(user.id, id, data.status);
   }
 }

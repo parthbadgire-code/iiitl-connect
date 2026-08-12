@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, MapPin, Clock, Users, Loader2, Plus } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@parthbadgire/ui/components/button";
 import { motion } from "framer-motion";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
+import { PremiumLoader } from "@/components/ui/PremiumLoader";
 import {
   Dialog,
   DialogContent,
@@ -200,7 +201,7 @@ export default function EventsPage() {
       {/* Events List */}
       {loading ? (
         <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-pastel-blue" />
+          <PremiumLoader />
         </div>
       ) : events.length === 0 ? (
         <div className="text-center py-20 bg-black/40 backdrop-blur-xl border border-white/5 rounded-3xl">

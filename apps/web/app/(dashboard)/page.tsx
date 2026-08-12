@@ -61,7 +61,7 @@ const MODULES = [
   },
   {
     title: "Axios",
-    description: "Student governing body",
+    description: "Student Technical Society",
     icon: Shield,
     href: "/axios",
     id: "axios",

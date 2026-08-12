@@ -4,9 +4,9 @@ import { Topbar } from "@/components/layout/topbar";
 import { useSession } from "@/lib/auth-client";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { Loader2 } from "lucide-react";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { PageTransition } from "@/components/layout/PageTransition";
+import { PremiumLoader } from "@/components/ui/PremiumLoader";
 
 export default function DashboardLayout({
   children,
@@ -28,7 +28,7 @@ export default function DashboardLayout({
   if (isPending) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-[#050505]">
-        <Loader2 className="h-8 w-8 animate-spin text-pastel-lavender" />
+        <PremiumLoader />
       </div>
     );
   }

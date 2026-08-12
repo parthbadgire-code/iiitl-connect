@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ListingStatus } from '@prisma/client';
 import { DatabaseService } from '../database/database.service';
 import { CreateListingDto } from './dto/marketplace.dto';
 import { NotificationsService, NotificationType } from '../notifications/notifications.service';
@@ -58,5 +59,24 @@ export class MarketplaceService {
     });
     if (!listing) throw new NotFoundException('Listing not found');
     return listing;
+  }
+
+  async updateStatus(userId: string, listingId: string, status: 'AVAILABLE' | 'SOLD') {
+    const listing = await this.database.marketplaceListing.findUnique({
+      where: { id: listingId },
+    });
+    
+    if (!listing) {
+      throw new NotFoundException('Listing not found');
+    }
+    
+    if (listing.sellerId !== userId) {
+      throw new UnauthorizedException('You can only update your own listings');
+    }
+    
+    return this.database.marketplaceListing.update({
+      where: { id: listingId },
+      data: { status: status as ListingStatus },
+    });
   }
 }

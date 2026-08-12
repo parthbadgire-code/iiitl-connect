@@ -16,3 +16,8 @@ export class CreateListingDto {
   @IsOptional()
   images?: string[];
 }
+
+export class UpdateListingStatusDto {
+  @IsString()
+  status: 'AVAILABLE' | 'SOLD';
+}
