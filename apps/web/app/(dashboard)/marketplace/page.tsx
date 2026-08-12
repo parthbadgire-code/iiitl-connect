@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { ShoppingBag, Tag, Plus, Loader2, Image as ImageIcon, X } from "lucide-react";
 import { uploadFileToR2 } from "@/lib/upload";
 import { useSession } from "@/lib/auth-client";
+import { PremiumLoader } from "@/components/ui/PremiumLoader";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 interface Listing {
   id: string;
@@ -35,6 +37,9 @@ export default function MarketplacePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 500], [0, 150]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   useEffect(() => {
     fetchListings();
@@ -131,29 +136,29 @@ export default function MarketplacePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8 animate-fade-in-up">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Hero Section */}
+      <motion.div style={{ y, opacity }} className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 animate-fade-in-up">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-pastel-peach/10 border border-pastel-peach/20">
-            <ShoppingBag className="h-7 w-7 text-pastel-peach" />
+          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md shadow-2xl">
+            <ShoppingBag className="h-10 w-10 text-pastel-peach" />
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tighter text-white">Campus <span className="bg-gradient-to-r from-pastel-peach to-pastel-mint bg-clip-text text-transparent">Marketplace</span></h1>
-            <p className="text-sm text-neutral-400">Buy, sell, and trade within IIITL.</p>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white drop-shadow-lg">Campus <span className="bg-gradient-to-r from-pastel-peach to-pastel-mint bg-clip-text text-transparent">Marketplace</span></h1>
+            <p className="text-neutral-400 mt-2 font-medium">Buy, sell, and trade within IIITL.</p>
           </div>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm bg-gradient-to-r from-pastel-peach to-pastel-mint text-black hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm bg-gradient-to-r from-pastel-peach to-pastel-mint text-black hover:opacity-90 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,175,189,0.4)] transition-all duration-300"
         >
-          <Plus className="h-4 w-4" /> List an Item
+          <Plus className="h-5 w-5" /> List an Item
         </button>
-      </div>
+      </motion.div>
 
       {/* Listings Grid */}
       {loading ? (
         <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-pastel-peach" />
+          <PremiumLoader />
         </div>
       ) : listings.length === 0 ? (
         <div className="text-center py-20 bg-black/40 backdrop-blur-xl border border-white/5 rounded-3xl">

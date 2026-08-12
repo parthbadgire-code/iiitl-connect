@@ -5,7 +5,7 @@ import { Calendar, MapPin, Clock, Users, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@parthbadgire/ui/components/button";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
 import { PremiumLoader } from "@/components/ui/PremiumLoader";
 import {
@@ -33,6 +33,9 @@ export default function EventsPage() {
 
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 500], [0, 150]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   // Add Event State
   const [clubs, setClubs] = useState<{ id: string; name: string }[]>([]);
@@ -111,17 +114,15 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8 animate-fade-in-up">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-pastel-blue/10 border border-pastel-blue/20">
-            <Calendar className="h-7 w-7 text-pastel-blue" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tighter text-white">Campus <span className="bg-gradient-to-r from-pastel-blue to-pastel-mint bg-clip-text text-transparent">Events</span></h1>
-            <p className="text-sm text-neutral-400">Discover and RSVP to fests, hackathons, and workshops.</p>
-          </div>
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 relative">
+      <motion.div style={{ y, opacity }} className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 relative z-10">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white drop-shadow-lg">
+            Campus <span className="bg-gradient-to-r from-pastel-blue to-pastel-lavender bg-clip-text text-transparent">Events</span>
+          </h1>
+          <p className="text-neutral-400 mt-2 font-medium">
+            Discover and join upcoming events at IIITL.
+          </p>
         </div>
 
         {isAdmin && (
@@ -196,7 +197,7 @@ export default function EventsPage() {
             </DialogContent>
           </Dialog>
         )}
-      </div>
+      </motion.div>
 
       {/* Events List */}
       {loading ? (

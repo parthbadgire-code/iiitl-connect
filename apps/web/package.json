@@ -15,6 +15,7 @@
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
     "better-auth": "^1.6.26",
+    "cmdk": "^1.1.1",
     "framer-motion": "^11.2.10",
     "lucide-react": "^0.395.0",
     "maath": "^0.10.8",

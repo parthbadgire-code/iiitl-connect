@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { MapPin, Clock, Users, ArrowLeft, Image as ImageIcon, Loader2, Upload } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@parthbadgire/ui/components/button";
+import { PremiumLoader } from "@/components/ui/PremiumLoader";
 import { uploadFileToR2 } from "@/lib/upload";
 import {
   Dialog,
@@ -103,15 +104,13 @@ export default function EventDetailPage() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  if (loading) {
+  if (loading || !event) {
     return (
-      <div className="flex h-[calc(100vh-100px)] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-pastel-blue" />
+      <div className="flex h-screen items-center justify-center">
+        <PremiumLoader />
       </div>
     );
   }
-
-  if (!event) return null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8 animate-fade-in-up">

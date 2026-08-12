@@ -7,6 +7,8 @@ import { useEffect } from "react";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { PremiumLoader } from "@/components/ui/PremiumLoader";
+import { CommandPalette } from "@/components/ui/CommandPalette";
+import { ThemeColorExtractor } from "@/components/ui/ThemeColorExtractor";
 
 export default function DashboardLayout({
   children,
@@ -38,6 +40,8 @@ export default function DashboardLayout({
   }
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden bg-[#050505]">
+      <ThemeColorExtractor imageUrl={session?.user?.image} />
+      <CommandPalette />
       {/* Animated background glows */}
       <div className="campus-bg" aria-hidden="true">
         <div className="campus-bg-grid" />

@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Shield, ArrowRight, Compass } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useUIStore } from "@/store/useUIStore";
-import { GlobalScene } from "@/components/3d/Scene";
+import { MinimalParticles } from "@/components/ui/MinimalParticles";
+import { soundManager } from "@/lib/sound";
+import { BookOpen, Sparkles, ShoppingBag, Calendar, Users, Building2, Shield, ArrowRight, Compass } from "lucide-react";
 
 const MODULES = [
   {
@@ -91,8 +92,8 @@ export default function DashboardHome() {
 
   return (
     <>
-      <GlobalScene />
-      <div className="mx-auto max-w-6xl space-y-12 p-4 pt-8 md:p-8">
+      <MinimalParticles />
+      <div className="mx-auto max-w-6xl space-y-12 p-4 pt-8 md:p-8 relative z-10">
       
       {/* Hero Section */}
       <div className={`space-y-4 text-center transition-all duration-700 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
@@ -123,8 +124,12 @@ export default function DashboardHome() {
           <Link
             key={i}
             href={mod.href}
-            onMouseEnter={() => setActiveTile(mod.id)}
+            onMouseEnter={() => {
+              setActiveTile(mod.id);
+              soundManager?.playHover();
+            }}
             onMouseLeave={() => setActiveTile(null)}
+            onClick={() => soundManager?.playAction()}
             className={`group relative overflow-hidden rounded-3xl p-6 flex flex-col justify-between transition-all duration-700 hover:scale-[1.02] hover:-translate-y-2 hover:shadow-2xl hover:shadow-white/5 ${mod.span} ${mod.bg} border border-white/5 hover:border-white/20`}
             style={{ 
               animationDelay: `${i * 100}ms`,
